@@ -3072,8 +3072,8 @@ async function syncRoomToPartner(petId, roomData){
 
 // FURNITURE CATALOG with real prices
 const FURNITURE_CATALOG = [
-  {id:'frame_square',name:'Frame Kotak',emoji:'🖼️',price:200,category:'frame'},
-  {id:'frame_rect',name:'Frame Persegi Panjang',emoji:'🖼️',price:200,category:'frame'},
+  {id:'frame_square',name:'Frame Kotak',emoji:'🖼️',price:0,category:'frame'},
+  {id:'frame_rect',name:'Frame Persegi Panjang',emoji:'🖼️',price:0,category:'frame'},
   {id:'bookshelf_white',name:'Bookshelf White',emoji:'📚',price:0,category:'bookshelf'},
   {id:'bookshelf_blue',name:'Bookshelf Blue',emoji:'📚',price:0,category:'bookshelf'},
   {id:'bookshelf_mint',name:'Bookshelf Mint',emoji:'📚',price:0,category:'bookshelf'},
@@ -3398,7 +3398,7 @@ function renderFrameCanvas(fid, posStyle, sz, roomEl, idx) {
       const reader = new FileReader();
       reader.onload = async (re) => {
         const photoKey = 'frame_photo_' + fid + '_' + idx;
-        const photoData = re.result;
+        const photoData = re.target.result;
         localStorage.setItem(photoKey, photoData);
         if (activePet) {
           try {
@@ -5800,12 +5800,12 @@ async function renderHome() {
           const reader = new FileReader();
           reader.onload = async re => {
             const photoKey = 'frame_photo_'+fid+'_'+idx;
-            localStorage.setItem(photoKey, re.result);
+            localStorage.setItem(photoKey, re.target.result);
             if (activePet) {
               try {
                 const room = getRoomData(activePet.id);
                 if (!room.framePhotos) room.framePhotos={};
-                room.framePhotos[photoKey]=re.result;
+                room.framePhotos[photoKey]=re.target.result;
                 saveRoomData(activePet.id, room);
                 await syncRoomToPartner(activePet.id, room);
               } catch(e){}
