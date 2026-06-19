@@ -3342,6 +3342,141 @@ function toggleFurnitureEditMode() {
 
 
 
+// ==================== FRAME PHOTO CROP UI ====================
+let _frameCropState = null;
+let _frameCropCallback = null;
+
+function showFrameCropUI(rawDataUrl, onConfirm) {
+  _frameCropCallback = onConfirm;
+  const VSIZE = Math.min(280, window.innerWidth - 48);
+  showModal(`
+    <div class="modal-box" style="padding:20px 16px 28px">
+      <div class="modal-handle"></div>
+      <div class="modal-title">🖼 Atur Foto</div>
+      <div style="display:flex;justify-content:center;margin-bottom:12px">
+        <div id="frame-crop-vp" style="width:${VSIZE}px;height:${VSIZE}px;overflow:hidden;border-radius:12px;background:#111;position:relative;touch-action:none;cursor:grab;box-shadow:0 4px 20px rgba(0,0,0,0.35);flex-shrink:0">
+          <img id="frame-crop-img" style="position:absolute;transform-origin:0 0;pointer-events:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none">
+        </div>
+      </div>
+      <p style="text-align:center;color:var(--text-soft);font-size:0.8rem;margin-bottom:16px">Geser &amp; cubit untuk mengatur area foto</p>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-pink" onclick="_cancelFrameCrop()" style="flex:1">❌ Batal</button>
+        <button class="btn btn-mint" onclick="_confirmFrameCrop()" style="flex:1">✅ Pasang</button>
+      </div>
+    </div>
+  `);
+  const img = document.getElementById('frame-crop-img');
+  img.onload = () => {
+    const iW = img.naturalWidth, iH = img.naturalHeight;
+    const minScale = Math.max(VSIZE / iW, VSIZE / iH);
+    const scale = minScale;
+    const offsetX = (VSIZE - iW * scale) / 2;
+    const offsetY = (VSIZE - iH * scale) / 2;
+    _frameCropState = { VSIZE, iW, iH, scale, minScale, offsetX, offsetY };
+    _cropApplyPos();
+    const vp = document.getElementById('frame-crop-vp');
+    vp.addEventListener('touchstart', _cropTouchStart, { passive: false });
+    vp.addEventListener('touchmove',  _cropTouchMove,  { passive: false });
+    vp.addEventListener('touchend',   _cropTouchEnd,   { passive: false });
+    vp.addEventListener('mousedown',  _cropMouseDown);
+  };
+  img.src = rawDataUrl;
+}
+
+function _cropApplyPos() {
+  const st = _frameCropState;
+  const img = document.getElementById('frame-crop-img');
+  if (!st || !img) return;
+  img.style.left   = st.offsetX + 'px';
+  img.style.top    = st.offsetY + 'px';
+  img.style.width  = (st.iW * st.scale) + 'px';
+  img.style.height = (st.iH * st.scale) + 'px';
+}
+
+function _cropClamp(st) {
+  st.offsetX = Math.min(0, Math.max(st.VSIZE - st.iW * st.scale, st.offsetX));
+  st.offsetY = Math.min(0, Math.max(st.VSIZE - st.iH * st.scale, st.offsetY));
+}
+
+function _cropTouchStart(e) {
+  e.preventDefault();
+  const st = _frameCropState; if (!st) return;
+  if (e.touches.length === 2) {
+    st._pinch = true;
+    st._pinchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+    st._scaleStart = st.scale;
+    const vp = document.getElementById('frame-crop-vp');
+    const rect = vp.getBoundingClientRect();
+    st._pinchVpX = ((e.touches[0].clientX + e.touches[1].clientX) / 2) - rect.left;
+    st._pinchVpY = ((e.touches[0].clientY + e.touches[1].clientY) / 2) - rect.top;
+    st._ox = st.offsetX; st._oy = st.offsetY;
+  } else {
+    st._pinch = false;
+    st._t1 = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    st._ox = st.offsetX; st._oy = st.offsetY;
+  }
+}
+
+function _cropTouchMove(e) {
+  e.preventDefault();
+  const st = _frameCropState; if (!st) return;
+  if (e.touches.length === 2 && st._pinch) {
+    const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+    const newScale = Math.max(st.minScale, st._scaleStart * (dist / st._pinchDist));
+    const imgX = (st._pinchVpX - st._ox) / st._scaleStart;
+    const imgY = (st._pinchVpY - st._oy) / st._scaleStart;
+    st.scale   = newScale;
+    st.offsetX = st._pinchVpX - imgX * newScale;
+    st.offsetY = st._pinchVpY - imgY * newScale;
+    _cropClamp(st); _cropApplyPos();
+  } else if (e.touches.length === 1 && !st._pinch) {
+    st.offsetX = st._ox + (e.touches[0].clientX - st._t1.x);
+    st.offsetY = st._oy + (e.touches[0].clientY - st._t1.y);
+    _cropClamp(st); _cropApplyPos();
+  }
+}
+
+function _cropTouchEnd(e) { if (_frameCropState) _frameCropState._pinch = false; }
+
+function _cropMouseDown(e) {
+  const st = _frameCropState; if (!st) return;
+  const ox = st.offsetX, oy = st.offsetY, sx = e.clientX, sy = e.clientY;
+  const onMove = ev => {
+    st.offsetX = ox + (ev.clientX - sx);
+    st.offsetY = oy + (ev.clientY - sy);
+    _cropClamp(st); _cropApplyPos();
+  };
+  const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+}
+
+function _cancelFrameCrop() {
+  _frameCropState = null; _frameCropCallback = null; closeModal();
+}
+
+function _confirmFrameCrop() {
+  const st = _frameCropState, cb = _frameCropCallback;
+  if (!st || !cb) return;
+  const srcX = -st.offsetX / st.scale;
+  const srcY = -st.offsetY / st.scale;
+  const srcSize = st.VSIZE / st.scale;
+  const outSize = Math.round(Math.min(400, srcSize));
+  const oc = document.createElement('canvas');
+  oc.width = outSize; oc.height = outSize;
+  const img = document.getElementById('frame-crop-img');
+  oc.getContext('2d').drawImage(img,
+    Math.max(0, srcX), Math.max(0, srcY),
+    Math.min(srcSize, st.iW - Math.max(0, srcX)),
+    Math.min(srcSize, st.iH - Math.max(0, srcY)),
+    0, 0, outSize, outSize
+  );
+  const photoData = oc.toDataURL('image/jpeg', 0.85);
+  _frameCropState = null; _frameCropCallback = null;
+  closeModal();
+  cb(photoData);
+}
+
 function renderFrameCanvas(fid, posStyle, sz, roomEl, idx) {
   const frameImg = FURNITURE_IMGS[fid];
   if (!frameImg) return null;
@@ -3406,17 +3541,7 @@ function renderFrameCanvas(fid, posStyle, sz, roomEl, idx) {
       reader.onload = (re) => {
         const raw = re.target.result;
         if (!raw) { drawCanvas(); return; }
-        const tmpImg = new Image();
-        tmpImg.onload = async () => {
-          const MAX = 400;
-          const minDim = Math.min(tmpImg.width, tmpImg.height);
-          const sx = (tmpImg.width - minDim) / 2;
-          const sy = (tmpImg.height - minDim) / 2;
-          const size = Math.round(Math.min(1, MAX / minDim) * minDim);
-          const oc = document.createElement('canvas');
-          oc.width = size; oc.height = size;
-          oc.getContext('2d').drawImage(tmpImg, sx, sy, minDim, minDim, 0, 0, size, size);
-          const photoData = oc.toDataURL('image/jpeg', 0.85);
+        showFrameCropUI(raw, async (photoData) => {
           const photoKey = 'frame_photo_' + fid + '_' + idx;
           try { localStorage.setItem(photoKey, photoData); } catch(e) {}
           if (activePet) {
@@ -3430,9 +3555,7 @@ function renderFrameCanvas(fid, posStyle, sz, roomEl, idx) {
           }
           drawCanvas();
           showToast('✅ Foto berhasil dipasang!');
-        };
-        tmpImg.onerror = () => { drawCanvas(); showToast('❌ Gagal memuat foto'); };
-        tmpImg.src = raw;
+        });
       };
       reader.readAsDataURL(file);
     };
@@ -5842,17 +5965,7 @@ async function renderHome() {
           reader.onload = re => {
             const raw = re.target.result;
             if (!raw) { drawC(); return; }
-            const tmpImg = new Image();
-            tmpImg.onload = async () => {
-              const MAX = 400;
-              const minDim = Math.min(tmpImg.width, tmpImg.height);
-              const sx = (tmpImg.width - minDim) / 2;
-              const sy = (tmpImg.height - minDim) / 2;
-              const size = Math.round(Math.min(1, MAX / minDim) * minDim);
-              const oc = document.createElement('canvas');
-              oc.width = size; oc.height = size;
-              oc.getContext('2d').drawImage(tmpImg, sx, sy, minDim, minDim, 0, 0, size, size);
-              const photoData = oc.toDataURL('image/jpeg', 0.85);
+            showFrameCropUI(raw, async (photoData) => {
               const photoKey = 'frame_photo_'+fid+'_'+idx;
               try { localStorage.setItem(photoKey, photoData); } catch(e) {}
               if (activePet) {
@@ -5866,9 +5979,7 @@ async function renderHome() {
               }
               drawC();
               showToast('✅ Foto berhasil dipasang!');
-            };
-            tmpImg.onerror = () => { drawC(); showToast('❌ Gagal memuat foto'); };
-            tmpImg.src = raw;
+            });
           };
           reader.readAsDataURL(file);
         };
