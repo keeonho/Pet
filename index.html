@@ -228,7 +228,7 @@ async function doHarvest(ltId, mode) {
 
   if (mode === 'sell') {
     const earn = itemsReady * (info.sellPrice || 0);
-    await saveUser({ koin: (userData.koin || 0) + earn });
+    await saveUser({ koin: (userData.koin || 0) + earn }, 'jual_ternak');
     closeModal();
     showModal(`
       <div class="modal-box">
@@ -350,7 +350,7 @@ async function doBuyTernak(ltType) {
   if (koin < lt.price) { showToast(`❌ Koin tidak cukup! Butuh ${lt.price} 🪙`); return; }
 
   // Kurangi koin
-  await saveUser({ koin: koin - lt.price });
+  await saveUser({ koin: koin - lt.price }, 'beli_ternak');
 
   // Insert ke DB
   const { error } = await db.from('livestocks').insert({
@@ -411,7 +411,7 @@ async function confirmUpgradeBarn() {
   const koin = userData?.koin || 0;
   if (koin < BARN_UPGRADE_COST) { showToast('❌ Koin tidak cukup!'); return; }
   const newSlots = (userData?.barn_slots || 1) + 1;
-  await saveUser({ koin: koin - BARN_UPGRADE_COST, barn_slots: newSlots });
+  await saveUser({ koin: koin - BARN_UPGRADE_COST, barn_slots: newSlots }, 'barn_upgrade');
   barnSlots = newSlots;
   closeModal();
   showToast(`🏚️ Kandang diupgrade! Sekarang ${newSlots} slot`);
@@ -644,7 +644,7 @@ async function doHarvest(ltId, mode) {
 
   if (mode === 'sell') {
     const earn = itemsReady * (info.sellPrice || 0);
-    await saveUser({ koin: (userData.koin || 0) + earn });
+    await saveUser({ koin: (userData.koin || 0) + earn }, 'jual_ternak');
     closeModal();
     showModal(`
       <div class="modal-box">
@@ -766,7 +766,7 @@ async function doBuyTernak(ltType) {
   if (koin < lt.price) { showToast(`❌ Koin tidak cukup! Butuh ${lt.price} 🪙`); return; }
 
   // Kurangi koin
-  await saveUser({ koin: koin - lt.price });
+  await saveUser({ koin: koin - lt.price }, 'beli_ternak');
 
   // Insert ke DB
   const { error } = await db.from('livestocks').insert({
@@ -827,7 +827,7 @@ async function confirmUpgradeBarn() {
   const koin = userData?.koin || 0;
   if (koin < BARN_UPGRADE_COST) { showToast('❌ Koin tidak cukup!'); return; }
   const newSlots = (userData?.barn_slots || 1) + 1;
-  await saveUser({ koin: koin - BARN_UPGRADE_COST, barn_slots: newSlots });
+  await saveUser({ koin: koin - BARN_UPGRADE_COST, barn_slots: newSlots }, 'barn_upgrade');
   barnSlots = newSlots;
   closeModal();
   showToast(`🏚️ Kandang diupgrade! Sekarang ${newSlots} slot`);
@@ -3369,7 +3369,12 @@ function renderFrameCanvas(fid, posStyle, sz, roomEl, idx) {
         const scale = Math.max(innerW/photo.width, innerH/photo.height);
         const pw = photo.width*scale, ph = photo.height*scale;
         const px = border + (innerW-pw)/2, py = border + (innerH-ph)/2;
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(border, border, innerW, innerH);
+        ctx.clip();
         ctx.drawImage(photo, px, py, pw, ph);
+        ctx.restore();
         drawFr();
       };
       photo.onerror = () => drawFr();
@@ -3404,11 +3409,13 @@ function renderFrameCanvas(fid, posStyle, sz, roomEl, idx) {
         const tmpImg = new Image();
         tmpImg.onload = async () => {
           const MAX = 400;
-          const sc = Math.min(1, MAX / Math.max(tmpImg.width, tmpImg.height));
+          const minDim = Math.min(tmpImg.width, tmpImg.height);
+          const sx = (tmpImg.width - minDim) / 2;
+          const sy = (tmpImg.height - minDim) / 2;
+          const size = Math.round(Math.min(1, MAX / minDim) * minDim);
           const oc = document.createElement('canvas');
-          oc.width = Math.round(tmpImg.width * sc);
-          oc.height = Math.round(tmpImg.height * sc);
-          oc.getContext('2d').drawImage(tmpImg, 0, 0, oc.width, oc.height);
+          oc.width = size; oc.height = size;
+          oc.getContext('2d').drawImage(tmpImg, sx, sy, minDim, minDim, 0, 0, size, size);
           const photoData = oc.toDataURL('image/jpeg', 0.85);
           const photoKey = 'frame_photo_' + fid + '_' + idx;
           try { localStorage.setItem(photoKey, photoData); } catch(e) {}
@@ -4346,7 +4353,7 @@ async function doPayAllowance(childId) {
   await loadUser();
   const koin = userData?.koin || 0;
   if (koin < CHILD_ALLOWANCE_COIN) { showToast(`❌ Koin tidak cukup! Butuh ${CHILD_ALLOWANCE_COIN} 🪙`); return; }
-  await saveUser({ koin: koin - CHILD_ALLOWANCE_COIN });
+  await saveUser({ koin: koin - CHILD_ALLOWANCE_COIN }, 'uang_saku');
   // Update paid flag — cek siapa kita (parent1 atau parent2)
   const pet = activePet;
   const isPar1 = pet && (await db.from('pets').select('parent1_pet_id').eq('id', childId).maybeSingle())
@@ -4945,21 +4952,33 @@ async function loadPets(retries = 3) {
   }
 }
 
-async function saveUser(updates) {
+async function logKoin(amount, reason) {
+  try {
+    await db.from('coin_history').insert({
+      user_id: USER_ID,
+      amount:  amount,
+      reason:  reason,
+      type:    amount >= 0 ? 'masuk' : 'keluar',
+    });
+  } catch(e) {}
+}
+
+async function saveUser(updates, coinReason) {
+  const coinDelta = updates.koin !== undefined ? (updates.koin - (userData?.koin || 0)) : null;
   // Kalau ada update koin, selalu refresh dulu dari DB supaya tidak overwrite data bot
   if (updates.koin !== undefined) {
     const { data: fresh } = await db.from('users').select('koin').eq('user_id', USER_ID).maybeSingle();
     if (fresh && fresh.koin !== undefined && fresh.koin !== (userData?.koin || 0)) {
       // Koin di DB berbeda dari cache lokal — pakai DB sebagai source of truth
       // Hitung delta yang mau diubah lalu apply ke nilai fresh
-      const delta = updates.koin - (userData?.koin || 0);
-      updates = { ...updates, koin: Math.max(0, fresh.koin + delta) };
+      updates = { ...updates, koin: Math.max(0, fresh.koin + coinDelta) };
       if (userData) userData.koin = fresh.koin; // sync dulu
     }
   }
   await db.from('users').update(updates).eq('user_id', USER_ID);
   Object.assign(userData, updates);
   if (updates.koin !== undefined) updateKoinBadge(updates.koin);
+  if (coinDelta !== null && coinReason && coinDelta !== 0) logKoin(coinDelta, coinReason).catch(()=>{});
 }
 
 async function savePet(petId, updates) {
@@ -5788,7 +5807,12 @@ async function renderHome() {
             const border = Math.round(sz*0.14);
             const iW=sz-border*2, iH=sz-border*2;
             const sc=Math.max(iW/photo.width, iH/photo.height);
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(border, border, iW, iH);
+            ctx.clip();
             ctx.drawImage(photo, border+(iW-photo.width*sc)/2, border+(iH-photo.height*sc)/2, photo.width*sc, photo.height*sc);
+            ctx.restore();
             drawFr();
           };
           photo.onerror = () => drawFr();
@@ -5821,11 +5845,13 @@ async function renderHome() {
             const tmpImg = new Image();
             tmpImg.onload = async () => {
               const MAX = 400;
-              const sc = Math.min(1, MAX / Math.max(tmpImg.width, tmpImg.height));
+              const minDim = Math.min(tmpImg.width, tmpImg.height);
+              const sx = (tmpImg.width - minDim) / 2;
+              const sy = (tmpImg.height - minDim) / 2;
+              const size = Math.round(Math.min(1, MAX / minDim) * minDim);
               const oc = document.createElement('canvas');
-              oc.width = Math.round(tmpImg.width * sc);
-              oc.height = Math.round(tmpImg.height * sc);
-              oc.getContext('2d').drawImage(tmpImg, 0, 0, oc.width, oc.height);
+              oc.width = size; oc.height = size;
+              oc.getContext('2d').drawImage(tmpImg, sx, sy, minDim, minDim, 0, 0, size, size);
               const photoData = oc.toDataURL('image/jpeg', 0.85);
               const photoKey = 'frame_photo_'+fid+'_'+idx;
               try { localStorage.setItem(photoKey, photoData); } catch(e) {}
@@ -6539,7 +6565,7 @@ async function openGacha(tier) {
 
     if (koin < price) { showToast(`❌ Koin tidak cukup! Butuh ${price.toLocaleString()} 🪙`); return; }
 
-    await saveUser({ koin: koin - price });
+    await saveUser({ koin: koin - price }, 'gacha');
 
     const inv = getInv(); // sudah sync dari fresh fetch di atas
     const results = [];
@@ -6643,7 +6669,7 @@ async function doSpBuy(key) {
     const newKoin = koin - item.price;
 
     await saveInv(inv);
-    await saveUser({ koin: newKoin });
+    await saveUser({ koin: newKoin }, 'beli_toko_spesial');
     showToast(`✅ Beli ${item.emoji} ${item.name}! Sisa ${newKoin.toLocaleString()} 🪙`);
     renderSpecialStore();
   } finally {
@@ -6790,7 +6816,7 @@ async function startPetMinigame() {
   const reward = rand(30, 50);
   const xpGain = rand(10, 20);
   await useGameQuota('petgame');
-  await saveUser({ koin: (userData.koin||0) + reward });
+  await saveUser({ koin: (userData.koin||0) + reward }, 'game_petgame');
   const oldXp = activePet.xp || 0;
   const newXp = oldXp + xpGain;
   await savePet(activePet.id, {
@@ -7403,7 +7429,7 @@ async function doBuy(key, qty = 1) {
     inv[key] = (inv[key]||0) + actualQty;
     // Atomic: simpan inventory dulu, baru kurangi koin
     await saveInv(inv);
-    await saveUser({ koin: newKoin });
+    await saveUser({ koin: newKoin }, 'beli_toko');
     closeModal();
     showToast(`✅ Beli ${item.emoji} ${item.name} x${actualQty}! Sisa ${newKoin.toLocaleString()} 🪙`);
     renderShop();
@@ -7588,7 +7614,7 @@ async function doBuatItem() {
   const invKey = `custom_${buatItemType}_${slug}`;
 
   // Bayar
-  await saveUser({ koin: koin - 1000 });
+  await saveUser({ koin: koin - 1000 }, 'buat_item');
 
   // Tambah inventory
   const inv = getInv();
@@ -8490,7 +8516,7 @@ async function answerGuess(n) {
   const correct = n === guessNumber;
   const reward = correct ? rand(25,40) : 0;
   if (reward) {
-    await saveUser({ koin: (userData.koin||0) + reward });
+    await saveUser({ koin: (userData.koin||0) + reward }, 'game_tebak_angka');
   }
   showModal(`
     <div class="modal-box">
@@ -8515,7 +8541,7 @@ async function playRoll() {
   const emojis = ['','1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣'];
   const rewards = {1:0,2:0,3:10,4:20,5:35,6:50};
   const reward = rewards[dice];
-  if (reward) await saveUser({ koin: (userData.koin||0) + reward });
+  if (reward) await saveUser({ koin: (userData.koin||0) + reward }, 'game_dadu');
 
   showModal(`
     <div class="modal-box">
@@ -8553,7 +8579,7 @@ async function answerQuiz(chosen) {
   await useGameQuota('quiz');
   const correct = chosen === quizData.ans;
   const reward = correct ? rand(40,60) : 0;
-  if (reward) await saveUser({ koin: (userData.koin||0) + reward });
+  if (reward) await saveUser({ koin: (userData.koin||0) + reward }, 'game_kuis');
 
   document.querySelectorAll('.quiz-btn').forEach((btn,i) => {
     btn.onclick = null;
@@ -8660,7 +8686,7 @@ async function confirmAdopt(petType) {
 
   // Kurangi koin
   if (info.price > 0) {
-    await saveUser({ koin: koin - info.price });
+    await saveUser({ koin: koin - info.price }, 'beli_dekorasi');
   }
 
   // Tanya dulu: solo atau bareng partner?
@@ -9058,7 +9084,7 @@ async function answerCatch(chosen) {
   await useGameQuota('catch');
   const correct = chosen === catchPos;
   const reward = correct ? rand(25,35) : 0;
-  if (reward) await saveUser({ koin: (userData.koin||0) + reward });
+  if (reward) await saveUser({ koin: (userData.koin||0) + reward }, 'game_tangkap');
   showModal(`
     <div class="modal-box">
       <div class="modal-handle"></div>
@@ -9296,7 +9322,7 @@ async function doHarvest(ltId, mode) {
 
   if (mode === 'sell') {
     const earn = itemsReady * (info.sellPrice || 0);
-    await saveUser({ koin: (userData.koin || 0) + earn });
+    await saveUser({ koin: (userData.koin || 0) + earn }, 'jual_ternak');
     closeModal();
     showModal(`
       <div class="modal-box">
@@ -9418,7 +9444,7 @@ async function doBuyTernak(ltType) {
   if (koin < lt.price) { showToast(`❌ Koin tidak cukup! Butuh ${lt.price} 🪙`); return; }
 
   // Kurangi koin
-  await saveUser({ koin: koin - lt.price });
+  await saveUser({ koin: koin - lt.price }, 'beli_ternak');
 
   // Insert ke DB
   const { error } = await db.from('livestocks').insert({
@@ -9479,7 +9505,7 @@ async function confirmUpgradeBarn() {
   const koin = userData?.koin || 0;
   if (koin < BARN_UPGRADE_COST) { showToast('❌ Koin tidak cukup!'); return; }
   const newSlots = (userData?.barn_slots || 1) + 1;
-  await saveUser({ koin: koin - BARN_UPGRADE_COST, barn_slots: newSlots });
+  await saveUser({ koin: koin - BARN_UPGRADE_COST, barn_slots: newSlots }, 'barn_upgrade');
   barnSlots = newSlots;
   closeModal();
   showToast(`🏚️ Kandang diupgrade! Sekarang ${newSlots} slot`);
@@ -10328,7 +10354,7 @@ async function startBattle() {
   }
 
   // Queue berhasil — baru potong koin
-  await saveUser({ koin: koin - BATTLE_ENTRY_FEE });
+  await saveUser({ koin: koin - BATTLE_ENTRY_FEE }, 'battle_masuk');
 
   battleState.queueId = qRow.id;
   battleState.phase = 'matchmaking';
@@ -10437,7 +10463,7 @@ async function cancelMatchmaking(refund = true) {
   if (battleState.queueId)
     await db.from('battle_queue').update({ status:'cancelled' }).eq('id', battleState.queueId);
   if (refund) {
-    await saveUser({ koin: (userData?.koin||0) + BATTLE_ENTRY_FEE });
+    await saveUser({ koin: (userData?.koin||0) + BATTLE_ENTRY_FEE }, 'battle_batal');
     showToast('❌ Matchmaking dibatalkan — koin dikembalikan 🪙');
   }
   document.getElementById('battle-overlay').classList.remove('active');
@@ -11129,7 +11155,7 @@ async function finalizeBattleRewards(room, winnerId) {
   const currentKoin = freshUser?.koin || 0;
   if (iWin) {
     // Menang: dapet balik entry fee + ambil punya lawan = net +200
-    await saveUser({ koin: currentKoin + (BATTLE_ENTRY_FEE * 2) });
+    await saveUser({ koin: currentKoin + (BATTLE_ENTRY_FEE * 2) }, 'battle_menang');
     const pet = battleState.petData;
     if (pet) await savePet(pet.id, { battle_wins: (pet.battle_wins||0)+1 });
   }
