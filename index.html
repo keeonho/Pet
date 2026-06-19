@@ -3360,7 +3360,8 @@ function renderFrameCanvas(fid, posStyle, sz, roomEl, idx) {
     ctx.clearRect(0, 0, sz, sz);
     const photoKey = 'frame_photo_' + fid + '_' + idx;
     const photoSrc = localStorage.getItem(photoKey);
-    if (photoSrc) {
+    const drawFr = () => { if (frameImgEl.complete && frameImgEl.naturalWidth > 0) ctx.drawImage(frameImgEl, 0, 0, sz, sz); };
+    if (photoSrc && photoSrc !== 'undefined' && photoSrc !== 'null') {
       const photo = new Image();
       photo.onload = () => {
         const border = Math.round(sz * 0.14);
@@ -3369,8 +3370,9 @@ function renderFrameCanvas(fid, posStyle, sz, roomEl, idx) {
         const pw = photo.width*scale, ph = photo.height*scale;
         const px = border + (innerW-pw)/2, py = border + (innerH-ph)/2;
         ctx.drawImage(photo, px, py, pw, ph);
-        ctx.drawImage(frameImgEl, 0, 0, sz, sz);
+        drawFr();
       };
+      photo.onerror = () => drawFr();
       photo.src = photoSrc;
     } else {
       const border = Math.round(sz * 0.14);
@@ -3380,7 +3382,7 @@ function renderFrameCanvas(fid, posStyle, sz, roomEl, idx) {
       ctx.font = Math.round(sz*0.09) + 'px sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('📷 tap', sz/2, sz/2 + Math.round(sz*0.04));
-      ctx.drawImage(frameImgEl, 0, 0, sz, sz);
+      drawFr();
     }
   }
 
@@ -3396,21 +3398,34 @@ function renderFrameCanvas(fid, posStyle, sz, roomEl, idx) {
       const file = ev.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = async (re) => {
-        const photoKey = 'frame_photo_' + fid + '_' + idx;
-        const photoData = re.target.result;
-        localStorage.setItem(photoKey, photoData);
-        if (activePet) {
-          try {
-            const room = getRoomData(activePet.id);
-            if (!room.framePhotos) room.framePhotos = {};
-            room.framePhotos[photoKey] = photoData;
-            saveRoomData(activePet.id, room);
-            await syncRoomToPartner(activePet.id, room);
-          } catch(e) {}
-        }
-        drawCanvas();
-        showToast('✅ Foto berhasil dipasang!');
+      reader.onload = (re) => {
+        const raw = re.target.result;
+        if (!raw) { drawCanvas(); return; }
+        const tmpImg = new Image();
+        tmpImg.onload = async () => {
+          const MAX = 400;
+          const sc = Math.min(1, MAX / Math.max(tmpImg.width, tmpImg.height));
+          const oc = document.createElement('canvas');
+          oc.width = Math.round(tmpImg.width * sc);
+          oc.height = Math.round(tmpImg.height * sc);
+          oc.getContext('2d').drawImage(tmpImg, 0, 0, oc.width, oc.height);
+          const photoData = oc.toDataURL('image/jpeg', 0.85);
+          const photoKey = 'frame_photo_' + fid + '_' + idx;
+          try { localStorage.setItem(photoKey, photoData); } catch(e) {}
+          if (activePet) {
+            try {
+              const room = getRoomData(activePet.id);
+              if (!room.framePhotos) room.framePhotos = {};
+              room.framePhotos[photoKey] = photoData;
+              saveRoomData(activePet.id, room);
+              await syncRoomToPartner(activePet.id, room);
+            } catch(e) {}
+          }
+          drawCanvas();
+          showToast('✅ Foto berhasil dipasang!');
+        };
+        tmpImg.onerror = () => { drawCanvas(); showToast('❌ Gagal memuat foto'); };
+        tmpImg.src = raw;
       };
       reader.readAsDataURL(file);
     };
@@ -5766,15 +5781,17 @@ async function renderHome() {
         ctx.clearRect(0,0,sz,sz);
         const photoKey = 'frame_photo_' + fid + '_' + idx;
         const photoSrc = localStorage.getItem(photoKey);
-        if (photoSrc) {
+        const drawFr = () => { if (frameImgEl.complete && frameImgEl.naturalWidth > 0) ctx.drawImage(frameImgEl,0,0,sz,sz); };
+        if (photoSrc && photoSrc !== 'undefined' && photoSrc !== 'null') {
           const photo = new Image();
           photo.onload = () => {
             const border = Math.round(sz*0.14);
             const iW=sz-border*2, iH=sz-border*2;
             const sc=Math.max(iW/photo.width, iH/photo.height);
             ctx.drawImage(photo, border+(iW-photo.width*sc)/2, border+(iH-photo.height*sc)/2, photo.width*sc, photo.height*sc);
-            ctx.drawImage(frameImgEl,0,0,sz,sz);
+            drawFr();
           };
+          photo.onerror = () => drawFr();
           photo.src = photoSrc;
         } else {
           const border=Math.round(sz*0.14);
@@ -5784,7 +5801,7 @@ async function renderHome() {
           ctx.font=Math.round(sz*0.09)+'px sans-serif';
           ctx.textAlign='center';
           ctx.fillText('📷 tap',sz/2,sz/2+Math.round(sz*0.04));
-          ctx.drawImage(frameImgEl,0,0,sz,sz);
+          drawFr();
         }
       }
       frameImgEl.onload = () => drawC();
@@ -5795,23 +5812,37 @@ async function renderHome() {
         e.preventDefault();
         const input = document.createElement('input');
         input.type='file'; input.accept='image/*';
-        input.onchange = async ev => {
+        input.onchange = ev => {
           const file = ev.target.files[0]; if (!file) return;
           const reader = new FileReader();
-          reader.onload = async re => {
-            const photoKey = 'frame_photo_'+fid+'_'+idx;
-            localStorage.setItem(photoKey, re.target.result);
-            if (activePet) {
-              try {
-                const room = getRoomData(activePet.id);
-                if (!room.framePhotos) room.framePhotos={};
-                room.framePhotos[photoKey]=re.target.result;
-                saveRoomData(activePet.id, room);
-                await syncRoomToPartner(activePet.id, room);
-              } catch(e){}
-            }
-            drawC();
-            showToast('✅ Foto berhasil dipasang!');
+          reader.onload = re => {
+            const raw = re.target.result;
+            if (!raw) { drawC(); return; }
+            const tmpImg = new Image();
+            tmpImg.onload = async () => {
+              const MAX = 400;
+              const sc = Math.min(1, MAX / Math.max(tmpImg.width, tmpImg.height));
+              const oc = document.createElement('canvas');
+              oc.width = Math.round(tmpImg.width * sc);
+              oc.height = Math.round(tmpImg.height * sc);
+              oc.getContext('2d').drawImage(tmpImg, 0, 0, oc.width, oc.height);
+              const photoData = oc.toDataURL('image/jpeg', 0.85);
+              const photoKey = 'frame_photo_'+fid+'_'+idx;
+              try { localStorage.setItem(photoKey, photoData); } catch(e) {}
+              if (activePet) {
+                try {
+                  const room = getRoomData(activePet.id);
+                  if (!room.framePhotos) room.framePhotos={};
+                  room.framePhotos[photoKey]=photoData;
+                  saveRoomData(activePet.id, room);
+                  await syncRoomToPartner(activePet.id, room);
+                } catch(e){}
+              }
+              drawC();
+              showToast('✅ Foto berhasil dipasang!');
+            };
+            tmpImg.onerror = () => { drawC(); showToast('❌ Gagal memuat foto'); };
+            tmpImg.src = raw;
           };
           reader.readAsDataURL(file);
         };
