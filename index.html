@@ -3527,37 +3527,71 @@ function renderFrameCanvas(fid, posStyle, sz, roomEl, key) {
   frameImgEl.onload = () => drawCanvas();
   frameImgEl.src = frameImg;
 
+  window._frameActions = window._frameActions || {};
+
+  async function _saveFramePhoto(photoData) {
+    const photoKey = 'frame_photo_' + key;
+    try { localStorage.setItem(photoKey, photoData); } catch(e) {}
+    if (activePet) {
+      try {
+        const room = getRoomData(activePet.id);
+        if (!room.framePhotos) room.framePhotos = {};
+        room.framePhotos[photoKey] = photoData;
+        saveRoomData(activePet.id, room);
+        await syncRoomToPartner(activePet.id, room);
+      } catch(e) {}
+    }
+    drawCanvas();
+  }
+
+  window._frameActions[key] = {
+    openPicker: () => {
+      const input = document.createElement('input');
+      input.type = 'file'; input.accept = 'image/*';
+      input.onchange = async (ev) => {
+        const file = ev.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (re) => {
+          const raw = re.target.result;
+          if (!raw) return;
+          showFrameCropUI(raw, async (photoData) => {
+            await _saveFramePhoto(photoData);
+            showToast('✅ Foto berhasil dipasang!');
+          });
+        };
+        reader.readAsDataURL(file);
+      };
+      input.click();
+    },
+    reCrop: () => {
+      const photoKey = 'frame_photo_' + key;
+      const existing = localStorage.getItem(photoKey);
+      if (!existing) return;
+      showFrameCropUI(existing, async (photoData) => {
+        await _saveFramePhoto(photoData);
+        showToast('✅ Foto diperbarui!');
+      });
+    },
+  };
+
   canvas.addEventListener('touchend', e => {
     if (_furnitureEditMode) return;
     e.preventDefault();
-    const input = document.createElement('input');
-    input.type = 'file'; input.accept = 'image/*';
-    input.onchange = async (ev) => {
-      const file = ev.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (re) => {
-        const raw = re.target.result;
-        if (!raw) { drawCanvas(); return; }
-        showFrameCropUI(raw, async (photoData) => {
-          const photoKey = 'frame_photo_' + key;
-          try { localStorage.setItem(photoKey, photoData); } catch(e) {}
-          if (activePet) {
-            try {
-              const room = getRoomData(activePet.id);
-              if (!room.framePhotos) room.framePhotos = {};
-              room.framePhotos[photoKey] = photoData;
-              saveRoomData(activePet.id, room);
-              await syncRoomToPartner(activePet.id, room);
-            } catch(e) {}
-          }
-          drawCanvas();
-          showToast('✅ Foto berhasil dipasang!');
-        });
-      };
-      reader.readAsDataURL(file);
-    };
-    input.click();
+    const photoKey = 'frame_photo_' + key;
+    const existingPhoto = localStorage.getItem(photoKey);
+    if (existingPhoto && existingPhoto !== 'undefined' && existingPhoto !== 'null') {
+      showModal(`<div class="modal-box" style="padding:16px 16px 20px">
+        <div class="modal-handle"></div>
+        <div class="modal-title">🖼 Edit Foto Frame</div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+          <button class="btn btn-mint" onclick="closeModal();setTimeout(()=>window._frameActions['${key}'].reCrop(),100)" style="padding:12px">✏️ Edit Crop</button>
+          <button class="btn btn-pink" onclick="closeModal();setTimeout(()=>window._frameActions['${key}'].openPicker(),100)" style="padding:12px">🔄 Ganti Foto</button>
+        </div>
+      </div>`);
+    } else {
+      window._frameActions[key].openPicker();
+    }
   });
 
   return canvas;
@@ -6049,36 +6083,66 @@ async function renderHome() {
       frameImgEl.onload = () => drawC();
       frameImgEl.src = frameSrc;
 
+      window._frameActions = window._frameActions || {};
+      async function _saveC(photoData) {
+        const photoKey = 'frame_photo_'+key;
+        try { localStorage.setItem(photoKey, photoData); } catch(e) {}
+        if (activePet) {
+          try {
+            const room = getRoomData(activePet.id);
+            if (!room.framePhotos) room.framePhotos={};
+            room.framePhotos[photoKey]=photoData;
+            saveRoomData(activePet.id, room);
+            await syncRoomToPartner(activePet.id, room);
+          } catch(e){}
+        }
+        drawC();
+      }
+      window._frameActions[key] = {
+        openPicker: () => {
+          const input = document.createElement('input');
+          input.type='file'; input.accept='image/*';
+          input.onchange = ev => {
+            const file = ev.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = re => {
+              const raw = re.target.result;
+              if (!raw) return;
+              showFrameCropUI(raw, async (photoData) => {
+                await _saveC(photoData);
+                showToast('✅ Foto berhasil dipasang!');
+              });
+            };
+            reader.readAsDataURL(file);
+          };
+          input.click();
+        },
+        reCrop: () => {
+          const existing = localStorage.getItem('frame_photo_'+key);
+          if (!existing) return;
+          showFrameCropUI(existing, async (photoData) => {
+            await _saveC(photoData);
+            showToast('✅ Foto diperbarui!');
+          });
+        },
+      };
+
       canvas.addEventListener('touchend', e => {
         if (_furnitureEditMode) return;
         e.preventDefault();
-        const input = document.createElement('input');
-        input.type='file'; input.accept='image/*';
-        input.onchange = ev => {
-          const file = ev.target.files[0]; if (!file) return;
-          const reader = new FileReader();
-          reader.onload = re => {
-            const raw = re.target.result;
-            if (!raw) { drawC(); return; }
-            showFrameCropUI(raw, async (photoData) => {
-              const photoKey = 'frame_photo_'+key;
-              try { localStorage.setItem(photoKey, photoData); } catch(e) {}
-              if (activePet) {
-                try {
-                  const room = getRoomData(activePet.id);
-                  if (!room.framePhotos) room.framePhotos={};
-                  room.framePhotos[photoKey]=photoData;
-                  saveRoomData(activePet.id, room);
-                  await syncRoomToPartner(activePet.id, room);
-                } catch(e){}
-              }
-              drawC();
-              showToast('✅ Foto berhasil dipasang!');
-            });
-          };
-          reader.readAsDataURL(file);
-        };
-        input.click();
+        const existingPhoto = localStorage.getItem('frame_photo_'+key);
+        if (existingPhoto && existingPhoto !== 'undefined' && existingPhoto !== 'null') {
+          showModal(`<div class="modal-box" style="padding:16px 16px 20px">
+            <div class="modal-handle"></div>
+            <div class="modal-title">🖼 Edit Foto Frame</div>
+            <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+              <button class="btn btn-mint" onclick="closeModal();setTimeout(()=>window._frameActions['${key}'].reCrop(),100)" style="padding:12px">✏️ Edit Crop</button>
+              <button class="btn btn-pink" onclick="closeModal();setTimeout(()=>window._frameActions['${key}'].openPicker(),100)" style="padding:12px">🔄 Ganti Foto</button>
+            </div>
+          </div>`);
+        } else {
+          window._frameActions[key].openPicker();
+        }
       });
     });
 
