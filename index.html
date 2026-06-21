@@ -925,6 +925,7 @@ async function confirmUpgradeBarn() {
   /* Screens */
   .screen { display: none; padding: 16px; position: relative; z-index: 1; }
   .screen.active { display: block; animation: fadeUp 0.3s ease; }
+  #screen-task { padding: 0; background: #120f2e; min-height: 100vh; }
   @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
 
   /* Cards */
@@ -2170,7 +2171,9 @@ document.addEventListener('DOMContentLoaded', function(){
   <div id="chat-content"></div>
 </div>
 
-<div id="screen-task" class="screen"><div id="task-content"></div></div>
+<div id="screen-task" class="screen">
+  <div id="task-content"></div>
+</div>
 
 <!-- Astro Paws Lock Overlay -->
 <div id="astro-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(180deg,#0a0a2e 0%,#1a1a4e 50%,#0a0a2e 100%);z-index:9999;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:24px">
@@ -3532,37 +3535,71 @@ function renderFrameCanvas(fid, posStyle, sz, roomEl, key) {
   frameImgEl.onload = () => drawCanvas();
   frameImgEl.src = frameImg;
 
+  window._frameActions = window._frameActions || {};
+
+  async function _saveFramePhoto(photoData) {
+    const photoKey = 'frame_photo_' + key;
+    try { localStorage.setItem(photoKey, photoData); } catch(e) {}
+    if (activePet) {
+      try {
+        const room = getRoomData(activePet.id);
+        if (!room.framePhotos) room.framePhotos = {};
+        room.framePhotos[photoKey] = photoData;
+        saveRoomData(activePet.id, room);
+        await syncRoomToPartner(activePet.id, room);
+      } catch(e) {}
+    }
+    drawCanvas();
+  }
+
+  window._frameActions[key] = {
+    openPicker: () => {
+      const input = document.createElement('input');
+      input.type = 'file'; input.accept = 'image/*';
+      input.onchange = async (ev) => {
+        const file = ev.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (re) => {
+          const raw = re.target.result;
+          if (!raw) return;
+          showFrameCropUI(raw, async (photoData) => {
+            await _saveFramePhoto(photoData);
+            showToast('✅ Foto berhasil dipasang!');
+          });
+        };
+        reader.readAsDataURL(file);
+      };
+      input.click();
+    },
+    reCrop: () => {
+      const photoKey = 'frame_photo_' + key;
+      const existing = localStorage.getItem(photoKey);
+      if (!existing) return;
+      showFrameCropUI(existing, async (photoData) => {
+        await _saveFramePhoto(photoData);
+        showToast('✅ Foto diperbarui!');
+      });
+    },
+  };
+
   canvas.addEventListener('touchend', e => {
     if (_furnitureEditMode) return;
     e.preventDefault();
-    const input = document.createElement('input');
-    input.type = 'file'; input.accept = 'image/*';
-    input.onchange = async (ev) => {
-      const file = ev.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (re) => {
-        const raw = re.target.result;
-        if (!raw) { drawCanvas(); return; }
-        showFrameCropUI(raw, async (photoData) => {
-          const photoKey = 'frame_photo_' + key;
-          try { localStorage.setItem(photoKey, photoData); } catch(e) {}
-          if (activePet) {
-            try {
-              const room = getRoomData(activePet.id);
-              if (!room.framePhotos) room.framePhotos = {};
-              room.framePhotos[photoKey] = photoData;
-              saveRoomData(activePet.id, room);
-              await syncRoomToPartner(activePet.id, room);
-            } catch(e) {}
-          }
-          drawCanvas();
-          showToast('✅ Foto berhasil dipasang!');
-        });
-      };
-      reader.readAsDataURL(file);
-    };
-    input.click();
+    const photoKey = 'frame_photo_' + key;
+    const existingPhoto = localStorage.getItem(photoKey);
+    if (existingPhoto && existingPhoto !== 'undefined' && existingPhoto !== 'null') {
+      showModal(`<div class="modal-box" style="padding:16px 16px 20px">
+        <div class="modal-handle"></div>
+        <div class="modal-title">🖼 Edit Foto Frame</div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+          <button class="btn btn-mint" onclick="closeModal();setTimeout(()=>window._frameActions['${key}'].reCrop(),100)" style="padding:12px">✏️ Edit Crop</button>
+          <button class="btn btn-pink" onclick="closeModal();setTimeout(()=>window._frameActions['${key}'].openPicker(),100)" style="padding:12px">🔄 Ganti Foto</button>
+        </div>
+      </div>`);
+    } else {
+      window._frameActions[key].openPicker();
+    }
   });
 
   return canvas;
@@ -4753,9 +4790,9 @@ async function confirmFeedOther(petId, itemKey, petName, petEmoji, owner1Id, own
     }
   }
 
+  taskInc('feed_other');
   closeModal();
   showToast(`🍽️ ${petEmoji} ${petName} dikasih makan!`);
-  taskInc('feed_other');
 
   // Refresh data cached biar search up to date
   const idx = viewOthersAll.findIndex(p => p.id === petId);
@@ -6056,36 +6093,66 @@ async function renderHome() {
       frameImgEl.onload = () => drawC();
       frameImgEl.src = frameSrc;
 
+      window._frameActions = window._frameActions || {};
+      async function _saveC(photoData) {
+        const photoKey = 'frame_photo_'+key;
+        try { localStorage.setItem(photoKey, photoData); } catch(e) {}
+        if (activePet) {
+          try {
+            const room = getRoomData(activePet.id);
+            if (!room.framePhotos) room.framePhotos={};
+            room.framePhotos[photoKey]=photoData;
+            saveRoomData(activePet.id, room);
+            await syncRoomToPartner(activePet.id, room);
+          } catch(e){}
+        }
+        drawC();
+      }
+      window._frameActions[key] = {
+        openPicker: () => {
+          const input = document.createElement('input');
+          input.type='file'; input.accept='image/*';
+          input.onchange = ev => {
+            const file = ev.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = re => {
+              const raw = re.target.result;
+              if (!raw) return;
+              showFrameCropUI(raw, async (photoData) => {
+                await _saveC(photoData);
+                showToast('✅ Foto berhasil dipasang!');
+              });
+            };
+            reader.readAsDataURL(file);
+          };
+          input.click();
+        },
+        reCrop: () => {
+          const existing = localStorage.getItem('frame_photo_'+key);
+          if (!existing) return;
+          showFrameCropUI(existing, async (photoData) => {
+            await _saveC(photoData);
+            showToast('✅ Foto diperbarui!');
+          });
+        },
+      };
+
       canvas.addEventListener('touchend', e => {
         if (_furnitureEditMode) return;
         e.preventDefault();
-        const input = document.createElement('input');
-        input.type='file'; input.accept='image/*';
-        input.onchange = ev => {
-          const file = ev.target.files[0]; if (!file) return;
-          const reader = new FileReader();
-          reader.onload = re => {
-            const raw = re.target.result;
-            if (!raw) { drawC(); return; }
-            showFrameCropUI(raw, async (photoData) => {
-              const photoKey = 'frame_photo_'+key;
-              try { localStorage.setItem(photoKey, photoData); } catch(e) {}
-              if (activePet) {
-                try {
-                  const room = getRoomData(activePet.id);
-                  if (!room.framePhotos) room.framePhotos={};
-                  room.framePhotos[photoKey]=photoData;
-                  saveRoomData(activePet.id, room);
-                  await syncRoomToPartner(activePet.id, room);
-                } catch(e){}
-              }
-              drawC();
-              showToast('✅ Foto berhasil dipasang!');
-            });
-          };
-          reader.readAsDataURL(file);
-        };
-        input.click();
+        const existingPhoto = localStorage.getItem('frame_photo_'+key);
+        if (existingPhoto && existingPhoto !== 'undefined' && existingPhoto !== 'null') {
+          showModal(`<div class="modal-box" style="padding:16px 16px 20px">
+            <div class="modal-handle"></div>
+            <div class="modal-title">🖼 Edit Foto Frame</div>
+            <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+              <button class="btn btn-mint" onclick="closeModal();setTimeout(()=>window._frameActions['${key}'].reCrop(),100)" style="padding:12px">✏️ Edit Crop</button>
+              <button class="btn btn-pink" onclick="closeModal();setTimeout(()=>window._frameActions['${key}'].openPicker(),100)" style="padding:12px">🔄 Ganti Foto</button>
+            </div>
+          </div>`);
+        } else {
+          window._frameActions[key].openPicker();
+        }
       });
     });
 
@@ -6779,7 +6846,6 @@ async function openGacha(tier) {
     if (koin < price) { showToast(`❌ Koin tidak cukup! Butuh ${price.toLocaleString()} 🪙`); return; }
 
     await saveUser({ koin: koin - price }, 'gacha');
-    taskInc('gacha_10');
 
     const inv = getInv(); // sudah sync dari fresh fetch di atas
     const results = [];
@@ -6832,6 +6898,7 @@ async function openGacha(tier) {
   }
 
   await saveInv(inv);
+  taskInc('gacha_10');
 
   const boxName = tier === 'biasa' ? '📦 Kotak Biasa' : '💎 Kotak Premium';
   const resultHtml = results.map(r => `<div style="padding:6px 0;border-bottom:1px solid rgba(201,184,240,0.2);font-size:0.9rem">• ${r}</div>`).join('');
@@ -6995,6 +7062,7 @@ async function doGift(type, itemKey, targetOverride = null) {
   }
 
   if (type === 'partner') taskInc('gift_partner');
+
   closeModal();
   showModal(`
     <div class="modal-box">
@@ -8661,7 +8729,7 @@ const TASKS_DEF = [
   { id:'pokergram',   type:'collab',  emoji:'🃏', bot:'Pokergram',    title:'Join Pokergram & Grab your free chips now!', link:'https://t.me/PokergramComBot/pokerapp?startapp=campCarpetsrobot_Sh_P', img:'https://files.catbox.moe/3ovrnx.jpg',  coin:100, food:5 },
   { id:'boinkers',    type:'collab',  emoji:'🎰', bot:'Boinkers',     title:'Spin the slot to claim your Boinkers Pet!',  link:'https://t.me/boinker_bot/boinkapp?startapp=campCarpetsrobot_Sh',         img:'https://files.catbox.moe/6qbhon.jpg',  coin:100, food:5 },
   { id:'pixelpaw',    type:'collab',  emoji:'🐾', bot:'Pixel Paw',   title:'Reach lvl 12 in Pixel Paw',                  link:'https://t.me/PixelPawsGame_bot/app?startapp=campCarpetsrobot_Sh',         img:'https://files.catbox.moe/d81c0x.png',  coin:100, food:5 },
-  { id:'join_quiz',   type:'collab',  emoji:'🏆', bot:'Carpets Quiz', title:'Join Carpets Quiz',                          link:'https://t.me/carpetsquiz',                                                img:null,                                   coin:100, food:0 },
+  { id:'join_quiz',   type:'collab',  emoji:'🏆', bot:'Carpets Quiz', title:'Join Carpets Quiz',                          link:'https://t.me/CarpetsQuiz',                                                img:null,                                   coin:100, food:0 },
   { id:'feed_other',  type:'count',   emoji:'🍖', title:'Kasih makan pet orang lain',  target:1,    coin:200, food:0 },
   { id:'play_games',  type:'count',   emoji:'🎮', title:'Main mini game 20 kali',      target:20,   coin:200, food:0 },
   { id:'topup_4k',    type:'topup',   emoji:'💳', title:'Top up minimal 4.000 koin',   target:4000, coin:2000,food:0 },
@@ -8674,19 +8742,6 @@ const TASKS_DEF = [
 
 function _tk(id)      { return `__tk_${id}`; }
 function _tkDone(id)  { return `__tk_${id}_done`; }
-
-function taskInc(taskId, amount = 1) {
-  const task = TASKS_DEF.find(t => t.id === taskId);
-  if (!task || !task.target) return;
-  const inv = userData?.inventory;
-  if (!inv) return;
-  if (inv[_tkDone(taskId)]) return;
-  const cur = parseInt(inv[_tk(taskId)] || 0);
-  if (cur >= task.target) return;
-  inv[_tk(taskId)] = Math.min(cur + amount, task.target);
-  if (userData) userData.inventory = inv;
-  db.from('users').update({ inventory: inv }).eq('user_id', USER_ID);
-}
 
 function taskIsReady(inv, task) {
   if (inv[_tkDone(task.id)]) return false;
@@ -8729,6 +8784,19 @@ async function markTaskDone(taskId) {
   await db.from('users').update({ inventory: inv }).eq('user_id', USER_ID);
   if (userData) userData.inventory = inv;
   renderTasks();
+}
+
+function taskInc(taskId, amount = 1) {
+  const task = TASKS_DEF.find(t => t.id === taskId);
+  if (!task || !task.target) return;
+  const inv = userData?.inventory;
+  if (!inv) return;
+  if (inv[_tkDone(taskId)]) return;
+  const cur = parseInt(inv[_tk(taskId)] || 0);
+  if (cur >= task.target) return;
+  inv[_tk(taskId)] = Math.min(cur + amount, task.target);
+  if (userData) userData.inventory = inv;
+  db.from('users').update({ inventory: inv }).eq('user_id', USER_ID);
 }
 
 function openCollabLink(taskId, link) {
