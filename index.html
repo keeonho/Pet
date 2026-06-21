@@ -8778,20 +8778,26 @@ async function markTaskDone(taskId) {
   renderTasks();
 }
 
-async function openCollabLink(taskId, link) {
-  // Track that user actually opened the link
-  const inv = userData?.inventory ? {...userData.inventory} : {};
-  if (!inv[`__tk_${taskId}_opened`]) {
-    inv[`__tk_${taskId}_opened`] = '1';
-    await db.from('users').update({ inventory: inv }).eq('user_id', USER_ID);
-    if (userData) userData.inventory = inv;
-  }
-  // Open via Telegram WebApp (proper t.me link opening)
-  if (window.Telegram?.WebApp?.openTelegramLink) {
-    window.Telegram.WebApp.openTelegramLink(link);
+function openCollabLink(taskId, link) {
+  // Open link FIRST (synchronous — browser blocks openLink after async gap)
+  const twa = window.Telegram?.WebApp;
+  if (twa?.openTelegramLink) {
+    twa.openTelegramLink(link);
+  } else if (twa?.openLink) {
+    twa.openLink(link);
   } else {
     window.open(link, '_blank');
   }
+
+  // Track opened in background (no await)
+  const inv = userData?.inventory ? {...userData.inventory} : {};
+  if (!inv[`__tk_${taskId}_opened`]) {
+    inv[`__tk_${taskId}_opened`] = '1';
+    if (userData) userData.inventory = inv;
+    db.from('users').update({ inventory: inv }).eq('user_id', USER_ID);
+  }
+
+  // Re-render so Sudah Selesai button appears when user returns
   renderTasks();
 }
 
