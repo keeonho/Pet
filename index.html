@@ -225,6 +225,7 @@ async function doHarvest(ltId, mode) {
 
   // Update last_collect di DB
   await db.from('livestocks').update({ last_collect: new Date().toISOString() }).eq('id', ltId);
+  taskInc('harvest_10');
 
   if (mode === 'sell') {
     const earn = itemsReady * (info.sellPrice || 0);
@@ -641,6 +642,7 @@ async function doHarvest(ltId, mode) {
 
   // Update last_collect di DB
   await db.from('livestocks').update({ last_collect: new Date().toISOString() }).eq('id', ltId);
+  taskInc('harvest_10');
 
   if (mode === 'sell') {
     const earn = itemsReady * (info.sellPrice || 0);
@@ -4750,6 +4752,7 @@ async function confirmFeedOther(petId, itemKey, petName, petEmoji, owner1Id, own
 
   closeModal();
   showToast(`🍽️ ${petEmoji} ${petName} dikasih makan!`);
+  taskInc('feed_other');
 
   // Refresh data cached biar search up to date
   const idx = viewOthersAll.findIndex(p => p.id === petId);
@@ -6772,6 +6775,7 @@ async function openGacha(tier) {
     if (koin < price) { showToast(`❌ Koin tidak cukup! Butuh ${price.toLocaleString()} 🪙`); return; }
 
     await saveUser({ koin: koin - price }, 'gacha');
+    taskInc('gacha_10');
 
     const inv = getInv(); // sudah sync dari fresh fetch di atas
     const results = [];
@@ -6986,6 +6990,7 @@ async function doGift(type, itemKey, targetOverride = null) {
     return;
   }
 
+  if (type === 'partner') taskInc('gift_partner');
   closeModal();
   showModal(`
     <div class="modal-box">
@@ -7636,6 +7641,7 @@ async function doBuy(key, qty = 1) {
     // Atomic: simpan inventory dulu, baru kurangi koin
     await saveInv(inv);
     await saveUser({ koin: newKoin }, 'beli_toko');
+    taskInc('buy_50', actualQty);
     closeModal();
     showToast(`✅ Beli ${item.emoji} ${item.name} x${actualQty}! Sisa ${newKoin.toLocaleString()} 🪙`);
     renderShop();
@@ -8646,6 +8652,197 @@ async function doUseItemOnPet(type, itemKey, petIdx) {
 }
 
 // ==================== GAMES SCREEN ====================
+// ==================== TASK / MISI ====================
+const TASKS_DEF = [
+  { id:'pokergram',   type:'collab',  emoji:'🃏', bot:'Pokergram',    title:'Join Pokergram & Grab your free chips now!', link:'https://t.me/PokergramComBot/pokerapp?startapp=campCarpetsrobot_Sh_P', img:'https://files.catbox.moe/3ovrnx.jpg',  coin:100, food:5 },
+  { id:'boinkers',    type:'collab',  emoji:'🎰', bot:'Boinkers',     title:'Spin the slot to claim your Boinkers Pet!',  link:'https://t.me/boinker_bot/boinkapp?startapp=campCarpetsrobot_Sh',         img:'https://files.catbox.moe/6qbhon.jpg',  coin:100, food:5 },
+  { id:'pixelpaw',    type:'collab',  emoji:'🐾', bot:'Pixel Paw',   title:'Reach lvl 12 in Pixel Paw',                  link:'https://t.me/PixelPawsGame_bot/app?startapp=campCarpetsrobot_Sh',         img:'https://files.catbox.moe/d81c0x.png',  coin:100, food:5 },
+  { id:'join_quiz',   type:'collab',  emoji:'🏆', bot:'Carpets Quiz', title:'Join Carpets Quiz',                          link:'https://t.me/carpetsquiz',                                                img:null,                                   coin:100, food:0 },
+  { id:'feed_other',  type:'count',   emoji:'🍖', title:'Kasih makan pet orang lain',  target:1,    coin:200, food:0 },
+  { id:'play_games',  type:'count',   emoji:'🎮', title:'Main mini game 20 kali',      target:20,   coin:200, food:0 },
+  { id:'topup_4k',    type:'topup',   emoji:'💳', title:'Top up minimal 4.000 koin',   target:4000, coin:2000,food:0 },
+  { id:'pet_lv60',    type:'milestone',emoji:'⭐', title:'1 pet mencapai level 60',                 coin:500, food:0 },
+  { id:'buy_50',      type:'count',   emoji:'🛒', title:'Beli item di shop 50 kali',   target:50,   coin:500, food:0 },
+  { id:'gift_partner',type:'count',   emoji:'🎁', title:'Gift item ke partner',         target:1,    coin:100, food:0 },
+  { id:'gacha_10',    type:'count',   emoji:'🎰', title:'Spin gacha box 10 kali',      target:10,   coin:500, food:0 },
+  { id:'harvest_10',  type:'count',   emoji:'🌾', title:'Panen hasil ternak 10 kali',  target:10,   coin:200, food:0 },
+];
+
+function _tk(id)      { return `__tk_${id}`; }
+function _tkDone(id)  { return `__tk_${id}_done`; }
+
+function taskInc(taskId, amount = 1) {
+  const task = TASKS_DEF.find(t => t.id === taskId);
+  if (!task || !task.target) return;
+  const inv = userData?.inventory;
+  if (!inv) return;
+  if (inv[_tkDone(taskId)]) return;
+  const cur = parseInt(inv[_tk(taskId)] || 0);
+  if (cur >= task.target) return;
+  inv[_tk(taskId)] = Math.min(cur + amount, task.target);
+  if (userData) userData.inventory = inv;
+  db.from('users').update({ inventory: inv }).eq('user_id', USER_ID);
+}
+
+function taskIsReady(inv, task) {
+  if (inv[_tkDone(task.id)]) return false;
+  if (task.type === 'collab' || task.type === 'channel' || task.type === 'milestone')
+    return inv[_tk(task.id)] === 'done';
+  return (parseInt(inv[_tk(task.id)]||0)) >= (task.target||1);
+}
+
+async function claimTask(taskId) {
+  const task = TASKS_DEF.find(t => t.id === taskId);
+  if (!task) return;
+  const inv = userData?.inventory || {};
+  if (inv[_tkDone(taskId)]) { alert('Task ini sudah diklaim!'); return; }
+  if (!taskIsReady(inv, task)) { alert('Task belum selesai!'); return; }
+
+  // Mark claimed & give food locally then update DB
+  const now = new Date().toISOString();
+  inv[_tkDone(taskId)] = now;
+  const rewardFood = task.food || 0;
+  if (rewardFood) inv['premium'] = (inv['premium']||0) + rewardFood;
+
+  await db.from('users').update({ inventory: inv }).eq('user_id', USER_ID);
+
+  // Add koin via Supabase
+  if (task.coin) {
+    const koin = (userData?.koin||0) + task.coin;
+    await db.from('users').update({ koin }).eq('user_id', USER_ID);
+    if (userData) userData.koin = koin;
+  }
+  if (userData) userData.inventory = inv;
+  const rewardTxt = `+${task.coin}🪙` + (rewardFood ? ` + ${rewardFood}x🥩` : '');
+  alert(`🎉 Berhasil klaim!\n${rewardTxt}`);
+  renderTasks();
+}
+
+async function markTaskDone(taskId) {
+  const inv = userData?.inventory ? {...userData.inventory} : {};
+  if (inv[_tkDone(taskId)] || inv[_tk(taskId)]) { renderTasks(); return; }
+  inv[_tk(taskId)] = 'done';
+  await db.from('users').update({ inventory: inv }).eq('user_id', USER_ID);
+  if (userData) userData.inventory = inv;
+  renderTasks();
+}
+
+function openCollabLink(taskId, link) {
+  // Open link FIRST (synchronous — browser blocks openLink after async gap)
+  const twa = window.Telegram?.WebApp;
+  if (twa?.openTelegramLink) {
+    twa.openTelegramLink(link);
+  } else if (twa?.openLink) {
+    twa.openLink(link);
+  } else {
+    window.open(link, '_blank');
+  }
+
+  // Track opened in background (no await)
+  const inv = userData?.inventory ? {...userData.inventory} : {};
+  if (!inv[`__tk_${taskId}_opened`]) {
+    inv[`__tk_${taskId}_opened`] = '1';
+    if (userData) userData.inventory = inv;
+    db.from('users').update({ inventory: inv }).eq('user_id', USER_ID);
+  }
+
+  // Re-render so Sudah Selesai button appears when user returns
+  renderTasks();
+}
+
+function verifyQuizMembership() {
+  // Open Carpets bot to verify — bot will getChatMember(@carpetsquiz) and mark done
+  const twa = window.Telegram?.WebApp;
+  const botLink = 'https://t.me/carpetsrobot?start=verify_quiz';
+  if (twa?.openTelegramLink) {
+    twa.openTelegramLink(botLink);
+  } else {
+    window.open(botLink, '_blank');
+  }
+  showToast('Verifikasi di bot, lalu kembali ke sini 🔄');
+}
+
+// Re-render task page when user returns to mini app after visiting bot/collab app
+if (window.Telegram?.WebApp) {
+  window.Telegram.WebApp.onEvent('activated', () => {
+    const taskScreen = document.getElementById('screen-task');
+    if (taskScreen?.classList.contains('active')) renderTasks();
+  });
+}
+
+async function renderTasks() {
+  await loadUser();
+  const el = document.getElementById('task-content');
+  if (!el) return;
+  const inv = userData?.inventory || {};
+  const claimedCount = TASKS_DEF.filter(t => !!inv[_tkDone(t.id)]).length;
+
+  let html = `<div style="background:#120f2e;min-height:100vh;padding:14px 12px 90px">
+    <div style="font-family:'Fredoka One',cursive;font-size:1.25rem;color:#fff;margin-bottom:2px;padding:0 2px">🎯 Misi & Task</div>
+    <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-bottom:14px;padding:0 2px">${claimedCount}/${TASKS_DEF.length} diklaim</div>`;
+
+  for (const task of TASKS_DEF) {
+    const isClaimed = !!inv[_tkDone(task.id)];
+    const isReady   = taskIsReady(inv, task);
+    const hasOpened = !!inv[`__tk_${task.id}_opened`];
+    const rewardTxt = `+${task.coin}🪙` + (task.food ? ` +${task.food}x🥩` : '');
+
+    // Icon
+    const iconHtml = task.img
+      ? `<img src="${task.img}" style="width:54px;height:54px;border-radius:12px;object-fit:cover;flex-shrink:0" onerror="this.outerHTML='<div style=\\'width:54px;height:54px;border-radius:12px;background:#3a3268;display:flex;align-items:center;justify-content:center;font-size:1.7rem;flex-shrink:0\\'>${task.emoji}</div>'">`
+      : `<div style="width:54px;height:54px;border-radius:12px;background:#3a3268;display:flex;align-items:center;justify-content:center;font-size:1.7rem;flex-shrink:0">${task.emoji}</div>`;
+
+    // Right-side button / badge
+    let rightHtml = '';
+    if (isClaimed) {
+      rightHtml = `<span style="background:#1a4d2e;color:#4ade80;border-radius:10px;padding:8px 12px;font-size:0.72rem;font-weight:800;flex-shrink:0;white-space:nowrap">✅ DONE</span>`;
+    } else if (isReady) {
+      rightHtml = `<span style="background:#7c5f00;color:#fbbf24;border-radius:10px;padding:8px 10px;font-size:0.72rem;font-weight:800;flex-shrink:0;white-space:nowrap">🎁 KLAIM</span>`;
+    } else if (task.type === 'collab' || task.type === 'channel') {
+      rightHtml = `<button onclick="openCollabLink('${task.id}','${task.link}')" style="background:#00C9D4;color:#fff;border:none;border-radius:10px;padding:10px 18px;font-weight:800;font-size:0.9rem;cursor:pointer;flex-shrink:0">GO</button>`;
+    }
+
+    // Bottom expansion area
+    let bottomHtml = '';
+    if (!isClaimed && isReady) {
+      bottomHtml = `<div style="padding:0 14px 14px">
+        <button onclick="claimTask('${task.id}')" style="width:100%;padding:11px;border:none;border-radius:10px;background:linear-gradient(135deg,#f6c84e,#f4a623);color:#fff;font-weight:800;font-size:0.88rem;cursor:pointer">🎁 Klaim Reward (${rewardTxt})</button>
+      </div>`;
+    } else if (!isClaimed && !isReady && hasOpened && (task.type === 'collab' || task.type === 'channel')) {
+      const verifyBtn = task.id === 'join_quiz'
+        ? `<button onclick="verifyQuizMembership()" style="width:100%;padding:11px;border:none;border-radius:10px;background:#22c55e;color:#fff;font-weight:700;font-size:0.85rem;cursor:pointer">✅ Verifikasi Keanggotaan</button>`
+        : `<button onclick="markTaskDone('${task.id}')" style="width:100%;padding:11px;border:none;border-radius:10px;background:#22c55e;color:#fff;font-weight:700;font-size:0.85rem;cursor:pointer">✅ Sudah Selesai</button>`;
+      bottomHtml = `<div style="padding:0 14px 14px">${verifyBtn}</div>`;
+    } else if (!isClaimed && !isReady && (task.type === 'count' || task.type === 'topup')) {
+      const cur = parseInt(inv[_tk(task.id)]||0);
+      const pct = task.target ? Math.min(100, Math.round(cur/task.target*100)) : 0;
+      bottomHtml = `<div style="padding:0 14px 14px">
+        <div style="background:rgba(255,255,255,0.1);border-radius:99px;height:5px;margin-bottom:4px">
+          <div style="background:#00C9D4;border-radius:99px;height:5px;width:${pct}%"></div>
+        </div>
+        <div style="font-size:0.7rem;color:rgba(255,255,255,0.4)">${cur.toLocaleString()} / ${(task.target||1).toLocaleString()}</div>
+      </div>`;
+    } else if (!isClaimed && !isReady && task.type === 'milestone') {
+      bottomHtml = `<div style="padding:0 14px 14px;font-size:0.72rem;color:rgba(255,255,255,0.35)">⏳ Tercapai otomatis</div>`;
+    }
+
+    html += `<div style="background:#1e1a4a;border-radius:14px;margin-bottom:8px;overflow:hidden">
+      <div style="display:flex;align-items:center;gap:12px;padding:14px">
+        ${iconHtml}
+        <div style="flex:1;min-width:0">
+          <div style="color:#fff;font-weight:700;font-size:0.88rem;line-height:1.3;margin-bottom:3px">${task.title}</div>
+          <div style="color:#F5C842;font-size:0.78rem;font-weight:700">💰 ${rewardTxt}</div>
+        </div>
+        ${rightHtml}
+      </div>
+      ${bottomHtml}
+    </div>`;
+  }
+
+  html += `</div>`;
+  el.innerHTML = html;
+}
+
 async function renderGames() {
   await loadUser(); // Reload dari DB supaya quota harian selalu up-to-date
   const el = document.getElementById('games-content');
@@ -8691,6 +8888,7 @@ async function useGameQuota(game) {
   const games = getGames();
   games[game] = (games[game]||0) + 1;
   await saveGames(games);
+  taskInc('play_games');
 }
 
 function checkQuota(game) {
@@ -9525,6 +9723,7 @@ async function doHarvest(ltId, mode) {
 
   // Update last_collect di DB
   await db.from('livestocks').update({ last_collect: new Date().toISOString() }).eq('id', ltId);
+  taskInc('harvest_10');
 
   if (mode === 'sell') {
     const earn = itemsReady * (info.sellPrice || 0);

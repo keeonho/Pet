@@ -84,7 +84,7 @@ TASKS = [
         "id": "join_quiz", "type": "collab",
         "bot_name": "Carpets Quiz", "emoji": "🏆",
         "title": "Join Carpets Quiz",
-        "link": "https://t.me/CarpetsQuizBot",
+        "link": "https://t.me/carpetsquiz",
         "image": None,
         "reward_coin": 100, "reward_food": 0,
     },
