@@ -225,7 +225,7 @@ async function doHarvest(ltId, mode) {
 
   // Update last_collect di DB
   await db.from('livestocks').update({ last_collect: new Date().toISOString() }).eq('id', ltId);
-  taskInc('harvest_10');
+  await taskInc('harvest_10');
 
   if (mode === 'sell') {
     const earn = itemsReady * (info.sellPrice || 0);
@@ -642,7 +642,7 @@ async function doHarvest(ltId, mode) {
 
   // Update last_collect di DB
   await db.from('livestocks').update({ last_collect: new Date().toISOString() }).eq('id', ltId);
-  taskInc('harvest_10');
+  await taskInc('harvest_10');
 
   if (mode === 'sell') {
     const earn = itemsReady * (info.sellPrice || 0);
@@ -4790,7 +4790,7 @@ async function confirmFeedOther(petId, itemKey, petName, petEmoji, owner1Id, own
     }
   }
 
-  taskInc('feed_other');
+  await taskInc('feed_other');
   closeModal();
   showToast(`🍽️ ${petEmoji} ${petName} dikasih makan!`);
 
@@ -5380,7 +5380,10 @@ function showScreen(name) {
   if(navBtn) navBtn.classList.add('active');
   currentScreen = name;
   const hdr = document.getElementById('app-header');
-  if (hdr) hdr.style.display = name === 'home' ? 'none' : '';
+  if (hdr) hdr.style.display = (name === 'home' || name === 'task') ? 'none' : '';
+  if (name === 'task') { document.body.style.background = '#120f2e'; }
+  else if (name === 'home') { document.body.style.background = ''; }
+  else { document.body.style.background = ''; }
 
   if (name === 'home')    loadPets().then(renderHome);
   if (name === 'feed')    loadPets().then(renderFeed);
@@ -6898,7 +6901,7 @@ async function openGacha(tier) {
   }
 
   await saveInv(inv);
-  taskInc('gacha_10');
+  await taskInc('gacha_10');
 
   const boxName = tier === 'biasa' ? '📦 Kotak Biasa' : '💎 Kotak Premium';
   const resultHtml = results.map(r => `<div style="padding:6px 0;border-bottom:1px solid rgba(201,184,240,0.2);font-size:0.9rem">• ${r}</div>`).join('');
@@ -7061,7 +7064,7 @@ async function doGift(type, itemKey, targetOverride = null) {
     return;
   }
 
-  if (type === 'partner') taskInc('gift_partner');
+  if (type === 'partner') await taskInc('gift_partner');
 
   closeModal();
   showModal(`
@@ -7713,7 +7716,7 @@ async function doBuy(key, qty = 1) {
     // Atomic: simpan inventory dulu, baru kurangi koin
     await saveInv(inv);
     await saveUser({ koin: newKoin }, 'beli_toko');
-    taskInc('buy_50', actualQty);
+    await taskInc('buy_50', actualQty);
     closeModal();
     showToast(`✅ Beli ${item.emoji} ${item.name} x${actualQty}! Sisa ${newKoin.toLocaleString()} 🪙`);
     renderShop();
@@ -8786,17 +8789,19 @@ async function markTaskDone(taskId) {
   renderTasks();
 }
 
-function taskInc(taskId, amount = 1) {
+async function taskInc(taskId, amount = 1) {
   const task = TASKS_DEF.find(t => t.id === taskId);
   if (!task || !task.target) return;
-  const inv = userData?.inventory;
+  // Fetch fresh inventory from DB to avoid race with saveInv
+  const { data: fresh } = await db.from('users').select('inventory').eq('user_id', USER_ID).maybeSingle();
+  const inv = fresh?.inventory || userData?.inventory;
   if (!inv) return;
   if (inv[_tkDone(taskId)]) return;
   const cur = parseInt(inv[_tk(taskId)] || 0);
   if (cur >= task.target) return;
   inv[_tk(taskId)] = Math.min(cur + amount, task.target);
   if (userData) userData.inventory = inv;
-  db.from('users').update({ inventory: inv }).eq('user_id', USER_ID);
+  await db.from('users').update({ inventory: inv }).eq('user_id', USER_ID);
 }
 
 function openCollabLink(taskId, link) {
@@ -8960,7 +8965,7 @@ async function useGameQuota(game) {
   const games = getGames();
   games[game] = (games[game]||0) + 1;
   await saveGames(games);
-  taskInc('play_games');
+  await taskInc('play_games');
 }
 
 function checkQuota(game) {
@@ -9795,7 +9800,7 @@ async function doHarvest(ltId, mode) {
 
   // Update last_collect di DB
   await db.from('livestocks').update({ last_collect: new Date().toISOString() }).eq('id', ltId);
-  taskInc('harvest_10');
+  await taskInc('harvest_10');
 
   if (mode === 'sell') {
     const earn = itemsReady * (info.sellPrice || 0);
