@@ -2168,6 +2168,10 @@ document.addEventListener('DOMContentLoaded', function(){
   <div id="chat-content"></div>
 </div>
 
+<div id="screen-task" class="screen">
+  <div id="task-content"></div>
+</div>
+
 <!-- Astro Paws Lock Overlay -->
 <div id="astro-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(180deg,#0a0a2e 0%,#1a1a4e 50%,#0a0a2e 100%);z-index:9999;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:24px">
   <div style="font-size:4rem;margin-bottom:16px" id="astro-overlay-emoji">🚀</div>
@@ -2196,6 +2200,7 @@ document.addEventListener('DOMContentLoaded', function(){
   <button class="side-menu-item" onclick="showScreen('games');toggleSideMenu()" id="nav-games">🎮 Game</button>
   <button class="side-menu-item" onclick="showScreen('ternak');toggleSideMenu()" id="nav-ternak">🐄 Ternak</button>
   <button class="side-menu-item" onclick="showScreen('chat');toggleSideMenu()" id="nav-chat">💬 Chat</button>
+  <button class="side-menu-item" onclick="showScreen('task');toggleSideMenu()" id="nav-task">🎯 Misi</button>
 </div>
 
 <!-- Modal container -->
@@ -5383,6 +5388,7 @@ function showScreen(name) {
   if (name === 'chat')    renderChat();
   if (name === 'ternak')  renderTernak();
   if (name === 'games')   renderGames();
+  if (name === 'task')    renderTasks();
 }
 
 // Auto-refresh pets dari DB tiap 2 menit biar ga stale
@@ -8710,6 +8716,158 @@ async function doUseItemOnPet(type, itemKey, petIdx) {
 }
 
 // ==================== GAMES SCREEN ====================
+// ==================== TASK / MISI ====================
+const TASKS_DEF = [
+  { id:'pokergram',   type:'collab',  emoji:'🃏', bot:'Pokergram',    title:'Join Pokergram & Grab your free chips now!', link:'https://t.me/PokergramComBot/pokerapp?startapp=campCarpetsrobot_Sh_P', img:'https://files.catbox.moe/3ovrnx.jpg',  coin:100, food:5 },
+  { id:'boinkers',    type:'collab',  emoji:'🎰', bot:'Boinkers',     title:'Spin the slot to claim your Boinkers Pet!',  link:'https://t.me/boinker_bot/boinkapp?startapp=campCarpetsrobot_Sh',         img:'https://files.catbox.moe/6qbhon.jpg',  coin:100, food:5 },
+  { id:'pixelpaw',    type:'collab',  emoji:'🐾', bot:'Pixel Paw',   title:'Reach lvl 12 in Pixel Paw',                  link:'https://t.me/PixelPawsGame_bot/app?startapp=campCarpetsrobot_Sh',         img:'https://files.catbox.moe/d81c0x.png',  coin:100, food:5 },
+  { id:'join_quiz',   type:'collab',  emoji:'🏆', bot:'Carpets Quiz', title:'Join Carpets Quiz',                          link:'https://t.me/CarpetsQuizBot',                                             img:null,                                   coin:100, food:0 },
+  { id:'feed_other',  type:'count',   emoji:'🍖', title:'Kasih makan pet orang lain',  target:1,    coin:200, food:0 },
+  { id:'play_games',  type:'count',   emoji:'🎮', title:'Main mini game 20 kali',      target:20,   coin:200, food:0 },
+  { id:'topup_4k',    type:'topup',   emoji:'💳', title:'Top up minimal 4.000 koin',   target:4000, coin:2000,food:0 },
+  { id:'pet_lv60',    type:'milestone',emoji:'⭐', title:'1 pet mencapai level 60',                 coin:500, food:0 },
+  { id:'buy_50',      type:'count',   emoji:'🛒', title:'Beli item di shop 50 kali',   target:50,   coin:500, food:0 },
+  { id:'gift_partner',type:'count',   emoji:'🎁', title:'Gift item ke partner',         target:1,    coin:100, food:0 },
+  { id:'gacha_10',    type:'count',   emoji:'🎰', title:'Spin gacha box 10 kali',      target:10,   coin:500, food:0 },
+  { id:'harvest_10',  type:'count',   emoji:'🌾', title:'Panen hasil ternak 10 kali',  target:10,   coin:200, food:0 },
+];
+
+function _tk(id)      { return `__tk_${id}`; }
+function _tkDone(id)  { return `__tk_${id}_done`; }
+
+function taskIsReady(inv, task) {
+  if (inv[_tkDone(task.id)]) return false;
+  if (task.type === 'collab' || task.type === 'channel' || task.type === 'milestone')
+    return inv[_tk(task.id)] === 'done';
+  return (parseInt(inv[_tk(task.id)]||0)) >= (task.target||1);
+}
+
+async function claimTask(taskId) {
+  const task = TASKS_DEF.find(t => t.id === taskId);
+  if (!task) return;
+  const inv = userData?.inventory || {};
+  if (inv[_tkDone(taskId)]) { alert('Task ini sudah diklaim!'); return; }
+  if (!taskIsReady(inv, task)) { alert('Task belum selesai!'); return; }
+
+  // Mark claimed & give food locally then update DB
+  const now = new Date().toISOString();
+  inv[_tkDone(taskId)] = now;
+  const rewardFood = task.food || 0;
+  if (rewardFood) inv['premium'] = (inv['premium']||0) + rewardFood;
+
+  await db.from('users').update({ inventory: inv }).eq('user_id', USER_ID);
+
+  // Add koin via Supabase
+  if (task.coin) {
+    const koin = (userData?.koin||0) + task.coin;
+    await db.from('users').update({ koin }).eq('user_id', USER_ID);
+    if (userData) userData.koin = koin;
+  }
+  if (userData) userData.inventory = inv;
+  const rewardTxt = `+${task.coin}🪙` + (rewardFood ? ` + ${rewardFood}x🥩` : '');
+  alert(`🎉 Berhasil klaim!\n${rewardTxt}`);
+  renderTasks();
+}
+
+async function markTaskDone(taskId) {
+  const inv = userData?.inventory ? {...userData.inventory} : {};
+  if (inv[_tkDone(taskId)] || inv[_tk(taskId)]) { renderTasks(); return; }
+  inv[_tk(taskId)] = 'done';
+  await db.from('users').update({ inventory: inv }).eq('user_id', USER_ID);
+  if (userData) userData.inventory = inv;
+  renderTasks();
+}
+
+async function renderTasks() {
+  await loadUser();
+  const el = document.getElementById('task-content');
+  if (!el) return;
+  const inv = userData?.inventory || {};
+  let html = `<div style="padding:16px 16px 80px">
+    <div style="font-family:'Fredoka One',cursive;font-size:1.3rem;margin-bottom:4px">🎯 Misi & Task</div>
+    <div style="font-size:0.8rem;color:var(--text-soft);margin-bottom:16px">Selesaikan misi & klaim reward!</div>`;
+
+  for (const task of TASKS_DEF) {
+    const isClaimed = !!inv[_tkDone(task.id)];
+    const isReady   = taskIsReady(inv, task);
+    let statusEmoji = isClaimed ? '✅' : (isReady ? '🟢' : '⬜');
+    let prog = '';
+    if (!isClaimed && (task.type === 'count' || task.type === 'topup')) {
+      const cur = parseInt(inv[_tk(task.id)]||0);
+      const pct = Math.min(100, Math.round(cur / task.target * 100));
+      prog = `<div style="margin:6px 0 4px;background:#e0e0e0;border-radius:6px;height:6px"><div style="width:${pct}%;background:#5CAF8E;height:6px;border-radius:6px"></div></div>
+              <div style="font-size:0.73rem;color:var(--text-soft)">${cur}/${task.target}</div>`;
+    }
+    const rewardTxt = `+${task.coin}🪙` + (task.food ? ` +${task.food}x🥩` : '');
+
+    if ((task.type === 'collab' || task.type === 'channel') && task.img) {
+      // Banner card for collab tasks with image
+      let btnHtml = '';
+      if (isClaimed) {
+        btnHtml = `<div style="font-size:0.8rem;color:#5CAF8E;font-weight:700;margin-top:8px">✅ Sudah diklaim</div>`;
+      } else if (!isReady) {
+        btnHtml = `<div style="display:flex;gap:8px;margin-top:10px">
+          <button onclick="window.Telegram?.WebApp?.openLink('${task.link}')||window.open('${task.link}')" style="flex:1;padding:9px;border:none;border-radius:12px;background:#5b8dee;color:#fff;font-weight:700;font-size:0.82rem;cursor:pointer">🚀 ${task.bot||'Buka'}</button>
+          <button onclick="markTaskDone('${task.id}')" style="flex:1;padding:9px;border:none;border-radius:12px;background:#5CAF8E;color:#fff;font-weight:700;font-size:0.82rem;cursor:pointer">✅ Sudah Selesai</button>
+        </div>`;
+      } else {
+        btnHtml = `<button onclick="claimTask('${task.id}')" style="width:100%;margin-top:10px;padding:11px;border:none;border-radius:12px;background:linear-gradient(135deg,#f6c84e,#f4a623);color:#fff;font-weight:800;font-size:0.88rem;cursor:pointer">🎁 Klaim (${rewardTxt})</button>`;
+      }
+      html += `<div style="background:white;border-radius:16px;overflow:hidden;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,0,0,0.09)">
+        <div style="position:relative">
+          <img src="${task.img}" alt="${task.bot}" style="width:100%;height:130px;object-fit:cover;display:block" onerror="this.style.display='none'">
+          ${isClaimed ? `<span style="position:absolute;top:8px;right:8px;background:#388e3c;color:#fff;font-size:0.7rem;font-weight:800;padding:3px 10px;border-radius:20px">SELESAI ✓</span>` : isReady ? `<span style="position:absolute;top:8px;right:8px;background:#f4a623;color:#fff;font-size:0.7rem;font-weight:800;padding:3px 10px;border-radius:20px">SIAP KLAIM 🎁</span>` : ''}
+        </div>
+        <div style="padding:14px">
+          <div style="font-weight:700;font-size:0.92rem;margin-bottom:4px">${task.bot}</div>
+          <div style="font-size:0.8rem;color:#666;margin-bottom:4px">${task.title}</div>
+          <div style="font-size:0.78rem;color:#f4a623;font-weight:700">💰 ${rewardTxt}</div>
+          ${btnHtml}
+        </div>
+      </div>`;
+    } else {
+      // Compact card for other tasks and collab without image
+      const imgHtml = task.img
+        ? `<img src="${task.img}" style="width:46px;height:46px;border-radius:10px;object-fit:cover;flex-shrink:0">`
+        : `<div style="width:46px;height:46px;border-radius:10px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0">${task.emoji}</div>`;
+
+      let actionHtml = '';
+      if (isClaimed) {
+        actionHtml = `<div style="font-size:0.75rem;color:#5CAF8E;font-weight:700;margin-top:6px">✅ Sudah diklaim</div>`;
+      } else if (task.type === 'collab' || task.type === 'channel') {
+        if (!isReady) {
+          actionHtml = `<div style="display:flex;gap:6px;margin-top:8px">
+            <button onclick="window.Telegram?.WebApp?.openLink('${task.link}')||window.open('${task.link}')" style="flex:1;padding:8px;border:none;border-radius:10px;background:#5b8dee;color:#fff;font-weight:700;font-size:0.8rem;cursor:pointer">🚀 ${task.bot||'Buka'}</button>
+            <button onclick="markTaskDone('${task.id}')" style="flex:1;padding:8px;border:none;border-radius:10px;background:#5CAF8E;color:#fff;font-weight:700;font-size:0.8rem;cursor:pointer">✅ Sudah Selesai</button>
+          </div>`;
+        } else {
+          actionHtml = `<button onclick="claimTask('${task.id}')" style="width:100%;margin-top:8px;padding:10px;border:none;border-radius:10px;background:linear-gradient(135deg,#f6c84e,#f4a623);color:#fff;font-weight:800;font-size:0.85rem;cursor:pointer">🎁 Klaim (${rewardTxt})</button>`;
+        }
+      } else if (isReady) {
+        actionHtml = `<button onclick="claimTask('${task.id}')" style="width:100%;margin-top:8px;padding:10px;border:none;border-radius:10px;background:linear-gradient(135deg,#f6c84e,#f4a623);color:#fff;font-weight:800;font-size:0.85rem;cursor:pointer">🎁 Klaim (${rewardTxt})</button>`;
+      }
+
+      html += `<div style="background:white;border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,0.07)">
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          ${imgHtml}
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+              <span style="font-size:1rem">${statusEmoji}</span>
+              <span style="font-weight:700;font-size:0.88rem;line-height:1.3">${task.title}</span>
+            </div>
+            <div style="font-size:0.78rem;color:#f4a623;font-weight:700">💰 ${rewardTxt}</div>
+            ${prog}
+            ${actionHtml}
+          </div>
+        </div>
+      </div>`;
+    }
+  }
+
+  html += '</div>';
+  el.innerHTML = html;
+}
+
 async function renderGames() {
   await loadUser(); // Reload dari DB supaya quota harian selalu up-to-date
   const el = document.getElementById('games-content');
