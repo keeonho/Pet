@@ -1137,6 +1137,13 @@ async def get_inv(user_id: int) -> dict:
 async def set_inv(user_id: int, inv: dict):
     await update_user(user_id, {"inventory": inv})
 
+def _safe_qty(v) -> int:
+    """Convert any inventory value (int/str/float/None) to int safely."""
+    try:
+        return int(float(v)) if v is not None else 0
+    except (TypeError, ValueError):
+        return 0
+
 def inv_get(inv: dict, key: str) -> int:
     """Safe inventory get — always return int, never None"""
     return int(inv.get(key) or 0)
@@ -4675,7 +4682,7 @@ async def show_feed_menu(q, user, pet_id: int):
     if not is_koi:
         custom_map = await get_custom_items_map(user.id)
         for k, v in inv.items():
-            if (v or 0) > 0 and k in custom_map and custom_map[k]["item_type"] == "food":
+            if _safe_qty(v) > 0 and k in custom_map and custom_map[k]["item_type"] == "food":
                 ci = custom_map[k]
                 buttons.append([InlineKeyboardButton(f"{ci['emoji']} {safe_html(ci['name'])} x{v} ✨", callback_data=f"feeditem_{pet_id}_{k}")])
 
@@ -4683,7 +4690,7 @@ async def show_feed_menu(q, user, pet_id: int):
     if not is_koi:
         fd_inv_data = await fd_get_inv(user.id)
         for k, v in fd_inv_data.items():
-            if k in FARMDAY_FOOD_KEYS and (v or 0) > 0:
+            if k in FARMDAY_FOOD_KEYS and _safe_qty(v) > 0:
                 finfo = FARMDAY_HASIL_INFO.get(k, {"emoji": "📦", "name": k})
                 buttons.append([InlineKeyboardButton(f"{finfo['emoji']} {finfo['name']} x{v} 🌾", callback_data=f"feeditem_{pet_id}_farm_{k}")])
 
@@ -5445,7 +5452,7 @@ async def show_inventory(q, user):
     all_shops = {**FOOD_SHOP, **KOI_FOOD_SHOP}
     # Item standar
     for k, v in inv.items():
-        if (v or 0) > 0 and k in all_shops:
+        if _safe_qty(v) > 0 and k in all_shops:
             info = all_shops[k]
             lines.append(f"{info['emoji']} {info['name']}: <b>x{v}</b>")
             has_item = True
@@ -5502,7 +5509,7 @@ async def show_inventory(q, user):
     # Item custom
     custom_map = await get_custom_items_map(user.id)
     for k, v in inv.items():
-        if (v or 0) > 0 and k in custom_map:
+        if _safe_qty(v) > 0 and k in custom_map:
             ci = custom_map[k]
             if ci["item_type"] == "food":
                 lines.append(f"{ci['emoji']} {safe_html(ci['name'])} 🍖: <b>x{v}</b>")
