@@ -8804,8 +8804,8 @@ async function taskInc(taskId, amount = 1) {
   await db.from('users').update({ inventory: inv }).eq('user_id', USER_ID);
 }
 
-function openCollabLink(taskId, link) {
-  // Open link FIRST (synchronous — browser blocks openLink after async gap)
+async function openCollabLink(taskId, link) {
+  // Open link FIRST (synchronous — must happen before any await)
   const twa = window.Telegram?.WebApp;
   if (twa?.openTelegramLink) {
     twa.openTelegramLink(link);
@@ -8815,15 +8815,16 @@ function openCollabLink(taskId, link) {
     window.open(link, '_blank');
   }
 
-  // Track opened in background (no await)
+  // Set opened flag locally for immediate UI update
   const inv = userData?.inventory ? {...userData.inventory} : {};
   if (!inv[`__tk_${taskId}_opened`]) {
     inv[`__tk_${taskId}_opened`] = '1';
     if (userData) userData.inventory = inv;
-    db.from('users').update({ inventory: inv }).eq('user_id', USER_ID);
+    // Await DB write so renderTasks sees the committed flag
+    await db.from('users').update({ inventory: inv }).eq('user_id', USER_ID);
   }
 
-  // Re-render so Sudah Selesai button appears when user returns
+  // Re-render — now DB has the flag so Sudah Selesai appears immediately
   renderTasks();
 }
 

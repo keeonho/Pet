@@ -1943,6 +1943,31 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if arg == "VERIFY_QUIZ":
                 await _verify_quiz_membership(context, user.id, reply_msg=update.message)
                 return
+            if arg.startswith("COLLAB"):
+                # Tracking link dari bot partner — simpan sumber di inventory
+                src = arg[7:].lower() if len(arg) > 7 else "collab"  # COLLAB_pokergram → "pokergram"
+                u2 = await get_user(user.id, safe_html(user.username), safe_html(user.first_name))
+                inv2 = u2.get("inventory") or {}
+                if isinstance(inv2, str):
+                    try: inv2 = json.loads(inv2)
+                    except: inv2 = {}
+                if not inv2.get("__collab_from"):
+                    inv2["__collab_from"] = src
+                    await sb("PATCH", "users", {"user_id": f"eq.{user.id}"}, {"inventory": inv2})
+                    _cdel(_user_cache, user.id)
+                await update.message.reply_text(
+                    f"🎉 Halo <b>{safe_html(user.first_name)}</b>! Selamat datang di\n\n"
+                    "🏪 <b>The Carpet Shop</b> — Toko Adopsi Hewan!\n\n"
+                    "Adopt, rawat, dan mainkan pet bersama teman!\n"
+                    f"🪙 Koin awal: <b>{u2.get('koin',0)}</b>",
+                    parse_mode=ParseMode.HTML,
+                    reply_markup=InlineKeyboardMarkup([[
+                        InlineKeyboardButton("📱 Buka Mini App", url=MINI_APP_URL)
+                    ], [
+                        InlineKeyboardButton("🏠 Menu Utama", callback_data="main_menu")
+                    ]])
+                )
+                return
             # Bukan kode valid, lanjut tampil welcome biasa
     else:
         u = await get_user(user.id, safe_html(user.username), safe_html(user.first_name))
@@ -7832,6 +7857,30 @@ async def show_tasks(q, user):
     ]
     await q.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(buttons))
 
+
+async def cmd_collab_stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.effective_user.id not in ADMIN_IDS:
+        return
+    res = await sb("GET", "users", {"select": "inventory"}) or []
+    counts = {}
+    total = 0
+    for row in res:
+        inv = row.get("inventory") or {}
+        if isinstance(inv, str):
+            try: inv = json.loads(inv)
+            except: inv = {}
+        src = inv.get("__collab_from")
+        if src:
+            counts[src] = counts.get(src, 0) + 1
+            total += 1
+    if not counts:
+        await update.message.reply_text("📊 Belum ada user dari collab link.")
+        return
+    lines = ["📊 <b>Collab Source Stats</b>"]
+    for src, cnt in sorted(counts.items(), key=lambda x: -x[1]):
+        lines.append(f"• <code>{src}</code>: <b>{cnt}</b> user")
+    lines.append(f"\n<b>Total: {total}</b>")
+    await update.message.reply_text("\n".join(lines), parse_mode=ParseMode.HTML)
 
 async def cmd_task(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
@@ -14515,6 +14564,7 @@ def main():
     app.add_handler(CommandHandler("addfarmpoin",      cmd_addfarmpoin))
     app.add_handler(CommandHandler("task",             cmd_task))
     app.add_handler(CommandHandler("misi",             cmd_task))
+    app.add_handler(CommandHandler("collab_stats",     cmd_collab_stats))
     app.add_handler(CallbackQueryHandler(btn))
     app.add_handler(InlineQueryHandler(inline_handler))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, msg_handler))
