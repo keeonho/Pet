@@ -8778,6 +8778,34 @@ async function markTaskDone(taskId) {
   renderTasks();
 }
 
+async function openCollabLink(taskId, link) {
+  // Track that user actually opened the link
+  const inv = userData?.inventory ? {...userData.inventory} : {};
+  if (!inv[`__tk_${taskId}_opened`]) {
+    inv[`__tk_${taskId}_opened`] = '1';
+    await db.from('users').update({ inventory: inv }).eq('user_id', USER_ID);
+    if (userData) userData.inventory = inv;
+  }
+  // Open via Telegram WebApp (proper t.me link opening)
+  if (window.Telegram?.WebApp?.openTelegramLink) {
+    window.Telegram.WebApp.openTelegramLink(link);
+  } else {
+    window.open(link, '_blank');
+  }
+  renderTasks();
+}
+
+async function verifyQuizMembership() {
+  // Reload fresh data from DB — pets.py sets __tk_join_quiz='done' when verified
+  await loadUser();
+  const inv = userData?.inventory || {};
+  if (inv[_tk('join_quiz')] === 'done') {
+    renderTasks();
+  } else {
+    showToast('❌ Belum terverifikasi. Tekan Verifikasi di bot dulu!');
+  }
+}
+
 async function renderTasks() {
   await loadUser();
   const el = document.getElementById('task-content');
@@ -8802,13 +8830,17 @@ async function renderTasks() {
 
     if ((task.type === 'collab' || task.type === 'channel') && task.img) {
       // Banner card for collab tasks with image
+      const hasOpened = !!inv[`__tk_${task.id}_opened`];
       let btnHtml = '';
       if (isClaimed) {
         btnHtml = `<div style="font-size:0.8rem;color:#5CAF8E;font-weight:700;margin-top:8px">✅ Sudah diklaim</div>`;
       } else if (!isReady) {
+        const sudahBtn = hasOpened
+          ? `<button onclick="markTaskDone('${task.id}')" style="flex:1;padding:9px;border:none;border-radius:12px;background:#5CAF8E;color:#fff;font-weight:700;font-size:0.82rem;cursor:pointer">✅ Sudah Selesai</button>`
+          : `<span style="flex:1;padding:9px;border-radius:12px;background:#e0e0e0;color:#999;font-size:0.78rem;text-align:center;display:flex;align-items:center;justify-content:center">Buka dulu~</span>`;
         btnHtml = `<div style="display:flex;gap:8px;margin-top:10px">
-          <button onclick="window.Telegram?.WebApp?.openLink('${task.link}')||window.open('${task.link}')" style="flex:1;padding:9px;border:none;border-radius:12px;background:#5b8dee;color:#fff;font-weight:700;font-size:0.82rem;cursor:pointer">🚀 ${task.bot||'Buka'}</button>
-          <button onclick="markTaskDone('${task.id}')" style="flex:1;padding:9px;border:none;border-radius:12px;background:#5CAF8E;color:#fff;font-weight:700;font-size:0.82rem;cursor:pointer">✅ Sudah Selesai</button>
+          <button onclick="openCollabLink('${task.id}','${task.link}')" style="flex:1;padding:9px;border:none;border-radius:12px;background:#5b8dee;color:#fff;font-weight:700;font-size:0.82rem;cursor:pointer">🚀 ${task.bot||'Buka'}</button>
+          ${sudahBtn}
         </div>`;
       } else {
         btnHtml = `<button onclick="claimTask('${task.id}')" style="width:100%;margin-top:10px;padding:11px;border:none;border-radius:12px;background:linear-gradient(135deg,#f6c84e,#f4a623);color:#fff;font-weight:800;font-size:0.88rem;cursor:pointer">🎁 Klaim (${rewardTxt})</button>`;
@@ -8826,7 +8858,7 @@ async function renderTasks() {
         </div>
       </div>`;
     } else {
-      // Compact card for other tasks and collab without image
+      // Compact card for other tasks and collab without image (join_quiz etc)
       const imgHtml = task.img
         ? `<img src="${task.img}" style="width:46px;height:46px;border-radius:10px;object-fit:cover;flex-shrink:0">`
         : `<div style="width:46px;height:46px;border-radius:10px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0">${task.emoji}</div>`;
@@ -8836,9 +8868,10 @@ async function renderTasks() {
         actionHtml = `<div style="font-size:0.75rem;color:#5CAF8E;font-weight:700;margin-top:6px">✅ Sudah diklaim</div>`;
       } else if (task.type === 'collab' || task.type === 'channel') {
         if (!isReady) {
+          // join_quiz: show Buka Bot + Verifikasi (no self-report)
           actionHtml = `<div style="display:flex;gap:6px;margin-top:8px">
-            <button onclick="window.Telegram?.WebApp?.openLink('${task.link}')||window.open('${task.link}')" style="flex:1;padding:8px;border:none;border-radius:10px;background:#5b8dee;color:#fff;font-weight:700;font-size:0.8rem;cursor:pointer">🚀 ${task.bot||'Buka'}</button>
-            <button onclick="markTaskDone('${task.id}')" style="flex:1;padding:8px;border:none;border-radius:10px;background:#5CAF8E;color:#fff;font-weight:700;font-size:0.8rem;cursor:pointer">✅ Sudah Selesai</button>
+            <button onclick="openCollabLink('${task.id}','${task.link}')" style="flex:1;padding:8px;border:none;border-radius:10px;background:#5b8dee;color:#fff;font-weight:700;font-size:0.8rem;cursor:pointer">🚀 ${task.bot||'Buka'}</button>
+            <button onclick="verifyQuizMembership()" style="flex:1;padding:8px;border:none;border-radius:10px;background:#5CAF8E;color:#fff;font-weight:700;font-size:0.8rem;cursor:pointer">✅ Verifikasi</button>
           </div>`;
         } else {
           actionHtml = `<button onclick="claimTask('${task.id}')" style="width:100%;margin-top:8px;padding:10px;border:none;border-radius:10px;background:linear-gradient(135deg,#f6c84e,#f4a623);color:#fff;font-weight:800;font-size:0.85rem;cursor:pointer">🎁 Klaim (${rewardTxt})</button>`;
