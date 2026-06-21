@@ -8802,15 +8802,24 @@ function openCollabLink(taskId, link) {
   renderTasks();
 }
 
-async function verifyQuizMembership() {
-  // Reload fresh data from DB — pets.py sets __tk_join_quiz='done' when verified
-  await loadUser();
-  const inv = userData?.inventory || {};
-  if (inv[_tk('join_quiz')] === 'done') {
-    renderTasks();
+function verifyQuizMembership() {
+  // Open Carpets bot to verify — bot will getChatMember(@carpetsquiz) and mark done
+  const twa = window.Telegram?.WebApp;
+  const botLink = 'https://t.me/carpetsrobot?start=verify_quiz';
+  if (twa?.openTelegramLink) {
+    twa.openTelegramLink(botLink);
   } else {
-    showToast('❌ Belum terverifikasi. Tekan Verifikasi di bot dulu!');
+    window.open(botLink, '_blank');
   }
+  showToast('Verifikasi di bot, lalu kembali ke sini 🔄');
+}
+
+// Re-render task page when user returns to mini app after visiting bot/collab app
+if (window.Telegram?.WebApp) {
+  window.Telegram.WebApp.onEvent('activated', () => {
+    const taskScreen = document.getElementById('screen-task');
+    if (taskScreen?.classList.contains('active')) renderTasks();
+  });
 }
 
 async function renderTasks() {

@@ -1928,6 +1928,9 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 marry_code = arg[6:]
                 await handle_marriage_link(update, context, marry_code)
                 return
+            if arg == "VERIFY_QUIZ":
+                await _verify_quiz_membership(context, user.id, reply_msg=update.message)
+                return
             # Bukan kode valid, lanjut tampil welcome biasa
     else:
         u = await get_user(user.id, safe_html(user.username), safe_html(user.first_name))
@@ -2603,16 +2606,7 @@ async def btn(update: Update, context: ContextTypes.DEFAULT_TYPE):
         elif data.startswith("task_verify_"):
             tid = data[12:]
             if tid == "join_quiz":
-                try:
-                    member = await context.bot.get_chat_member(chat_id="@CarpetsQuizBot", user_id=user.id)
-                    if member.status not in ("left", "kicked", "banned"):
-                        await task_mark_done(user.id, tid)
-                        await q.answer("✅ Terverifikasi! Kamu sudah join Carpets Quiz.", show_alert=True)
-                        await show_tasks(q, user)
-                    else:
-                        await q.answer("❌ Kamu belum join @CarpetsQuizBot. Join dulu ya!", show_alert=True)
-                except Exception:
-                    await q.answer("❌ Gagal verifikasi. Pastikan kamu sudah start @CarpetsQuizBot.", show_alert=True)
+                await _verify_quiz_membership(context, user.id, reply_q=q)
             else:
                 await q.answer("❌ Verifikasi tidak tersedia untuk task ini.", show_alert=True)
 
@@ -7754,6 +7748,40 @@ async def _do_broadcast_text(context: ContextTypes.DEFAULT_TYPE, message: str, s
         logger.error(f"Broadcast text error: {e}")
 
 # ==================== HELP & INFO ====================
+async def _verify_quiz_membership(context, user_id: int, reply_q=None, reply_msg=None):
+    """Check if user is member of @carpetsquiz and mark task done if so."""
+    try:
+        member = await context.bot.get_chat_member(chat_id="@carpetsquiz", user_id=user_id)
+        is_member = member.status not in ("left", "kicked", "banned")
+    except Exception:
+        is_member = False
+
+    if is_member:
+        await task_mark_done(user_id, "join_quiz")
+        text = (
+            "✅ <b>Terverifikasi!</b> Kamu adalah member <b>@carpetsquiz</b>.\n\n"
+            "Task sudah dicatat. Kembali ke Mini App untuk klaim reward! 🎁"
+        )
+        kb = InlineKeyboardMarkup([[InlineKeyboardButton("📱 Kembali ke Mini App", url=MINI_APP_URL)]])
+    else:
+        text = (
+            "❌ Kamu belum join <b>@carpetsquiz</b>.\n\n"
+            "Join grupnya dulu, lalu tekan <b>Verifikasi</b> lagi!"
+        )
+        kb = InlineKeyboardMarkup([
+            [InlineKeyboardButton("➡️ Join @carpetsquiz", url="https://t.me/carpetsquiz")],
+            [InlineKeyboardButton("📱 Kembali ke Mini App", url=MINI_APP_URL)],
+        ])
+
+    if reply_q:
+        await reply_q.answer("✅ Terverifikasi!" if is_member else "❌ Belum join @carpetsquiz.", show_alert=True)
+        try:
+            await reply_q.message.reply_text(text, parse_mode=ParseMode.HTML, reply_markup=kb)
+        except Exception: pass
+    elif reply_msg:
+        await reply_msg.reply_text(text, parse_mode=ParseMode.HTML, reply_markup=kb)
+
+
 async def show_tasks(q, user):
     u = await get_user(user.id)
     inv = u.get("inventory", {}) or {}
