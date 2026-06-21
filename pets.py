@@ -905,7 +905,8 @@ async def get_user(user_id: int, username: str = None, nama: str = None, ref_by:
     if res3:
         _cset(_user_cache, user_id, res3[0])
         return res3[0]
-    return None
+    # Fallback: kembalikan dict kosong aman agar .get() tidak crash
+    return {"user_id": user_id, "koin": 0, "inventory": {}, "games_today": {}, "last_daily": None}
 
 def get_display_name(u: dict) -> str:
     """Ambil nickname kalau ada, kalau tidak pakai nama"""
@@ -1119,12 +1120,17 @@ async def get_inv(user_id: int) -> dict:
         except: return {}
     if not isinstance(inv, dict):
         return {}
-    # Normalisasi: nilai None → 0 untuk semua key numeric (qty items)
-    # Key yang mulai dengan _ adalah tracking metadata (string OK)
+    # Normalisasi: None → 0, string angka → int untuk qty items
+    # Key yang mulai dengan _ atau __ adalah tracking metadata (string OK)
     result = {}
     for k, v in inv.items():
         if v is None:
             result[k] = 0
+        elif isinstance(v, str) and not k.startswith('_'):
+            try:
+                result[k] = int(v)
+            except (ValueError, TypeError):
+                result[k] = v
         else:
             result[k] = v
     return result
