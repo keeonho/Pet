@@ -1120,17 +1120,16 @@ async def get_inv(user_id: int) -> dict:
         except: return {}
     if not isinstance(inv, dict):
         return {}
-    # Normalisasi: None → 0, string angka → int untuk qty items
-    # Key yang mulai dengan _ atau __ adalah tracking metadata (string OK)
+    # Normalisasi: None → 0, semua string numerik → int (termasuk __tk_ keys)
     result = {}
     for k, v in inv.items():
         if v is None:
             result[k] = 0
-        elif isinstance(v, str) and not k.startswith('_'):
+        elif isinstance(v, str):
             try:
                 result[k] = int(v)
             except (ValueError, TypeError):
-                result[k] = v
+                result[k] = v  # biarkan string (timestamp, 'done', dll)
         else:
             result[k] = v
     return result
