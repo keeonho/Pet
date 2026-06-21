@@ -7759,8 +7759,7 @@ async def show_tasks(q, user):
     inv = u.get("inventory", {}) or {}
 
     text = "🎯 <b>Misi & Task</b>\n━━━━━━━━━━━━━━━\n\n"
-    buttons = []
-    all_done = True
+    claimed = 0
 
     for task in TASKS:
         tid = task["id"]
@@ -7770,6 +7769,8 @@ async def show_tasks(q, user):
         reward_txt = f"+{coin}🪙" + (f" +{food}x🥩" if food else "")
         is_claimed = bool(inv.get(_tk_done(tid)))
         is_ready = _task_is_ready(inv, task)
+        if is_claimed:
+            claimed += 1
 
         if task["type"] in ("collab", "channel", "milestone"):
             status = "✅" if is_claimed else ("🟢" if is_ready else "⬜")
@@ -7782,20 +7783,13 @@ async def show_tasks(q, user):
 
         text += f"{status} {emoji} <b>{task['title']}</b>{prog_txt}\n   💰 {reward_txt}\n\n"
 
-        if not is_claimed:
-            all_done = False
-            if task["type"] in ("collab", "channel") and not is_ready:
-                row = [InlineKeyboardButton(f"🚀 {task.get('bot_name','Buka')}", url=task["link"])]
-                if tid == "join_quiz":
-                    row.append(InlineKeyboardButton("✅ Verifikasi", callback_data=f"task_verify_{tid}"))
-                buttons.append(row)
-            elif is_ready:
-                buttons.append([InlineKeyboardButton(f"🎁 Klaim {emoji} ({reward_txt})", callback_data=f"task_claim_{tid}")])
+    text += f"<i>{claimed}/{len(TASKS)} misi diklaim</i>\n\n"
+    text += "📱 <b>Buka Mini App untuk GO, Sudah Selesai & Klaim reward!</b>"
 
-    if all_done:
-        text += "🎉 <b>Semua misi sudah selesai!</b>"
-
-    buttons.append([InlineKeyboardButton("🔙 Menu Utama", callback_data="main_menu")])
+    buttons = [
+        [InlineKeyboardButton("📱 Buka Mini App → Misi", url=MINI_APP_URL)],
+        [InlineKeyboardButton("🔙 Menu Utama", callback_data="main_menu")],
+    ]
     await q.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(buttons))
 
 
@@ -7806,7 +7800,7 @@ async def cmd_task(update: Update, context: ContextTypes.DEFAULT_TYPE):
     u = await get_user(user.id)
     inv = u.get("inventory", {}) or {}
     text = "🎯 <b>Misi & Task</b>\n━━━━━━━━━━━━━━━\n\n"
-    buttons = []
+    claimed = 0
     for task in TASKS:
         tid = task["id"]
         emoji = task.get("emoji", "📋")
@@ -7815,6 +7809,8 @@ async def cmd_task(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reward_txt = f"+{coin}🪙" + (f" +{food}x🥩" if food else "")
         is_claimed = bool(inv.get(_tk_done(tid)))
         is_ready = _task_is_ready(inv, task)
+        if is_claimed:
+            claimed += 1
         if task["type"] in ("collab", "channel", "milestone"):
             status = "✅" if is_claimed else ("🟢" if is_ready else "⬜")
             prog_txt = ""
@@ -7824,16 +7820,12 @@ async def cmd_task(update: Update, context: ContextTypes.DEFAULT_TYPE):
             status = "✅" if is_claimed else ("🟢" if is_ready else f"({current}/{target})")
             prog_txt = f" {current}/{target}" if not is_claimed else ""
         text += f"{status} {emoji} <b>{task['title']}</b>{prog_txt}\n   💰 {reward_txt}\n\n"
-        if not is_claimed:
-            if task["type"] in ("collab", "channel") and not is_ready:
-                row = [InlineKeyboardButton(f"🚀 {task.get('bot_name','Buka')}", url=task["link"])]
-                if tid == "join_quiz":
-                    row.append(InlineKeyboardButton("✅ Verifikasi", callback_data=f"task_verify_{tid}"))
-                buttons.append(row)
-            elif is_ready:
-                buttons.append([InlineKeyboardButton(f"🎁 Klaim {emoji} ({reward_txt})", callback_data=f"task_claim_{tid}")])
-    buttons.append([InlineKeyboardButton("🔙 Menu Utama", callback_data="main_menu")])
-    await update.message.reply_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(buttons))
+    text += f"<i>{claimed}/{len(TASKS)} misi diklaim</i>\n\n"
+    text += "📱 <b>Buka Mini App untuk GO, Sudah Selesai & Klaim reward!</b>"
+    await update.message.reply_text(
+        text, parse_mode=ParseMode.HTML,
+        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("📱 Buka Mini App → Misi", url=MINI_APP_URL)]])
+    )
 
 
 async def show_help_info(q):
