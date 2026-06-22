@@ -101,7 +101,7 @@ TASKS = [
     {
         "id": "topup_4k", "type": "topup",
         "emoji": "💳", "title": "Top up minimal 4.000 koin",
-        "target": 4000, "reward_coin": 2000, "reward_food": 0,
+        "target": 4000, "reward_coin": 2000, "reward_food": 5,
     },
     {
         "id": "pet_lv60", "type": "milestone",
