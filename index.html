@@ -7808,6 +7808,7 @@ async function doCookMbg(key) {
   // Tambah hasil
   inv[key] = (inv[key]||0) + recipe.result_qty;
   await saveInv(inv);
+  await taskInc('cook_5');
   closeModal();
   showToast(`🍳 ${recipe.emoji} ${recipe.name} x${recipe.result_qty} berhasil dibuat!`);
   renderShop();
