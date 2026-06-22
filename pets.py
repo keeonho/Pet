@@ -62,7 +62,7 @@ TASKS = [
         "title": "Join Pokergram & Grab your free chips now!",
         "link": "https://t.me/PokergramComBot/pokerapp?startapp=campCarpetsrobot_Sh_P",
         "image": "https://files.catbox.moe/3ovrnx.jpg",
-        "reward_coin": 100, "reward_food": 5,
+        "reward_coin": 100, "reward_food": 5, "food_key": "meal",
     },
     {
         "id": "boinkers", "type": "collab",
@@ -70,7 +70,7 @@ TASKS = [
         "title": "Spin the slot to claim your Boinkers Pet!",
         "link": "https://t.me/boinker_bot/boinkapp?startapp=campCarpetsrobot_Sh",
         "image": "https://files.catbox.moe/6qbhon.jpg",
-        "reward_coin": 100, "reward_food": 5,
+        "reward_coin": 100, "reward_food": 5, "food_key": "meal",
     },
     {
         "id": "pixelpaw", "type": "collab",
@@ -78,7 +78,7 @@ TASKS = [
         "title": "Reach lvl 12 in Pixel Paw",
         "link": "https://t.me/PixelPawsGame_bot/app?startapp=campCarpetsrobot_Sh",
         "image": "https://files.catbox.moe/d81c0x.png",
-        "reward_coin": 100, "reward_food": 5,
+        "reward_coin": 100, "reward_food": 5, "food_key": "meal",
     },
     {
         "id": "join_quiz", "type": "collab",
@@ -137,17 +137,17 @@ TASKS = [
     {
         "id": "expedition_5", "type": "count",
         "emoji": "✈️", "title": "Ekspedisi pet 5 kali",
-        "target": 5, "reward_coin": 0, "reward_food": 5, "food_key": "meal",
+        "target": 5, "reward_coin": 0, "reward_food": 5,
     },
     {
         "id": "cook_5", "type": "count",
         "emoji": "🍳", "title": "Masak item di dapur 5 kali",
-        "target": 5, "reward_coin": 0, "reward_food": 3, "food_key": "meal",
+        "target": 5, "reward_coin": 0, "reward_food": 3,
     },
     {
         "id": "school_5", "type": "count",
         "emoji": "🏫", "title": "Sekolahkan pet 5 kali",
-        "target": 5, "reward_coin": 0, "reward_food": 5, "food_key": "meal",
+        "target": 5, "reward_coin": 0, "reward_food": 5,
     },
 ]
 
@@ -1136,7 +1136,9 @@ async def do_task_claim(user_id: int, task_id: str) -> tuple:
         })
     parts = []
     if reward_coin: parts.append(f"+{reward_coin:,} 🪙")
-    if reward_food: parts.append(f"+{reward_food}x 🍖")
+    if reward_food:
+        food_key = task.get("food_key", "rendang")
+        parts.append(f"+{reward_food}x 🍖" if food_key == "meal" else f"+{reward_food}x 🥩 Rendang")
     if reward_pill: parts.append(f"+{reward_pill}x 💊 Pil Level Up")
     if reward_pet:
         pet_info = PETS.get(reward_pet, {})

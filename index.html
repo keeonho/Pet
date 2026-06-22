@@ -8730,9 +8730,9 @@ async function doUseItemOnPet(type, itemKey, petIdx) {
 // ==================== GAMES SCREEN ====================
 // ==================== TASK / MISI ====================
 const TASKS_DEF = [
-  { id:'pokergram',   type:'collab',  emoji:'🃏', bot:'Pokergram',    title:'Join Pokergram & Grab your free chips now!', link:'https://t.me/PokergramComBot/pokerapp?startapp=campCarpetsrobot_Sh_P', img:'https://files.catbox.moe/3ovrnx.jpg',  coin:100, food:5 },
-  { id:'boinkers',    type:'collab',  emoji:'🎰', bot:'Boinkers',     title:'Spin the slot to claim your Boinkers Pet!',  link:'https://t.me/boinker_bot/boinkapp?startapp=campCarpetsrobot_Sh',         img:'https://files.catbox.moe/6qbhon.jpg',  coin:100, food:5 },
-  { id:'pixelpaw',    type:'collab',  emoji:'🐾', bot:'Pixel Paw',   title:'Reach lvl 12 in Pixel Paw',                  link:'https://t.me/PixelPawsGame_bot/app?startapp=campCarpetsrobot_Sh',         img:'https://files.catbox.moe/d81c0x.png',  coin:100, food:5 },
+  { id:'pokergram',   type:'collab',  emoji:'🃏', bot:'Pokergram',    title:'Join Pokergram & Grab your free chips now!', link:'https://t.me/PokergramComBot/pokerapp?startapp=campCarpetsrobot_Sh_P', img:'https://files.catbox.moe/3ovrnx.jpg',  coin:100, food:5, foodKey:'meal' },
+  { id:'boinkers',    type:'collab',  emoji:'🎰', bot:'Boinkers',     title:'Spin the slot to claim your Boinkers Pet!',  link:'https://t.me/boinker_bot/boinkapp?startapp=campCarpetsrobot_Sh',         img:'https://files.catbox.moe/6qbhon.jpg',  coin:100, food:5, foodKey:'meal' },
+  { id:'pixelpaw',    type:'collab',  emoji:'🐾', bot:'Pixel Paw',   title:'Reach lvl 12 in Pixel Paw',                  link:'https://t.me/PixelPawsGame_bot/app?startapp=campCarpetsrobot_Sh',         img:'https://files.catbox.moe/d81c0x.png',  coin:100, food:5, foodKey:'meal' },
   { id:'join_quiz',   type:'collab',  emoji:'🏆', bot:'Carpets Quiz', title:'Join Carpets Quiz',                          link:'https://t.me/CarpetsQuiz',                                                img:null,                                   coin:100, food:0 },
   { id:'feed_other',  type:'count',   emoji:'🍖', title:'Kasih makan pet orang lain',  target:1,    coin:200, food:0 },
   { id:'play_games',  type:'count',   emoji:'🎮', title:'Main mini game 20 kali',      target:20,   coin:200, food:0 },
@@ -8743,9 +8743,9 @@ const TASKS_DEF = [
   { id:'gacha_10',    type:'count',   emoji:'🎰', title:'Spin gacha box 10 kali',      target:10,   coin:500, food:0 },
   { id:'harvest_10',  type:'count',   emoji:'🌾', title:'Panen hasil ternak 10 kali',  target:10,   coin:200, food:0 },
   { id:'topup_15k',   type:'topup',   emoji:'💎', title:'Top up minimal 15.000 koin',  target:15000,coin:3000,food:0, pet:'🐋 Blue Fin', pill:5 },
-  { id:'expedition_5',type:'count',   emoji:'✈️', title:'Ekspedisi pet 5 kali',        target:5,    coin:0,   food:5, foodKey:'meal' },
-  { id:'cook_5',      type:'count',   emoji:'🍳', title:'Masak item di dapur 5 kali',  target:5,    coin:0,   food:3, foodKey:'meal' },
-  { id:'school_5',    type:'count',   emoji:'🏫', title:'Sekolahkan pet 5 kali',       target:5,    coin:0,   food:5, foodKey:'meal' },
+  { id:'expedition_5',type:'count',   emoji:'✈️', title:'Ekspedisi pet 5 kali',        target:5,    coin:0,   food:5 },
+  { id:'cook_5',      type:'count',   emoji:'🍳', title:'Masak item di dapur 5 kali',  target:5,    coin:0,   food:3 },
+  { id:'school_5',    type:'count',   emoji:'🏫', title:'Sekolahkan pet 5 kali',       target:5,    coin:0,   food:5 },
 ];
 
 function _tk(id)      { return `__tk_${id}`; }
@@ -8784,7 +8784,7 @@ async function claimTask(taskId) {
   if (userData) userData.inventory = inv;
   const rParts = [];
   if (task.coin)  rParts.push(`+${task.coin.toLocaleString()}🪙`);
-  if (rewardFood) rParts.push(`+${rewardFood}x 🍖`);
+  if (rewardFood) rParts.push(task.foodKey === 'meal' ? `+${rewardFood}x 🍖` : `+${rewardFood}x 🥩 Rendang`);
   if (rewardPill) rParts.push(`+${rewardPill}x 💊 Pil Level Up`);
   if (task.pet)   rParts.push(task.pet);
   alert(`🎉 Berhasil klaim!\n${rParts.join(' + ')}`);
@@ -8876,7 +8876,7 @@ async function renderTasks() {
     const hasOpened = !!inv[`__tk_${task.id}_opened`];
     const rewardParts = [];
     if (task.coin) rewardParts.push(`+${task.coin.toLocaleString()}🪙`);
-    if (task.food) rewardParts.push(`+${task.food}x 🍖`);
+    if (task.food) rewardParts.push(task.foodKey === 'meal' ? `+${task.food}x 🍖` : `+${task.food}x 🥩 Rendang`);
     if (task.pill) rewardParts.push(`+${task.pill}x 💊 Pil Level Up`);
     if (task.pet)  rewardParts.push(task.pet);
     const rewardTxt = rewardParts.join(' + ') || 'Reward';
