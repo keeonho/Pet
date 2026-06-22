@@ -1092,7 +1092,7 @@ async def do_task_claim(user_id: int, task_id: str) -> tuple:
     inv[_tk_done(task_id)] = now_wib().isoformat()
     reward_food = task.get("reward_food", 0)
     if reward_food:
-        inv["premium"] = (inv.get("premium") or 0) + reward_food
+        inv["rendang"] = (inv.get("rendang") or 0) + reward_food
     await update_user(user_id, {"inventory": inv})
     reward_coin = task.get("reward_coin", 0)
     if reward_coin:

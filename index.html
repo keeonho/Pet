@@ -8764,7 +8764,7 @@ async function claimTask(taskId) {
   const now = new Date().toISOString();
   inv[_tkDone(taskId)] = now;
   const rewardFood = task.food || 0;
-  if (rewardFood) inv['premium'] = (inv['premium']||0) + rewardFood;
+  if (rewardFood) inv['rendang'] = (inv['rendang']||0) + rewardFood;
 
   await db.from('users').update({ inventory: inv }).eq('user_id', USER_ID);
 
