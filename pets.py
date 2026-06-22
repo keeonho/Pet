@@ -1064,6 +1064,8 @@ def _task_is_ready(inv: dict, task: dict) -> bool:
 async def task_inc(user_id: int, task_id: str, amount: int = 1):
     task = _task_by_id(task_id)
     if not task: return
+    # Flush cache dulu supaya selalu baca nilai terbaru dari DB (hindari race condition)
+    _cdel(_user_cache, user_id)
     inv = await get_inv(user_id)
     if inv.get(_tk_done(task_id)): return
     target = task.get("target", 1)
@@ -2863,7 +2865,7 @@ async def btn(update: Update, context: ContextTypes.DEFAULT_TYPE):
             target_id = int(rparts[0])
             amount    = int(rparts[1])
             await add_koin(target_id, amount, "topup")
-            asyncio.create_task(task_inc(target_id, "topup_4k", amount))
+            await task_inc(target_id, "topup_4k", amount)
 
             # Bonus koin event (kalau aktif)
             bonus_koin = _topup_bonus_amount(amount)
