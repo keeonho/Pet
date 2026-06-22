@@ -8742,7 +8742,7 @@ const TASKS_DEF = [
   { id:'gift_partner',type:'count',   emoji:'🎁', title:'Gift item ke partner',         target:1,    coin:100, food:0 },
   { id:'gacha_10',    type:'count',   emoji:'🎰', title:'Spin gacha box 10 kali',      target:10,   coin:500, food:0 },
   { id:'harvest_10',  type:'count',   emoji:'🌾', title:'Panen hasil ternak 10 kali',  target:10,   coin:200, food:0 },
-  { id:'topup_15k',   type:'topup',   emoji:'💎', title:'Top up minimal 15.000 koin',  target:15000,coin:3000,food:0, pet:'🐋 Blue Fin', pill:5 },
+  { id:'topup_15k',   type:'topup',   emoji:'💎', title:'Top up minimal 15.000 koin',  target:15000,coin:3000,food:0, pet:'🐋 Blue Fin', petType:'ikan_biru', petName:'Blue Fin', petAbility:'work_3x', pill:5 },
   { id:'expedition_5',type:'count',   emoji:'✈️', title:'Ekspedisi pet 5 kali',        target:5,    coin:0,   food:5 },
   { id:'cook_5',      type:'count',   emoji:'🍳', title:'Masak item di dapur 5 kali',  target:5,    coin:0,   food:3 },
   { id:'school_5',    type:'count',   emoji:'🏫', title:'Sekolahkan pet 5 kali',       target:5,    coin:0,   food:5 },
@@ -8782,6 +8782,20 @@ async function claimTask(taskId) {
     if (userData) userData.koin = koin;
   }
   if (userData) userData.inventory = inv;
+
+  // Create pet reward
+  if (task.petType) {
+    await db.from('pets').insert({
+      owner1_id: USER_ID, owner2_id: null,
+      name: task.petName || task.petType, pet_type: task.petType,
+      xp: 0, level: 1, hunger: 0, happiness: 100, health: 100,
+      poop_count: 0, is_sleeping: false, is_dirty: false,
+      is_missing: false, is_married: false, is_child: false,
+      last_decay: new Date().toISOString(),
+      special_ability: task.petAbility || null,
+    });
+  }
+
   const rParts = [];
   if (task.coin)  rParts.push(`+${task.coin.toLocaleString()}🪙`);
   if (rewardFood) rParts.push(task.foodKey === 'meal' ? `+${rewardFood}x 🍖` : `+${rewardFood}x 🥩 Rendang`);
