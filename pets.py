@@ -137,17 +137,17 @@ TASKS = [
     {
         "id": "expedition_5", "type": "count",
         "emoji": "✈️", "title": "Ekspedisi pet 5 kali",
-        "target": 5, "reward_coin": 0, "reward_food": 5,
+        "target": 5, "reward_coin": 0, "reward_food": 5, "food_key": "meal",
     },
     {
         "id": "cook_5", "type": "count",
         "emoji": "🍳", "title": "Masak item di dapur 5 kali",
-        "target": 5, "reward_coin": 0, "reward_food": 3,
+        "target": 5, "reward_coin": 0, "reward_food": 3, "food_key": "meal",
     },
     {
         "id": "school_5", "type": "count",
         "emoji": "🏫", "title": "Sekolahkan pet 5 kali",
-        "target": 5, "reward_coin": 0, "reward_food": 5,
+        "target": 5, "reward_coin": 0, "reward_food": 5, "food_key": "meal",
     },
 ]
 
@@ -1113,7 +1113,8 @@ async def do_task_claim(user_id: int, task_id: str) -> tuple:
     inv[_tk_done(task_id)] = now_wib().isoformat()
     reward_food = task.get("reward_food", 0)
     if reward_food:
-        inv["rendang"] = (inv.get("rendang") or 0) + reward_food
+        food_key = task.get("food_key", "rendang")
+        inv[food_key] = (inv.get(food_key) or 0) + reward_food
     reward_pill = task.get("reward_pill", 0)
     if reward_pill:
         inv["pil_levelup"] = (inv.get("pil_levelup") or 0) + reward_pill
@@ -1135,7 +1136,7 @@ async def do_task_claim(user_id: int, task_id: str) -> tuple:
         })
     parts = []
     if reward_coin: parts.append(f"+{reward_coin:,} 🪙")
-    if reward_food: parts.append(f"+{reward_food}x 🥩 Rendang")
+    if reward_food: parts.append(f"+{reward_food}x 🍖")
     if reward_pill: parts.append(f"+{reward_pill}x 💊 Pil Level Up")
     if reward_pet:
         pet_info = PETS.get(reward_pet, {})

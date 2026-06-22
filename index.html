@@ -8743,9 +8743,9 @@ const TASKS_DEF = [
   { id:'gacha_10',    type:'count',   emoji:'🎰', title:'Spin gacha box 10 kali',      target:10,   coin:500, food:0 },
   { id:'harvest_10',  type:'count',   emoji:'🌾', title:'Panen hasil ternak 10 kali',  target:10,   coin:200, food:0 },
   { id:'topup_15k',   type:'topup',   emoji:'💎', title:'Top up minimal 15.000 koin',  target:15000,coin:3000,food:0, pet:'🐋 Blue Fin', pill:5 },
-  { id:'expedition_5',type:'count',   emoji:'✈️', title:'Ekspedisi pet 5 kali',        target:5,    coin:0,   food:5 },
-  { id:'cook_5',      type:'count',   emoji:'🍳', title:'Masak item di dapur 5 kali',  target:5,    coin:0,   food:3 },
-  { id:'school_5',    type:'count',   emoji:'🏫', title:'Sekolahkan pet 5 kali',       target:5,    coin:0,   food:5 },
+  { id:'expedition_5',type:'count',   emoji:'✈️', title:'Ekspedisi pet 5 kali',        target:5,    coin:0,   food:5, foodKey:'meal' },
+  { id:'cook_5',      type:'count',   emoji:'🍳', title:'Masak item di dapur 5 kali',  target:5,    coin:0,   food:3, foodKey:'meal' },
+  { id:'school_5',    type:'count',   emoji:'🏫', title:'Sekolahkan pet 5 kali',       target:5,    coin:0,   food:5, foodKey:'meal' },
 ];
 
 function _tk(id)      { return `__tk_${id}`; }
@@ -8769,7 +8769,7 @@ async function claimTask(taskId) {
   const now = new Date().toISOString();
   inv[_tkDone(taskId)] = now;
   const rewardFood = task.food || 0;
-  if (rewardFood) inv['rendang'] = (inv['rendang']||0) + rewardFood;
+  if (rewardFood) { const fk = task.foodKey || 'rendang'; inv[fk] = (inv[fk]||0) + rewardFood; }
   const rewardPill = task.pill || 0;
   if (rewardPill) inv['pil_levelup'] = (inv['pil_levelup']||0) + rewardPill;
 
@@ -8784,7 +8784,7 @@ async function claimTask(taskId) {
   if (userData) userData.inventory = inv;
   const rParts = [];
   if (task.coin)  rParts.push(`+${task.coin.toLocaleString()}🪙`);
-  if (rewardFood) rParts.push(`+${rewardFood}x 🍖 Rendang`);
+  if (rewardFood) rParts.push(`+${rewardFood}x 🍖`);
   if (rewardPill) rParts.push(`+${rewardPill}x 💊 Pil Level Up`);
   if (task.pet)   rParts.push(task.pet);
   alert(`🎉 Berhasil klaim!\n${rParts.join(' + ')}`);
@@ -8876,7 +8876,7 @@ async function renderTasks() {
     const hasOpened = !!inv[`__tk_${task.id}_opened`];
     const rewardParts = [];
     if (task.coin) rewardParts.push(`+${task.coin.toLocaleString()}🪙`);
-    if (task.food) rewardParts.push(`+${task.food}x 🍖 Rendang`);
+    if (task.food) rewardParts.push(`+${task.food}x 🍖`);
     if (task.pill) rewardParts.push(`+${task.pill}x 💊 Pil Level Up`);
     if (task.pet)  rewardParts.push(task.pet);
     const rewardTxt = rewardParts.join(' + ') || 'Reward';
