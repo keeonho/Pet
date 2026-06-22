@@ -8888,8 +8888,8 @@ async function renderTasks() {
       </div>`;
     } else if (!isClaimed && !isReady && hasOpened && (task.type === 'collab' || task.type === 'channel')) {
       const verifyBtn = task.id === 'join_quiz'
-        ? `<button onclick="verifyQuizMembership()" style="width:100%;padding:11px;border:none;border-radius:10px;background:#22c55e;color:#fff;font-weight:700;font-size:0.85rem;cursor:pointer">✅ Verifikasi Keanggotaan</button>`
-        : `<button onclick="markTaskDone('${task.id}')" style="width:100%;padding:11px;border:none;border-radius:10px;background:#22c55e;color:#fff;font-weight:700;font-size:0.85rem;cursor:pointer">✅ Sudah Selesai</button>`;
+        ? `<button onclick="verifyQuizMembership()" style="width:100%;padding:11px;border:none;border-radius:10px;background:#22c55e;color:#fff;font-weight:700;font-size:0.85rem;cursor:pointer">✅ Verifikasi</button>`
+        : `<button onclick="markTaskDone('${task.id}')" style="width:100%;padding:11px;border:none;border-radius:10px;background:#22c55e;color:#fff;font-weight:700;font-size:0.85rem;cursor:pointer">✅ Verifikasi</button>`;
       bottomHtml = `<div style="padding:0 14px 14px">${verifyBtn}</div>`;
     } else if (!isClaimed && !isReady && (task.type === 'count' || task.type === 'topup')) {
       const cur = parseInt(inv[_tk(task.id)]||0);
