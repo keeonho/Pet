@@ -8741,6 +8741,10 @@ const TASKS_DEF = [
   { id:'gift_partner',type:'count',   emoji:'🎁', title:'Gift item ke partner',         target:1,    coin:100, food:0 },
   { id:'gacha_10',    type:'count',   emoji:'🎰', title:'Spin gacha box 10 kali',      target:10,   coin:500, food:0 },
   { id:'harvest_10',  type:'count',   emoji:'🌾', title:'Panen hasil ternak 10 kali',  target:10,   coin:200, food:0 },
+  { id:'topup_15k',   type:'topup',   emoji:'💎', title:'Top up minimal 15.000 koin',  target:15000,coin:3000,food:0, pet:'🐋 Blue Fin', pill:5 },
+  { id:'expedition_5',type:'count',   emoji:'✈️', title:'Ekspedisi pet 5 kali',        target:5,    coin:0,   food:5 },
+  { id:'cook_5',      type:'count',   emoji:'🍳', title:'Masak item di dapur 5 kali',  target:5,    coin:0,   food:3 },
+  { id:'school_5',    type:'count',   emoji:'🏫', title:'Sekolahkan pet 5 kali',       target:5,    coin:0,   food:5 },
 ];
 
 function _tk(id)      { return `__tk_${id}`; }
@@ -8760,11 +8764,13 @@ async function claimTask(taskId) {
   if (inv[_tkDone(taskId)]) { alert('Task ini sudah diklaim!'); return; }
   if (!taskIsReady(inv, task)) { alert('Task belum selesai!'); return; }
 
-  // Mark claimed & give food locally then update DB
+  // Mark claimed & give rewards locally then update DB
   const now = new Date().toISOString();
   inv[_tkDone(taskId)] = now;
   const rewardFood = task.food || 0;
   if (rewardFood) inv['rendang'] = (inv['rendang']||0) + rewardFood;
+  const rewardPill = task.pill || 0;
+  if (rewardPill) inv['pil_levelup'] = (inv['pil_levelup']||0) + rewardPill;
 
   await db.from('users').update({ inventory: inv }).eq('user_id', USER_ID);
 
@@ -8775,8 +8781,12 @@ async function claimTask(taskId) {
     if (userData) userData.koin = koin;
   }
   if (userData) userData.inventory = inv;
-  const rewardTxt = `+${task.coin}🪙` + (rewardFood ? ` + ${rewardFood}x🥩` : '');
-  alert(`🎉 Berhasil klaim!\n${rewardTxt}`);
+  const rParts = [];
+  if (task.coin)  rParts.push(`+${task.coin.toLocaleString()}🪙`);
+  if (rewardFood) rParts.push(`+${rewardFood}x 🍖 Rendang`);
+  if (rewardPill) rParts.push(`+${rewardPill}x 💊 Pil Level Up`);
+  if (task.pet)   rParts.push(task.pet);
+  alert(`🎉 Berhasil klaim!\n${rParts.join(' + ')}`);
   renderTasks();
 }
 
@@ -8863,7 +8873,12 @@ async function renderTasks() {
     const isClaimed = !!inv[_tkDone(task.id)];
     const isReady   = taskIsReady(inv, task);
     const hasOpened = !!inv[`__tk_${task.id}_opened`];
-    const rewardTxt = `+${task.coin}🪙` + (task.food ? ` +${task.food}x🥩` : '');
+    const rewardParts = [];
+    if (task.coin) rewardParts.push(`+${task.coin.toLocaleString()}🪙`);
+    if (task.food) rewardParts.push(`+${task.food}x 🍖 Rendang`);
+    if (task.pill) rewardParts.push(`+${task.pill}x 💊 Pil Level Up`);
+    if (task.pet)  rewardParts.push(task.pet);
+    const rewardTxt = rewardParts.join(' + ') || 'Reward';
 
     // Icon
     const iconHtml = task.img

@@ -128,6 +128,27 @@ TASKS = [
         "emoji": "🌾", "title": "Panen hasil ternak 10 kali",
         "target": 10, "reward_coin": 200, "reward_food": 0,
     },
+    {
+        "id": "topup_15k", "type": "topup",
+        "emoji": "💎", "title": "Top up minimal 15.000 koin",
+        "target": 15000, "reward_coin": 3000, "reward_food": 0,
+        "reward_pet": "ikan_biru", "reward_pill": 5,
+    },
+    {
+        "id": "expedition_5", "type": "count",
+        "emoji": "✈️", "title": "Ekspedisi pet 5 kali",
+        "target": 5, "reward_coin": 0, "reward_food": 5,
+    },
+    {
+        "id": "cook_5", "type": "count",
+        "emoji": "🍳", "title": "Masak item di dapur 5 kali",
+        "target": 5, "reward_coin": 0, "reward_food": 3,
+    },
+    {
+        "id": "school_5", "type": "count",
+        "emoji": "🏫", "title": "Sekolahkan pet 5 kali",
+        "target": 5, "reward_coin": 0, "reward_food": 5,
+    },
 ]
 
 SUPABASE_URL = "https://rtqxkdbslgtoyvouepqa.supabase.co"
@@ -1093,14 +1114,33 @@ async def do_task_claim(user_id: int, task_id: str) -> tuple:
     reward_food = task.get("reward_food", 0)
     if reward_food:
         inv["rendang"] = (inv.get("rendang") or 0) + reward_food
+    reward_pill = task.get("reward_pill", 0)
+    if reward_pill:
+        inv["pil_levelup"] = (inv.get("pil_levelup") or 0) + reward_pill
     await update_user(user_id, {"inventory": inv})
     reward_coin = task.get("reward_coin", 0)
     if reward_coin:
         await add_koin(user_id, reward_coin, "task_reward")
+    reward_pet = task.get("reward_pet")
+    if reward_pet:
+        pet_info = PETS.get(reward_pet, {})
+        _def_ability = PET_DEFAULT_ABILITY.get(reward_pet)
+        await sb("POST", "pets", {}, {
+            "owner1_id": user_id, "owner2_id": None,
+            "name": pet_info.get("name", "Blue Fin"), "pet_type": reward_pet,
+            "xp": 0, "level": 1, "hunger": 0, "happiness": 100, "health": 100,
+            "poop_count": 0, "is_sleeping": False, "is_dirty": False,
+            "is_missing": False, "is_married": False, "is_child": False,
+            "last_decay": now_wib().isoformat(), "special_ability": _def_ability,
+        })
     parts = []
-    if reward_coin: parts.append(f"+{reward_coin} 🪙")
-    if reward_food: parts.append(f"+{reward_food}x 🥩 Makan Premium")
-    return True, " ".join(parts)
+    if reward_coin: parts.append(f"+{reward_coin:,} 🪙")
+    if reward_food: parts.append(f"+{reward_food}x 🥩 Rendang")
+    if reward_pill: parts.append(f"+{reward_pill}x 💊 Pil Level Up")
+    if reward_pet:
+        pet_info = PETS.get(reward_pet, {})
+        parts.append(f"+1 {pet_info.get('emoji','🐾')} {pet_info.get('name', reward_pet)}")
+    return True, " | ".join(parts)
 
 async def get_pet_level(user_id: int) -> int:
     """Ambil level tertinggi dari semua pet milik user — dengan cache"""
@@ -1948,28 +1988,14 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if arg.startswith("COLLAB"):
                 # Tracking link dari bot partner — simpan sumber di inventory
                 src = arg[7:].lower() if len(arg) > 7 else "collab"  # COLLAB_pokergram → "pokergram"
-                u2 = await get_user(user.id, safe_html(user.username), safe_html(user.first_name))
-                inv2 = u2.get("inventory") or {}
+                inv2 = u.get("inventory") or {}
                 if isinstance(inv2, str):
                     try: inv2 = json.loads(inv2)
                     except: inv2 = {}
                 if not inv2.get("__collab_from"):
                     inv2["__collab_from"] = src
-                    await sb("PATCH", "users", {"user_id": f"eq.{user.id}"}, {"inventory": inv2})
-                    _cdel(_user_cache, user.id)
-                await update.message.reply_text(
-                    f"🎉 Halo <b>{safe_html(user.first_name)}</b>! Selamat datang di\n\n"
-                    "🏪 <b>The Carpet Shop</b> — Toko Adopsi Hewan!\n\n"
-                    "Adopt, rawat, dan mainkan pet bersama teman!\n"
-                    f"🪙 Koin awal: <b>{u2.get('koin',0)}</b>",
-                    parse_mode=ParseMode.HTML,
-                    reply_markup=InlineKeyboardMarkup([[
-                        InlineKeyboardButton("📱 Buka Mini App", url=MINI_APP_URL)
-                    ], [
-                        InlineKeyboardButton("🏠 Menu Utama", callback_data="main_menu")
-                    ]])
-                )
-                return
+                    await update_user(user.id, {"inventory": inv2})
+                # Lanjut ke welcome message biasa
             # Bukan kode valid, lanjut tampil welcome biasa
     else:
         u = await get_user(user.id, safe_html(user.username), safe_html(user.first_name))
@@ -2866,6 +2892,7 @@ async def btn(update: Update, context: ContextTypes.DEFAULT_TYPE):
             amount    = int(rparts[1])
             await add_koin(target_id, amount, "topup")
             await task_inc(target_id, "topup_4k", amount)
+            await task_inc(target_id, "topup_15k", amount)
 
             # Bonus koin event (kalau aktif)
             bonus_koin = _topup_bonus_amount(amount)
@@ -6924,6 +6951,7 @@ async def do_start_expedition(q, user, pet_id: int, dest_key: str, context):
             await q.answer(f"❌ Koin tidak cukup! Butuh {dest['cost']} 🪙", show_alert=True); return
     exp_until = (now_wib() + timedelta(hours=dest["duration_hours"])).isoformat()
     await update_pet(pet_id, {"expedition_until": exp_until, "expedition_dest": dest_key})
+    await task_inc(user.id, "expedition_5")
     await q.edit_message_text(
         f"✈️ <b>{pet['name']}</b> berangkat ke {dest['emoji']} <b>{dest['name']}</b>!\n\n"
         f"⏰ Kembali dalam: <b>{dest['duration_hours']} jam</b>\n"
@@ -7863,7 +7891,7 @@ async def show_tasks(q, user):
 async def cmd_collab_stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id not in ADMIN_IDS:
         return
-    res = await sb("GET", "users", {"select": "inventory"}) or []
+    res = await sb_get_all("users", {"select": "user_id,inventory"}) or []
     counts = {}
     total = 0
     for row in res:
@@ -8744,6 +8772,7 @@ async def do_sekolah(q, user, pet_id: int, context):
         await q.answer(f"❌ Koin tidak cukup! Butuh {SEKOLAH_COST:,} 🪙", show_alert=True); return
     sekolah_until = (now_wib() + timedelta(hours=SEKOLAH_DURATION_HOURS)).isoformat()
     await update_pet(pet_id, {"sekolah_until": sekolah_until, "last_sekolah": now_wib().isoformat()})
+    await task_inc(user.id, "school_5")
     _cdel(_pet_cache, pet_id)
     info = PETS.get(pet["pet_type"], {"emoji": "🐾"})
     profesi = pet.get("profesi_kerja", "penjelajah")
@@ -9309,6 +9338,7 @@ async def do_mbg_cook(q, user, recipe_key: str):
         if inv[k] <= 0: del inv[k]
     inv[recipe_key] = int(inv.get(recipe_key) or 0) + recipe["result_qty"]
     await set_inv(user.id, inv)
+    await task_inc(user.id, "cook_5")
     await q.edit_message_text(
         f"🍳 <b>Berhasil dibuat!</b>\n\n{recipe['emoji']} <b>{recipe['name']}</b> x{recipe['result_qty']} masuk inventori!\n\n"
         f"<i>{recipe['desc']}</i>\n\nPakai dari menu 🍽️ Kasih Makan~",
