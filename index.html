@@ -926,6 +926,58 @@ async function confirmUpgradeBarn() {
   .screen { display: none; padding: 16px; position: relative; z-index: 1; }
   .screen.active { display: block; animation: fadeUp 0.3s ease; }
   #screen-task { padding: 0; background: #120f2e; min-height: 100vh; }
+
+  /* Burger Builder overlay */
+  #bb-overlay { display:none; position:fixed; inset:0; z-index:500; background:radial-gradient(circle at 50% 25%,#3a2818 0%,#1a0f08 80%); font-family:'Segoe UI',system-ui,sans-serif; color:#fff; user-select:none; }
+  #bb-canvasWrap { position:absolute; inset:0; z-index:1; }
+  #bb-canvasWrap canvas { display:block; }
+  .bb-screen { position:fixed; inset:0; z-index:10; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center; }
+  .bb-hidden { display:none !important; }
+  .bb-logo { font-size:56px; margin-bottom:8px; animation:bbBob 2s ease-in-out infinite; }
+  @keyframes bbBob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  .bb-title { font-size:28px; font-weight:900; color:#ffd97a; letter-spacing:1px; text-shadow:0 3px 0 #7a3800; margin-bottom:6px; }
+  .bb-sub { font-size:13px; color:#ffb366; opacity:0.9; margin-bottom:32px; max-width:280px; line-height:1.5; }
+  .bb-big-btn { background:linear-gradient(180deg,#ffb547,#ff8c1a); color:#3a1500; border:none; border-radius:50px; padding:16px 48px; font-size:18px; font-weight:900; cursor:pointer; box-shadow:0 6px 0 #b85e00; transition:transform .1s,box-shadow .1s; }
+  .bb-big-btn:active { transform:translateY(3px); box-shadow:0 3px 0 #b85e00; }
+  .bb-small-btn { background:rgba(0,0,0,0.5); color:#ffd97a; border:1px solid rgba(255,200,80,0.3); border-radius:30px; padding:10px 24px; font-size:13px; font-weight:700; cursor:pointer; margin-top:14px; }
+  .bb-spin-label { font-size:14px; color:#ffb366; margin-bottom:16px; letter-spacing:2px; text-transform:uppercase; }
+  .bb-spin-display { background:rgba(0,0,0,0.5); border:3px solid #ffd97a; border-radius:24px; padding:30px 40px; min-width:260px; backdrop-filter:blur(10px); box-shadow:0 0 40px rgba(255,200,80,0.3); }
+  .bb-spin-emoji { font-size:64px; margin-bottom:8px; }
+  .bb-spin-name { font-size:22px; font-weight:800; color:#fff; }
+  .bb-recipe-card { background:rgba(20,10,5,0.92); border:2px solid #ffd97a; border-radius:20px; padding:24px; max-width:320px; width:100%; backdrop-filter:blur(12px); }
+  .bb-recipe-header { font-size:18px; font-weight:800; color:#ffd97a; margin-bottom:4px; }
+  .bb-recipe-target { font-size:13px; color:#ffb366; margin-bottom:16px; }
+  .bb-recipe-list { display:flex; flex-direction:column-reverse; gap:6px; margin-bottom:18px; }
+  .bb-recipe-item { display:flex; align-items:center; gap:10px; background:rgba(255,200,80,0.08); border-radius:10px; padding:8px 12px; font-size:14px; font-weight:600; }
+  .bb-recipe-item .bb-num { background:#ffd97a; color:#3a1500; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:900; }
+  .bb-mem-timer { font-size:32px; font-weight:900; color:#ff6b4a; margin-bottom:8px; }
+  .bb-mem-hint { font-size:12px; color:#ffb366; opacity:0.8; }
+  .bb-play-hud { position:fixed; top:0; left:0; right:0; z-index:20; display:flex; align-items:center; justify-content:space-between; padding:16px 18px; }
+  .bb-timer-badge { background:rgba(0,0,0,0.6); border:2px solid #ff6b4a; color:#ff6b4a; font-size:20px; font-weight:900; padding:6px 16px; border-radius:30px; backdrop-filter:blur(8px); min-width:80px; text-align:center; }
+  .bb-timer-badge.warn { animation:bbPulse .5s ease-in-out infinite; border-color:#ff3030; color:#ff3030; }
+  @keyframes bbPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+  .bb-target-badge { background:rgba(0,0,0,0.6); border:1px solid rgba(255,200,80,0.4); color:#ffd97a; font-size:13px; font-weight:700; padding:8px 14px; border-radius:20px; backdrop-filter:blur(8px); display:flex; align-items:center; gap:6px; }
+  .bb-stack-count { position:fixed; top:70px; left:50%; transform:translateX(-50%); z-index:20; font-size:12px; color:#ffb366; background:rgba(0,0,0,0.4); padding:4px 12px; border-radius:16px; }
+  .bb-ing-bar { position:fixed; bottom:0; left:0; right:0; z-index:20; padding:14px 10px calc(14px + env(safe-area-inset-bottom)); background:linear-gradient(to top,rgba(10,5,2,0.95),transparent); }
+  .bb-ing-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; max-width:440px; margin:0 auto; }
+  .bb-ing-btn { background:rgba(40,25,12,0.9); border:2px solid rgba(255,200,80,0.25); border-radius:14px; padding:8px 4px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:2px; transition:transform .08s,background .15s; }
+  .bb-ing-btn:active { transform:scale(0.92); background:rgba(255,200,80,0.25); }
+  .bb-ing-btn .em { font-size:26px; }
+  .bb-ing-btn .nm { font-size:9px; color:#ffd0a0; font-weight:600; }
+  .bb-undo-btn { position:fixed; bottom:calc(110px + env(safe-area-inset-bottom)); right:16px; z-index:21; background:rgba(0,0,0,0.6); border:1px solid rgba(255,100,100,0.4); color:#ff8866; width:48px; height:48px; border-radius:50%; font-size:20px; cursor:pointer; backdrop-filter:blur(8px); display:flex; align-items:center; justify-content:center; }
+  .bb-result-card { background:rgba(20,10,5,0.95); border:3px solid; border-radius:24px; padding:32px 28px; max-width:340px; width:100%; backdrop-filter:blur(12px); }
+  .bb-result-card.win { border-color:#4ade80; box-shadow:0 0 40px rgba(74,222,128,0.3); }
+  .bb-result-card.lose { border-color:#ff6b4a; box-shadow:0 0 40px rgba(255,107,74,0.3); }
+  .bb-result-emoji { font-size:64px; margin-bottom:12px; }
+  .bb-result-title { font-size:24px; font-weight:900; margin-bottom:8px; }
+  .bb-result-title.win { color:#4ade80; }
+  .bb-result-title.lose { color:#ff6b4a; }
+  .bb-result-detail { font-size:14px; color:#ffd0a0; margin-bottom:6px; line-height:1.5; }
+  .bb-result-coins { font-size:28px; font-weight:900; color:#ffd97a; margin:16px 0; }
+  .bb-acc-bar { background:rgba(255,255,255,0.1); border-radius:10px; height:12px; overflow:hidden; margin:12px 0; }
+  .bb-acc-fill { height:100%; border-radius:10px; transition:width .8s ease; }
+  .bb-toast { position:fixed; top:120px; left:50%; transform:translateX(-50%) translateY(-20px); background:rgba(0,0,0,0.85); color:#fff; padding:10px 20px; border-radius:20px; font-size:14px; font-weight:700; z-index:100; opacity:0; transition:all .3s; pointer-events:none; white-space:nowrap; }
+  .bb-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
   @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
 
   /* Cards */
@@ -2173,6 +2225,64 @@ document.addEventListener('DOMContentLoaded', function(){
 
 <div id="screen-task" class="screen">
   <div id="task-content"></div>
+</div>
+
+<!-- Burger Builder Overlay -->
+<div id="bb-overlay">
+  <div id="bb-canvasWrap"></div>
+
+  <div class="bb-screen" id="bb-startScreen">
+    <div class="bb-logo">🍔</div>
+    <div class="bb-title">BURGER BUILDER</div>
+    <div class="bb-sub">Hafalkan resep dalam 10 detik, lalu susun burger yang benar sebelum waktu habis!</div>
+    <button class="bb-big-btn" onclick="window._bbStartGame?.()">▶ MAIN</button>
+    <button class="bb-small-btn" onclick="showScreen('games')">🔙 Kembali</button>
+  </div>
+
+  <div class="bb-screen bb-hidden" id="bb-spinScreen">
+    <div class="bb-spin-label">🎰 Memilih Pesanan...</div>
+    <div class="bb-spin-display">
+      <div class="bb-spin-emoji" id="bb-spinEmoji">🍔</div>
+      <div class="bb-spin-name" id="bb-spinName">...</div>
+    </div>
+  </div>
+
+  <div class="bb-screen bb-hidden" id="bb-memorizeScreen">
+    <div class="bb-recipe-card">
+      <div class="bb-recipe-header" id="bb-memName">Classic Cheeseburger</div>
+      <div class="bb-recipe-target">Hafalkan urutan dari bawah ke atas!</div>
+      <div class="bb-recipe-list" id="bb-recipeList"></div>
+      <div class="bb-mem-timer" id="bb-memTimer">10</div>
+      <div class="bb-mem-hint">Resep akan hilang...</div>
+      <button class="bb-small-btn" onclick="window._bbSkipMemorize?.()">Skip →</button>
+    </div>
+  </div>
+
+  <div class="bb-hidden" id="bb-playHud">
+    <div class="bb-play-hud">
+      <div class="bb-target-badge"><span id="bb-targetEmoji">🍔</span> <span id="bb-targetName">Burger</span></div>
+      <div class="bb-timer-badge" id="bb-playTimer">30</div>
+    </div>
+    <div class="bb-stack-count" id="bb-stackCount">0 layer tersusun</div>
+    <button class="bb-undo-btn" onclick="window._bbUndoLayer?.()">↩</button>
+    <div class="bb-ing-bar">
+      <div class="bb-ing-grid" id="bb-ingGrid"></div>
+    </div>
+  </div>
+
+  <div class="bb-screen bb-hidden" id="bb-resultScreen">
+    <div class="bb-result-card" id="bb-resultCard">
+      <div class="bb-result-emoji" id="bb-resultEmoji">🎉</div>
+      <div class="bb-result-title" id="bb-resultTitle">Perfect!</div>
+      <div class="bb-result-detail" id="bb-resultDetail"></div>
+      <div class="bb-acc-bar"><div class="bb-acc-fill" id="bb-accFill"></div></div>
+      <div class="bb-result-coins" id="bb-resultCoins">+50 🪙</div>
+      <button class="bb-big-btn" onclick="window._bbStartGame?.()">Main Lagi</button>
+      <button class="bb-small-btn" onclick="showScreen('games')" style="margin-top:8px">🔙 Kembali ke Game</button>
+    </div>
+  </div>
+
+  <div class="bb-toast" id="bb-toast"></div>
 </div>
 
 <!-- Astro Paws Lock Overlay -->
@@ -5001,6 +5111,7 @@ const GACHA_ITEMS = {
   xp_booster:   { name:"XP Booster",    emoji:"✨", desc:"2x XP selama 24 jam!" },
   parfum_mewah: { name:"Parfum Mewah",  emoji:"🧴", desc:"Wangi 7 hari (biasanya 3 hari)!" },
   battle_steak: { name:"Steak Petarung",emoji:"🥩", desc:"+15 Battle Score permanen!" },
+  burger:       { name:"Burger",         emoji:"🍔", desc:"Kurangi lapar pet -20%!" },
 };
 
 const GACHA_PET_POOL = ["kumiho","jellyfish","tanuki","void_cat"];
@@ -5371,8 +5482,21 @@ document.addEventListener('click', function(e){
 // ==================== NAVIGATION ====================
 function showScreen(name) {
   if (currentScreen === 'home' && name !== 'home') stopSpriteAnim();
+  // Cleanup burger builder when leaving
+  if (currentScreen === 'burger' && name !== 'burger') {
+    window._bbCleanup?.();
+    document.getElementById('bb-overlay').style.display = 'none';
+  }
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.side-menu-item').forEach(n => n.classList.remove('active'));
+  // Burger builder uses its own overlay, no screen-burger needed
+  if (name === 'burger') {
+    document.getElementById('bb-overlay').style.display = 'block';
+    currentScreen = 'burger';
+    document.getElementById('app-header').style.display = 'none';
+    window._bbInit?.();
+    return;
+  }
   const scr = document.getElementById('screen-'+name);
   if(!scr){ console.warn('screen not found:', name); return; }
   scr.classList.add('active');
@@ -8967,8 +9091,8 @@ async function renderGames() {
       <div class="game-card" onclick="startGuess()">
         <span class="game-card-emoji">🔢</span>
         <div class="game-card-name">Tebak Angka</div>
-        <div class="game-card-desc">Tebak angka 1-10</div>
-        <div class="game-card-quota" style="color:${color(left('guess'))}">Sisa ${left('guess')}x</div>
+        <div class="game-card-desc">Menang = 🍔 Burger!</div>
+        <div class="game-card-quota" style="color:${2-(games['burger_tebak']||0)>0?'#5CAF8E':'#d4556a'}">Sisa ${2-(games['burger_tebak']||0)}x</div>
       </div>
       <div class="game-card" onclick="playRoll()">
         <span class="game-card-emoji">🎲</span>
@@ -8988,6 +9112,12 @@ async function renderGames() {
         <div class="game-card-desc">Tebak posisi bola!</div>
         <div class="game-card-quota" style="color:${color(left('catch'))}">Sisa ${left('catch')}x</div>
       </div>
+      <div class="game-card" onclick="showScreen('burger')" style="grid-column:1/-1;background:linear-gradient(135deg,rgba(255,180,80,0.15),rgba(255,100,30,0.1));border:1.5px solid rgba(255,180,80,0.3)">
+        <span class="game-card-emoji">🍔</span>
+        <div class="game-card-name">Burger Builder</div>
+        <div class="game-card-desc">Hafalkan & susun burger sebelum waktu habis!</div>
+        <div class="game-card-quota" style="color:#ffb547">▶ Main sekarang</div>
+      </div>
     </div>
   `;
 }
@@ -9005,16 +9135,18 @@ function checkQuota(game) {
 }
 
 // TEBAK ANGKA
+const BURGER_TEBAK_MAX = 2;
 let guessNumber = null;
 async function startGuess() {
   await loadUser();
-  if (!checkQuota('guess')) { showToast('❌ Limit harian habis! Reset besok ya~'); return; }
+  const games = getGames();
+  if ((games['burger_tebak']||0) >= BURGER_TEBAK_MAX) { showToast('❌ Limit 2x/hari habis! Reset besok ya~'); return; }
   guessNumber = rand(1,10);
   showModal(`
     <div class="modal-box">
       <div class="modal-handle"></div>
       <div class="modal-title">🔢 Tebak Angka!</div>
-      <p style="text-align:center;color:var(--text-soft);font-size:0.9rem;margin-bottom:20px">Aku lagi mikirin angka 1–10...<br>Koin: <b>+25–40 🪙</b> kalau benar!</p>
+      <p style="text-align:center;color:var(--text-soft);font-size:0.9rem;margin-bottom:20px">Aku lagi mikirin angka 1–10...<br>Menang = <b>🍔 Burger +1</b>!</p>
       <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px">
         ${Array.from({length:10},(_,i)=>`<button onclick="answerGuess(${i+1})" style="padding:14px;border:1.5px solid rgba(201,184,240,0.4);border-radius:14px;font-family:'Fredoka One',cursive;font-size:1.2rem;background:rgba(255,255,255,0.8);cursor:pointer;color:var(--text)">${i+1}</button>`).join('')}
       </div>
@@ -9024,11 +9156,15 @@ async function startGuess() {
 }
 
 async function answerGuess(n) {
-  await useGameQuota('guess');
+  const games = getGames();
+  games['burger_tebak'] = (games['burger_tebak']||0) + 1;
+  await saveGames(games);
+  await taskInc('play_games');
   const correct = n === guessNumber;
-  const reward = correct ? rand(25,40) : 0;
-  if (reward) {
-    await saveUser({ koin: (userData.koin||0) + reward }, 'game_tebak_angka');
+  if (correct) {
+    const inv = getInv();
+    inv['burger'] = (inv['burger']||0) + 1;
+    await saveInv(inv);
   }
   showModal(`
     <div class="modal-box">
@@ -9037,7 +9173,7 @@ async function answerGuess(n) {
         <div style="font-size:3.5rem;margin-bottom:12px">${correct ? '🎉' : '😢'}</div>
         <div class="modal-title">${correct ? 'BENAR!' : 'Salah...'}</div>
         <p style="color:var(--text-soft);font-size:0.9rem;margin-bottom:16px">Angkanya adalah <b>${guessNumber}</b>!<br>
-        ${correct ? `<b style="color:#9b73d4">+${reward} 🪙</b>` : '+0 🪙'}</p>
+        ${correct ? `<b style="color:#ff8c1a">+1 🍔 Burger</b>` : 'Tidak dapat burger 😢'}</p>
         <button class="btn btn-lavender" onclick="closeModal();renderGames()">Oke~</button>
       </div>
     </div>
@@ -10468,6 +10604,15 @@ async function doUseGachaItem(itemKey, petId) {
     await savePet(petId, { battle_score_bonus: curBonus + 15 });
     const pInfo = PETS[p.pet_type]||{emoji:'🐾'};
     resultMsg = `🥩 <b>Steak Petarung!</b><br>${pInfo.emoji} <b>${p.name}</b><br>Battle Score +15 permanen! Total bonus: <b>+${curBonus+15}</b> ⚔️`;
+
+  } else if (itemKey === 'burger') {
+    const freshRes = await db.from('pets').select('id,name,pet_type,hunger').eq('id', petId).maybeSingle();
+    const p = freshRes.data;
+    if (!p) { showToast('❌ Pet tidak ditemukan!'); return; }
+    const newHunger = Math.max(0, (p.hunger ?? 50) - 20);
+    await savePet(petId, { hunger: newHunger, last_fed: new Date().toISOString() });
+    const pInfo = PETS[p.pet_type]||{emoji:'🐾'};
+    resultMsg = `🍔 <b>Burger!</b><br>${pInfo.emoji} <b>${p.name}</b><br>Lapar berkurang -20% ✅`;
   }
 
   await loadPets();
@@ -11763,5 +11908,220 @@ function renderBattlePhase() {
 }
 
 
+</script>
+
+<!-- Burger Builder 3D Game -->
+<script type="importmap">
+{ "imports": { "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.module.min.js" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
+
+const bbShow = id => {
+  document.querySelectorAll('#bb-overlay .bb-screen, #bb-playHud').forEach(s => s.classList.add('bb-hidden'));
+  if (id) { const el = document.getElementById(id); if(el) el.classList.remove('bb-hidden'); }
+};
+
+let scene, camera, renderer, burgerGroup, bbAnimId;
+let targetBurger = null, placed = [], stackY = 0.25;
+let playTime = 30, playTimer = null, memTimer = null;
+let bbInited = false;
+
+const R = 1.6;
+function noiseTex(base, spot, density, size=128){
+  const c=document.createElement('canvas'); c.width=c.height=size;
+  const x=c.getContext('2d'); x.fillStyle=base; x.fillRect(0,0,size,size);
+  for(let i=0;i<density;i++){ const px=Math.random()*size,py=Math.random()*size,r=1+Math.random()*3; x.fillStyle=spot; x.globalAlpha=0.3+Math.random()*0.5; x.beginPath(); x.arc(px,py,r,0,7); x.fill(); } x.globalAlpha=1;
+  const t=new THREE.CanvasTexture(c); t.wrapS=t.wrapT=THREE.RepeatWrapping; return t;
+}
+const builders = {
+  bunBottom(){ const g=new THREE.Group(); const m=new THREE.Mesh(new THREE.CylinderGeometry(R,R*.92,.5,48),new THREE.MeshStandardMaterial({map:noiseTex('#d99a4a','#b87a2a',200),roughness:.8,color:0xe0a85a})); m.position.y=.25; m.castShadow=m.receiveShadow=true; g.add(m); g.userData.height=.5; return g; },
+  bunTop(){ const g=new THREE.Group(); const mat=new THREE.MeshStandardMaterial({map:noiseTex('#dba04e','#c08030',150),roughness:.75,color:0xe5ad5e}); const d=new THREE.Mesh(new THREE.SphereGeometry(R,48,32,0,7,0,Math.PI*.5),mat); d.scale.y=.7; d.castShadow=d.receiveShadow=true; g.add(d); const b=new THREE.Mesh(new THREE.CylinderGeometry(R,R*.95,.3,48),mat); b.position.y=-.15; b.castShadow=true; g.add(b); g.userData.height=.85; return g; },
+  patty(){ const g=new THREE.Group(); const t=noiseTex('#5a2c0e','#3d1c08',400); const m=new THREE.Mesh(new THREE.CylinderGeometry(R*1.02,R*1.02,.42,48),new THREE.MeshStandardMaterial({map:t,roughness:.85,color:0x6b3410,bumpMap:t,bumpScale:.05})); m.position.y=.21; m.castShadow=m.receiveShadow=true; g.add(m); g.userData.height=.42; return g; },
+  chicken(){ const g=new THREE.Group(); const t=noiseTex('#d4a050','#a87830',350); const geo=new THREE.CylinderGeometry(R*1.05,R,0.4,48); const p=geo.attributes.position; for(let i=0;i<p.count;i++) if(Math.abs(p.getY(i))>.15){p.setX(i,p.getX(i)+(Math.random()-.5)*.08);p.setZ(i,p.getZ(i)+(Math.random()-.5)*.08);} geo.computeVertexNormals(); const m=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({map:t,roughness:.9,color:0xc89548})); m.position.y=.2; m.castShadow=m.receiveShadow=true; g.add(m); g.userData.height=.4; return g; },
+  cheese(){ const g=new THREE.Group(); const mat=new THREE.MeshStandardMaterial({color:0xffc324,roughness:.4,metalness:.05}); const m=new THREE.Mesh(new THREE.BoxGeometry(R*1.9,.1,R*1.9),mat); m.position.y=.05; m.rotation.y=Math.PI/4; m.castShadow=m.receiveShadow=true; g.add(m); g.userData.height=.12; return g; },
+  lettuce(){ const g=new THREE.Group(); const m1=new THREE.MeshStandardMaterial({color:0x6cbf3f,roughness:.7,side:2}); const m2=new THREE.MeshStandardMaterial({color:0x4a9528,roughness:.7,side:2}); for(let i=0;i<16;i++){const a=(i/16)*7,l=new THREE.Mesh(new THREE.SphereGeometry(.5,8,6,0,Math.PI),i%2?m1:m2); l.position.set(Math.cos(a)*R*.95,.1+Math.sin(i*1.5)*.08,Math.sin(a)*R*.95); l.scale.set(.9,.35,.6); l.rotation.y=a; l.castShadow=true; g.add(l);} g.userData.height=.25; return g; },
+  tomato(){ const g=new THREE.Group(); const m=new THREE.Mesh(new THREE.CylinderGeometry(R*.92,R*.92,.18,32),new THREE.MeshStandardMaterial({color:0xe23b2e,roughness:.35,metalness:.05})); m.position.y=.09; m.castShadow=m.receiveShadow=true; g.add(m); g.userData.height=.18; return g; },
+  onion(){ const g=new THREE.Group(); const mat=new THREE.MeshStandardMaterial({color:0xe8d5f0,roughness:.5,transparent:true,opacity:.85,side:2}); for(let r=.6;r<=R*.95;r+=.35){const ring=new THREE.Mesh(new THREE.TorusGeometry(r,.04,8,32),mat); ring.rotation.x=Math.PI/2; ring.position.y=.08; ring.castShadow=true; g.add(ring);} g.userData.height=.15; return g; },
+  bacon(){ const g=new THREE.Group(); const m=new THREE.MeshStandardMaterial({color:0xa83232,roughness:.6}),fm=new THREE.MeshStandardMaterial({color:0xe8c0b0,roughness:.5}); for(let i=0;i<3;i++){const sg=new THREE.BoxGeometry(R*1.8,.08,.4),p=sg.attributes.position; for(let j=0;j<p.count;j++) p.setY(j,p.getY(j)+Math.sin(p.getX(j)*3)*.06); sg.computeVertexNormals(); const s=new THREE.Mesh(sg,i%2?m:fm); s.position.set(0,.06,(i-1)*.5); s.rotation.y=i*.2-.2; s.castShadow=true; g.add(s);} g.userData.height=.16; return g; },
+  egg(){ const g=new THREE.Group(); const w=new THREE.Mesh(new THREE.CylinderGeometry(R*.9,R*.85,.12,32),new THREE.MeshStandardMaterial({color:0xfffef5,roughness:.4})); w.position.y=.06; w.castShadow=w.receiveShadow=true; g.add(w); const y=new THREE.Mesh(new THREE.SphereGeometry(.4,24,16),new THREE.MeshStandardMaterial({color:0xffb01f,roughness:.3})); y.scale.y=.5; y.position.y=.16; y.castShadow=true; g.add(y); g.userData.height=.2; return g; },
+  ketchup(){ return sauce(0xc01818); }, mustard(){ return sauce(0xe5b800); }, mayo(){ return sauce(0xfff8e0); },
+};
+function sauce(color){ const g=new THREE.Group(); const m=new THREE.Mesh(new THREE.CylinderGeometry(R*.85,R*.85,.08,32),new THREE.MeshStandardMaterial({color,roughness:.3,metalness:.1})); m.position.y=.04; m.castShadow=m.receiveShadow=true; g.add(m); g.userData.height=.08; return g; }
+
+const INGS = {
+  bunBottom:{name:'Bun Bawah',emoji:'🍞'}, bunTop:{name:'Bun Atas',emoji:'🍔'},
+  patty:{name:'Daging',emoji:'🥩'}, chicken:{name:'Ayam',emoji:'🍗'},
+  cheese:{name:'Keju',emoji:'🧀'}, lettuce:{name:'Selada',emoji:'🥬'},
+  tomato:{name:'Tomat',emoji:'🍅'}, onion:{name:'Bawang',emoji:'🧅'},
+  bacon:{name:'Bacon',emoji:'🥓'}, egg:{name:'Telur',emoji:'🍳'},
+  ketchup:{name:'Saus',emoji:'🔴'}, mustard:{name:'Mustard',emoji:'🟡'}, mayo:{name:'Mayo',emoji:'⚪'},
+};
+const BURGERS = [
+  { name:'Classic Cheeseburger', emoji:'🍔', layers:['bunBottom','ketchup','patty','cheese','lettuce','tomato','bunTop'] },
+  { name:'Double Bacon', emoji:'🥓', layers:['bunBottom','mayo','patty','cheese','bacon','patty','cheese','bunTop'] },
+  { name:'Chicken Deluxe', emoji:'🍗', layers:['bunBottom','mayo','chicken','lettuce','tomato','onion','bunTop'] },
+  { name:'Breakfast Burger', emoji:'🍳', layers:['bunBottom','patty','cheese','egg','bacon','bunTop'] },
+  { name:'Veggie Stack', emoji:'🥬', layers:['bunBottom','mustard','lettuce','tomato','onion','cheese','bunTop'] },
+  { name:'Mega Tower', emoji:'🗼', layers:['bunBottom','ketchup','patty','cheese','bacon','patty','cheese','lettuce','tomato','bunTop'] },
+];
+
+function bbInitScene() {
+  if (renderer) return;
+  const wrap = document.getElementById('bb-canvasWrap');
+  scene = new THREE.Scene();
+  scene.fog = new THREE.Fog(0x1a0f08, 8, 20);
+  camera = new THREE.PerspectiveCamera(45, innerWidth/innerHeight, .1, 100);
+  camera.position.set(0, 2.5, 7);
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.1;
+  wrap.appendChild(renderer.domElement);
+  scene.add(new THREE.AmbientLight(0xffeedd, .5));
+  const key = new THREE.DirectionalLight(0xfff0dd, 2.2);
+  key.position.set(4,8,5); key.castShadow=true; key.shadow.mapSize.set(2048,2048);
+  key.shadow.camera.left=-6; key.shadow.camera.right=6; key.shadow.camera.top=6; key.shadow.camera.bottom=-6; key.shadow.bias=-.0004;
+  scene.add(key);
+  const fill=new THREE.DirectionalLight(0xffaa66,.6); fill.position.set(-5,3,2); scene.add(fill);
+  const rim=new THREE.PointLight(0xffcc88,1.5,20); rim.position.set(0,5,-4); scene.add(rim);
+  const plateMat=new THREE.MeshStandardMaterial({color:0xf5f5f5,roughness:.25,metalness:.1});
+  const plate=new THREE.Mesh(new THREE.CylinderGeometry(3.2,2.9,.25,64),plateMat); plate.position.y=-.1; plate.receiveShadow=true; scene.add(plate);
+  burgerGroup = new THREE.Group(); scene.add(burgerGroup);
+  bbAnimate();
+}
+
+let isDrag=false, px=0, py=0, camA=0, camH=2.5;
+function bbAnimate() {
+  bbAnimId = requestAnimationFrame(bbAnimate);
+  camera.position.x=Math.sin(camA)*7; camera.position.z=Math.cos(camA)*7; camera.position.y=camH;
+  camera.lookAt(0, Math.max(.8, stackY*.4), 0);
+  renderer.render(scene, camera);
+}
+
+function bbClearBurger() {
+  placed.forEach(p=>burgerGroup.remove(p.mesh)); placed=[]; stackY=.25; burgerGroup.rotation.y=0;
+  if(playTimer) clearInterval(playTimer); if(memTimer) clearInterval(memTimer);
+  const sc = document.getElementById('bb-stackCount'); if(sc) sc.textContent='0 layer tersusun';
+}
+
+window._bbInit = () => {
+  bbInitScene();
+  if(!isDrag) {
+    renderer.domElement.onpointerdown = e=>{isDrag=true;px=e.clientX;py=e.clientY;};
+    window.onpointermove = e=>{if(!isDrag)return; camA-=(e.clientX-px)*.008; camH=Math.max(1,Math.min(5,camH-(e.clientY-py)*.01)); px=e.clientX;py=e.clientY;};
+    window.onpointerup = ()=>isDrag=false;
+    window.onresize = ()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);};
+  }
+  bbClearBurger();
+  bbShow('bb-startScreen');
+};
+
+window._bbCleanup = () => {
+  if(playTimer) clearInterval(playTimer); if(memTimer) clearInterval(memTimer);
+  if(bbAnimId) cancelAnimationFrame(bbAnimId); bbAnimId=null;
+  if(renderer) { renderer.dispose(); renderer.domElement.remove(); renderer=null; }
+  scene=null; camera=null; burgerGroup=null; placed=[]; stackY=.25;
+};
+
+window._bbStartGame = () => {
+  bbClearBurger();
+  bbShow('bb-spinScreen');
+  const finalIdx=Math.floor(Math.random()*BURGERS.length);
+  let spins=0, totalSpins=18+Math.floor(Math.random()*6);
+  const spinInt=setInterval(()=>{
+    const b=BURGERS[spins%BURGERS.length];
+    document.getElementById('bb-spinEmoji').textContent=b.emoji;
+    document.getElementById('bb-spinName').textContent=b.name;
+    spins++;
+    if(spins>=totalSpins){ clearInterval(spinInt); targetBurger=BURGERS[finalIdx];
+      document.getElementById('bb-spinEmoji').textContent=targetBurger.emoji;
+      document.getElementById('bb-spinName').textContent=targetBurger.name;
+      setTimeout(()=>bbShowMemorize(), 900); }
+  }, 80+spins*4);
+};
+
+function bbShowMemorize() {
+  bbShow('bb-memorizeScreen');
+  document.getElementById('bb-memName').textContent=targetBurger.emoji+' '+targetBurger.name;
+  const list=document.getElementById('bb-recipeList'); list.innerHTML='';
+  targetBurger.layers.forEach((key,i)=>{
+    const ing=INGS[key], div=document.createElement('div'); div.className='bb-recipe-item';
+    div.innerHTML=`<div class="bb-num">${i+1}</div><span style="font-size:20px">${ing.emoji}</span><span>${ing.name}</span>`;
+    list.appendChild(div);
+  });
+  let t=10; document.getElementById('bb-memTimer').textContent=t;
+  memTimer=setInterval(()=>{ t--; document.getElementById('bb-memTimer').textContent=t; if(t<=0){clearInterval(memTimer);bbStartPlay();}},1000);
+}
+
+window._bbSkipMemorize = ()=>{ clearInterval(memTimer); bbStartPlay(); };
+
+function bbStartPlay() {
+  bbShow(null); document.getElementById('bb-playHud').classList.remove('bb-hidden');
+  document.getElementById('bb-targetEmoji').textContent=targetBurger.emoji;
+  document.getElementById('bb-targetName').textContent=targetBurger.name;
+  const grid=document.getElementById('bb-ingGrid'); grid.innerHTML='';
+  Object.keys(INGS).forEach(key=>{
+    const ing=INGS[key], btn=document.createElement('div'); btn.className='bb-ing-btn';
+    btn.innerHTML=`<span class="em">${ing.emoji}</span><span class="nm">${ing.name}</span>`;
+    btn.onclick=()=>bbPlaceIng(key); grid.appendChild(btn);
+  });
+  playTime=30; bbUpdateTimer();
+  playTimer=setInterval(()=>{ playTime--; bbUpdateTimer(); if(playTime<=0){clearInterval(playTimer);bbFinish();}},1000);
+}
+
+function bbUpdateTimer() {
+  const el=document.getElementById('bb-playTimer'); el.textContent=playTime;
+  el.classList.toggle('warn',playTime<=10);
+}
+
+function bbPlaceIng(key) {
+  const mesh=builders[key](), targetY=stackY;
+  mesh.position.y=targetY+6; mesh.scale.set(.01,.01,.01); burgerGroup.add(mesh);
+  placed.push({key,mesh});
+  const start=performance.now();
+  (function drop(now){ const t=Math.min((now-start)/400,1),e=1-Math.pow(1-t,3);
+    mesh.position.y=(targetY+6)*(1-e)+targetY*e; const s=Math.min(t*1.3,1); mesh.scale.set(s,s,s);
+    if(t<1) requestAnimationFrame(drop); else{mesh.position.y=targetY;mesh.scale.set(1,1,1);}
+  })(performance.now());
+  stackY+=mesh.userData.height;
+  document.getElementById('bb-stackCount').textContent=placed.length+' layer tersusun';
+  if(key==='bunTop'&&placed.length>1) setTimeout(()=>{clearInterval(playTimer);bbFinish();},500);
+}
+
+window._bbUndoLayer = ()=>{
+  if(!placed.length) return; const last=placed.pop(); stackY-=last.mesh.userData.height;
+  burgerGroup.remove(last.mesh); document.getElementById('bb-stackCount').textContent=placed.length+' layer tersusun';
+};
+
+function bbFinish() {
+  clearInterval(playTimer);
+  const target=targetBurger.layers, player=placed.map(p=>p.key);
+  let correct=0;
+  for(let i=0;i<target.length;i++) if(player[i]===target[i]) correct++;
+  const maxLen=Math.max(target.length,player.length);
+  const accuracy=Math.round((correct/maxLen)*100);
+  const perfect=(correct===target.length&&player.length===target.length);
+  bbShowResult(accuracy,perfect,correct,target.length);
+}
+
+function bbShowResult(accuracy,perfect,correct,total) {
+  bbShow('bb-resultScreen');
+  const card=document.getElementById('bb-resultCard'), title=document.getElementById('bb-resultTitle');
+  const emoji=document.getElementById('bb-resultEmoji'), detail=document.getElementById('bb-resultDetail');
+  const coinsEl=document.getElementById('bb-resultCoins'), accFill=document.getElementById('bb-accFill');
+  let earned=0;
+  if(perfect){ card.className='bb-result-card win'; title.className='bb-result-title win'; title.textContent='PERFECT! 🎉'; emoji.textContent='🏆'; earned=50; }
+  else if(accuracy>=60){ card.className='bb-result-card win'; title.className='bb-result-title win'; title.textContent='Lumayan!'; emoji.textContent='😋'; earned=Math.round(accuracy/100*30); }
+  else { card.className='bb-result-card lose'; title.className='bb-result-title lose'; title.textContent='Yah, Salah!'; emoji.textContent='😅'; earned=accuracy>=30?5:0; }
+  detail.textContent=`${correct} dari ${total} layer benar`;
+  coinsEl.textContent=(earned>0?'+':'')+earned+' 🪙';
+  accFill.style.width='0%'; accFill.style.background=perfect?'#4ade80':accuracy>=60?'#ffd97a':'#ff6b4a';
+  setTimeout(()=>accFill.style.width=accuracy+'%',100);
+  if(perfect){ const s=performance.now(); (function a(n){const t=Math.min((n-s)/1000,1),e=1-Math.pow(1-t,3); burgerGroup.rotation.y=e*Math.PI*2; if(t<1)requestAnimationFrame(a);})(performance.now()); }
+}
 </script>
 </html>
