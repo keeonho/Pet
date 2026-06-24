@@ -9088,10 +9088,10 @@ async function renderGames() {
       <div style="font-size:0.8rem;color:var(--text-soft)">Max ${GAME_MAX_PER_DAY}x/hari per game. Gagal = 0 hadiah!</div>
     </div>
     <div class="games-grid">
-      <div class="game-card" onclick="startGuess()">
-        <span class="game-card-emoji">🔢</span>
-        <div class="game-card-name">Tebak Angka</div>
-        <div class="game-card-desc">Menang = 🍔 Burger!</div>
+      <div class="game-card" onclick="startBurgerBuilder()" style="grid-column:1/-1;background:linear-gradient(135deg,rgba(255,180,80,0.15),rgba(255,100,30,0.1));border:1.5px solid rgba(255,180,80,0.3)">
+        <span class="game-card-emoji">🍔</span>
+        <div class="game-card-name">Burger Builder</div>
+        <div class="game-card-desc">Hafalkan & susun burger sebelum waktu habis! Menang = 🍔 Burger!</div>
         <div class="game-card-quota" style="color:${2-(games['burger_tebak']||0)>0?'#5CAF8E':'#d4556a'}">Sisa ${2-(games['burger_tebak']||0)}x</div>
       </div>
       <div class="game-card" onclick="playRoll()">
@@ -9112,12 +9112,6 @@ async function renderGames() {
         <div class="game-card-desc">Tebak posisi bola!</div>
         <div class="game-card-quota" style="color:${color(left('catch'))}">Sisa ${left('catch')}x</div>
       </div>
-      <div class="game-card" onclick="showScreen('burger')" style="grid-column:1/-1;background:linear-gradient(135deg,rgba(255,180,80,0.15),rgba(255,100,30,0.1));border:1.5px solid rgba(255,180,80,0.3)">
-        <span class="game-card-emoji">🍔</span>
-        <div class="game-card-name">Burger Builder</div>
-        <div class="game-card-desc">Hafalkan & susun burger sebelum waktu habis!</div>
-        <div class="game-card-quota" style="color:#ffb547">▶ Main sekarang</div>
-      </div>
     </div>
   `;
 }
@@ -9134,50 +9128,12 @@ function checkQuota(game) {
   return GAME_MAX_PER_DAY - (games[game]||0) > 0;
 }
 
-// TEBAK ANGKA
-const BURGER_TEBAK_MAX = 2;
-let guessNumber = null;
-async function startGuess() {
+// BURGER BUILDER
+async function startBurgerBuilder() {
   await loadUser();
   const games = getGames();
-  if ((games['burger_tebak']||0) >= BURGER_TEBAK_MAX) { showToast('❌ Limit 2x/hari habis! Reset besok ya~'); return; }
-  guessNumber = rand(1,10);
-  showModal(`
-    <div class="modal-box">
-      <div class="modal-handle"></div>
-      <div class="modal-title">🔢 Tebak Angka!</div>
-      <p style="text-align:center;color:var(--text-soft);font-size:0.9rem;margin-bottom:20px">Aku lagi mikirin angka 1–10...<br>Menang = <b>🍔 Burger +1</b>!</p>
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px">
-        ${Array.from({length:10},(_,i)=>`<button onclick="answerGuess(${i+1})" style="padding:14px;border:1.5px solid rgba(201,184,240,0.4);border-radius:14px;font-family:'Fredoka One',cursive;font-size:1.2rem;background:rgba(255,255,255,0.8);cursor:pointer;color:var(--text)">${i+1}</button>`).join('')}
-      </div>
-      <button class="btn btn-soft" onclick="closeModal()">❌ Batal</button>
-    </div>
-  `);
-}
-
-async function answerGuess(n) {
-  const games = getGames();
-  games['burger_tebak'] = (games['burger_tebak']||0) + 1;
-  await saveGames(games);
-  await taskInc('play_games');
-  const correct = n === guessNumber;
-  if (correct) {
-    const inv = getInv();
-    inv['burger'] = (inv['burger']||0) + 1;
-    await saveInv(inv);
-  }
-  showModal(`
-    <div class="modal-box">
-      <div class="modal-handle"></div>
-      <div style="text-align:center">
-        <div style="font-size:3.5rem;margin-bottom:12px">${correct ? '🎉' : '😢'}</div>
-        <div class="modal-title">${correct ? 'BENAR!' : 'Salah...'}</div>
-        <p style="color:var(--text-soft);font-size:0.9rem;margin-bottom:16px">Angkanya adalah <b>${guessNumber}</b>!<br>
-        ${correct ? `<b style="color:#ff8c1a">+1 🍔 Burger</b>` : 'Tidak dapat burger 😢'}</p>
-        <button class="btn btn-lavender" onclick="closeModal();renderGames()">Oke~</button>
-      </div>
-    </div>
-  `);
+  if ((games['burger_tebak']||0) >= 2) { showToast('❌ Limit 2x/hari habis! Reset besok ya~'); return; }
+  showScreen('burger');
 }
 
 // DADU
@@ -12027,7 +11983,11 @@ window._bbCleanup = () => {
   scene=null; camera=null; burgerGroup=null; placed=[]; stackY=.25;
 };
 
-window._bbStartGame = () => {
+window._bbStartGame = async () => {
+  const games = getGames();
+  games['burger_tebak'] = (games['burger_tebak']||0) + 1;
+  await saveGames(games);
+  await taskInc('play_games');
   bbClearBurger();
   bbShow('bb-spinScreen');
   const finalIdx=Math.floor(Math.random()*BURGERS.length);
@@ -12108,17 +12068,18 @@ function bbFinish() {
   bbShowResult(accuracy,perfect,correct,target.length);
 }
 
-function bbShowResult(accuracy,perfect,correct,total) {
+async function bbShowResult(accuracy,perfect,correct,total) {
   bbShow('bb-resultScreen');
   const card=document.getElementById('bb-resultCard'), title=document.getElementById('bb-resultTitle');
   const emoji=document.getElementById('bb-resultEmoji'), detail=document.getElementById('bb-resultDetail');
   const coinsEl=document.getElementById('bb-resultCoins'), accFill=document.getElementById('bb-accFill');
-  let earned=0;
-  if(perfect){ card.className='bb-result-card win'; title.className='bb-result-title win'; title.textContent='PERFECT! 🎉'; emoji.textContent='🏆'; earned=50; }
-  else if(accuracy>=60){ card.className='bb-result-card win'; title.className='bb-result-title win'; title.textContent='Lumayan!'; emoji.textContent='😋'; earned=Math.round(accuracy/100*30); }
-  else { card.className='bb-result-card lose'; title.className='bb-result-title lose'; title.textContent='Yah, Salah!'; emoji.textContent='😅'; earned=accuracy>=30?5:0; }
+  const win = perfect || accuracy >= 60;
+  if(perfect){ card.className='bb-result-card win'; title.className='bb-result-title win'; title.textContent='PERFECT! 🎉'; emoji.textContent='🏆'; }
+  else if(accuracy>=60){ card.className='bb-result-card win'; title.className='bb-result-title win'; title.textContent='Lumayan!'; emoji.textContent='😋'; }
+  else { card.className='bb-result-card lose'; title.className='bb-result-title lose'; title.textContent='Yah, Salah!'; emoji.textContent='😅'; }
   detail.textContent=`${correct} dari ${total} layer benar`;
-  coinsEl.textContent=(earned>0?'+':'')+earned+' 🪙';
+  if(win){ const inv=getInv(); inv['burger']=(inv['burger']||0)+1; await saveInv(inv); coinsEl.textContent='+1 🍔 Burger'; }
+  else { coinsEl.textContent='Tidak dapat burger 😢'; coinsEl.style.fontSize='16px'; coinsEl.style.color='#ff6b4a'; }
   accFill.style.width='0%'; accFill.style.background=perfect?'#4ade80':accuracy>=60?'#ffd97a':'#ff6b4a';
   setTimeout(()=>accFill.style.width=accuracy+'%',100);
   if(perfect){ const s=performance.now(); (function a(n){const t=Math.min((n-s)/1000,1),e=1-Math.pow(1-t,3); burgerGroup.rotation.y=e*Math.PI*2; if(t<1)requestAnimationFrame(a);})(performance.now()); }
