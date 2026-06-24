@@ -5651,6 +5651,23 @@ async function renderHome() {
     return;
   }
 
+  if (activePet.is_missing) {
+    const missingInfo = PETS[activePet.pet_type] || { emoji:'🐾', name:'?' };
+    el.innerHTML = `
+      <div class="empty-state" style="padding:32px 20px">
+        <span class="empty-state-emoji">🏃💨</span>
+        <div class="empty-state-title" style="color:#d4556a">${activePet.name} kabur!</div>
+        <p style="font-size:0.85rem;color:var(--text-soft);margin-bottom:20px;line-height:1.6">
+          ${missingInfo.emoji} <b>${activePet.name}</b> kabur karena terlalu lama kelaparan.<br>
+          Kamu tidak bisa kasih makan atau interaksi sampai pet kembali.
+        </p>
+        <div style="background:rgba(255,100,120,0.1);border:1.5px solid rgba(255,100,120,0.3);border-radius:14px;padding:14px 16px;font-size:0.82rem;color:#d4556a;font-weight:700;margin-bottom:16px">
+          💬 Panggil balik lewat bot dengan perintah cari pet!
+        </div>
+      </div>`;
+    return;
+  }
+
   const pet = applyDecayToActivePet(activePet); // apply decay client-side supaya sinkron dgn bot
   const info = PETS[pet.pet_type] || { emoji:'🐾', name:'?' };
   const isKoi = pet.pet_type === 'koi';
@@ -5714,17 +5731,18 @@ async function renderHome() {
       const pInfo = PETS[p.pet_type] || { emoji:'🐾', name:'?' };
       const pLv = calcLevel(p.xp||0);
       const isActive = p.id === pet.id;
+      const isMissing = p.is_missing;
       const notoUrl = getNotoUrl(p.pet_type);
       const thumbHtml = notoUrl
-        ? `<img src="${notoUrl}" style="width:40px;height:40px;object-fit:contain" alt="${pInfo.name}">`
-        : `<span style="font-size:1.8rem">${pInfo.emoji}</span>`;
+        ? `<img src="${notoUrl}" style="width:40px;height:40px;object-fit:contain;${isMissing?'filter:grayscale(1);opacity:0.5':''}" alt="${pInfo.name}">`
+        : `<span style="font-size:1.8rem;${isMissing?'filter:grayscale(1);opacity:0.5':''}">${pInfo.emoji}</span>`;
       return `<div onclick="selectPet(${i})" style="
         min-width:72px;flex-shrink:0;padding:10px 8px;border-radius:14px;text-align:center;cursor:pointer;
-        background:${isActive?'linear-gradient(135deg,rgba(201,184,240,0.5),rgba(255,181,200,0.4))':'rgba(255,255,255,0.5)'};
-        border:2px solid ${isActive?'#C9B8F0':'rgba(201,184,240,0.2)'};transition:all 0.2s;">
+        background:${isActive?'linear-gradient(135deg,rgba(201,184,240,0.5),rgba(255,181,200,0.4))':isMissing?'rgba(255,100,120,0.08)':'rgba(255,255,255,0.5)'};
+        border:2px solid ${isActive?'#C9B8F0':isMissing?'rgba(255,100,120,0.3)':'rgba(201,184,240,0.2)'};transition:all 0.2s;">
         ${thumbHtml}
-        <div style="font-size:0.75rem;font-weight:800;color:${isActive?'#9b73d4':'var(--text-soft)'};margin-top:3px">${p.name}</div>
-        <div style="font-size:0.68rem;color:var(--text-soft)">Lv.${pLv}</div>
+        <div style="font-size:0.75rem;font-weight:800;color:${isActive?'#9b73d4':isMissing?'#d4556a':'var(--text-soft)'};margin-top:3px">${p.name}</div>
+        <div style="font-size:0.68rem;color:${isMissing?'#d4556a':'var(--text-soft)'}">${isMissing?'🏃 Kabur':'Lv.'+pLv}</div>
       </div>`;
     }).join('');
     selectorHtml = `<div style="display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;scrollbar-width:none">${cards}</div>`;
