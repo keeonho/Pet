@@ -3034,6 +3034,43 @@ const FISH_ANIM_MAP = {
 let _fishAnim = null;
 function stopFishSpriteAnim(){ if(_fishAnim){clearInterval(_fishAnim);_fishAnim=null;} }
 
+// ==================== TUNG TUNG SAHUR SPRITE ANIM ====================
+const TUNG_SPRITES = {
+  idle:  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAAAwCAYAAABHTnUeAAADw0lEQVR4nO2cP2gUQRjFX8TGJoQFEQxKIAgJgqSwCAbkQAmx0iocCjY2V4hgk0JICgMWaQSra0QQEsJ1qSJqIAgJKYMQ7hpBkAtauEialLE4Zpnd272bu92d2S/7fhDYnbmbeTPf+3Zv9k8AQgghhBBCCCGEEEIIIYQQQs4hI64FuObxnatnab6/sX/sdA6l63fNxbQNMAAkDa79kzoBpPPi6d1g+3f7r9F3vrd+aXvHGSsaDOn6XZM6Ac5TAMK6siF6hMvzjCdRv2v/ZHoGkBgAnVtT14w+l8c4s0C6fhf+yTQBpAdAp7FzFNpfvHfTkZLhkKjfhX9yWwNIDMCr93uh/ZmJMQDA4c9/ONTqqnPXbcoyRrp+HVv+yTQBpAXgoF4NnR7fPJsLtvUAzEyMhQJgegRKe4WjH9L1R3Hhn1QJIDkAUe1AR9dyowkAaOyMh+oevv4MAFhdnI5ta7a2mbg2yWPdkqQ/iV51LvSrfvV9F/4ZOgEkGyhOOwAsN5rwPA8A4Ps+nsx1xrC+1w6V62NQbUXHoCbflvkB4O3XP6H9B9OXAADbzVNsN0+D8pf3r3S1ZVO/3q+OC/9cMBUc7TCuXBnI8zys77WDcmUgz/OCAUbbiraZVwD0fuImzfd9+L7f9b2kcr2NpHnJkl76Pzy/Hfwp8wOdRNDrdGzr79WPC/8MnABSDXRQr5710761Mh9sq6N/dFv/TFxbB/XqWR7Ja6J/WGzo19uP61dh2z/GCSDZQNGJ6WWerZX5QOPU+Cimxke7yuPI0pBRBtGvo+vvR576geL6x2gNMKiBFGryW+2TnuZRbdo6BScRXVy12ieJdUm8+/gNQOcO58b+ZnbiDCiq/iL7J9c7wUUJgD45vSZfvxHTah8l1iWNxbSfQZGu3xQX/jFKgPMQAFsBzasfyfqL7B/jNcBsbXPERhBs9ZPEWn13qLqiUFT9RfXPUJdBe1HUAJiyVKvE6lyr72KpVrGuZ1Ck67ftn8yfBVIBmLhxOVQuIQDq1LpQmcSn3R+huoXKZOEf4pOuH7Dvn1wWwVIDEP4NepJYV9RxSNfvwj+5PQ4tMQDELS78k/kagBBJMAFIqSn9S/E6+qk1+giBhJ9t0vW7ILc7wRIDIP2VTun6XfiH7wSTwuDCP1wDkFLDBCClhglASk3prwIlvVEUfaBKr3u0+qUw/89Uun7XpE4ABoCkwbV/+BOIlBomACk1TAB0v7CtyuK2kz7vEun6XZJJAjAAJA0u/VP6q0BA//dHXb6iaYJ0/YQQQgghxCr/AYFpgBRkj2dyAAAAAElFTkSuQmCC',
+  eat:   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAAAwCAYAAABHTnUeAAAD7ElEQVR4nO2cPWgUQRiG3xMbLUKa4E+IHoTAiRBTiAQD4TAisUoTJVjEQouziQgS0EJJY5FOG6/QQiEhmMpKLZRDkhCsQiDxQIRAyI+IIBaxjEXYzex6u9mf+dvb94GDnftuZ9/5Mt/MN7O7AQghhBBCCCGEEEIIIYQQQghpQgqmBRC7uXHx5K5Ynl7YbKo+czhtBX4HxcW0Q6k/3/oPpTmZkKyTegYYG+13j7c3fkU6Z7m+LpQ200pIBfXnW3/qABDxCsseKvTrzKFl60+bnsTFhP+lBkB3qSPS72wNFOpvjK51ggn/Sw0AkTcfVzzl6wNnVV1KCXnX74ycphbJuvwvNQAevpz3lHuKrQCApbXfWBJsI32nZF5WGtRvFhP6UwXAYnXEk189udXnHosR3FNs9URwnClMZQ6tWr/qHFqF/sXqyO6z158BqB/9bfB/4gDwiwfChQXZnHp6KzNap1pZ+p26wvSr6Eiy/a8bW/yf6A8T5LSrDz54y2eOAADeff3r+f7e5WPu8aPZeiGsASpmAJn6rwz0uMdiG1Tm0Kr0A4Az+o+N9isblGzyf+wGiuJ7KzMFsSzu44YtYsRodgLA3wAH2QGgUr9Tp6hbdgDE0T81t+qW3z6+Fqi/Uf06Or8N/o+cAvmjVqaD/I5wkJlD69KvKoeOq1/s/AAwNDHrCYIgdI36tvg/0qMQScWX2ltQam+J8tOG13GYXtgsOJ/IlYXUq0K/yjWMys6jA5v9r/ROcH3jT6DNj38WMLEPnUa/g5hDTy/MyBMXgeX6Om4//QQA2NrewYnjR13b1vYOLtx5tfe7u5e06oqKCf9HCgCxc4ZFmngnr76xEmhLs6JPgi79Ua8TlyT6gb1ObwM2+z/yDKBj2nUaoGL015U2qLpO1Hq/PL8JAO5o38hmAlv9L/1x6MlqLZENMLcnLSJqnJpbdT9+m+0Mnzv93ycL6Pa/9GeBxitlTFZrKHa1eb6frNYwXikfeL7JHBrY1z//46fn+6GJWQAH76LYQrGrDWvf9tsQxfc2oNv/ShbBg+VOvK9999gGy52xFsImdjpE/WF2W/HrEwch27UDZvyv7HFocQXvt4U1xOQWX3epw82dG+2iODssLyzdRZGxCWESE/5X9jg0gMA7kVnBll2UvKLD/8oCIOmdSNPYuouSF3T7X+kMkGXuD5/3lLP2QkzW0eV/6YvgZrkT6b8Fb2veLEL98VH6TnDWcmi+E2yWpngnmDk0yRLK1gDs7CQL8D/DkVzDACC5RunrelFttkD9ZjGhnzMAyTUMAJJrGAAk10jJpYJeZHFytYPspqF+s5jUzxmAEEIIIYSQfPEPis9mnjPRktoAAAAASUVORK5CYII=',
+  cry:   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAAAwCAYAAABHTnUeAAAD9ElEQVR4nO2cP2gTURzHvxUXl9JFBItSKEKlIB0cioUQiJS2k1MJDl26dJCCi2AGF6FDFsEpSxEcpNS91aoQApGOIVB6IEIgpCgilC4d61DvePfLXXLJ3Xt3r/l+ICR3v9x739/lfd+9d38CEEIIIYQQQgghhBBCCCGEEEIIuVqMxS3g6aPbF3G2//D9JLYGQobletoCsoCtJrZVtyTNPGIbYHMt533+1fkbaZum01aWTuJKIGRoEj0C+Bt2MsjeQUevZauJbdUtSTOPRA3wYOZOpO/pMEpS2GpiW3VLTOehbQ6w++3It7xamNVVVaLYamJbdUtM56HFAKXtOgBgbmoCANBonaKxXcfW+oKO6rRhq4lt1S0xkce1OBsfVoq+Q0tpu47S/4buNn7g0ghb6wtePCpxzw7EobRdR6N16i03WqcDaU8LW3VLTOUx9BFANn4AKC7cBRB8eGo6bS8eVNb8xk7o+FLn2DPIxACwtb7g64HmpiawWpj14mG5SHSZ2FbdkrTzGMoAQY0fAN58/e1bXr5/AwCwf3yO/eNzb/3zx7e6ypImcIWbbPyAHSa2VXdQ3XKd6TwGTk4VPb+xM6Yuq6eweo3f1ORefXTGZJmAfgOEmXj55Wf/smJiFdXEi4U577NuE9uqW5KVPCLPAQ4rxYughirZyx2ElhEWU8s6rBQvTDZ+mce7Zw+9l7vzgcsfQo310q9Ds826JVnKI5IBZKH9Gr/7PjM5jpnJ8cCYpNfhKymimngYdJr4qnQ+Wdz/sc4C9cPpnMHpnA20zdv3NQD+q4NJENXEEtXE/dBh4qvU+QxTp+79H8kAasG9KlmpLfreo8bUsjfXcthcyxn5UYJoOm3vBfhNLGNh6DLxIGSp8xkE0/s/8lmgqA2yVwPvFRu0nkFRJ+y96lCvRDqdo9BY2I8QtZ6oRC1vpbaIvdwBVmqL2O0Ra8asZ1iyuv+13QrR+vHHv6Kgq6bomDqqJF2P7Z2PqfKHqUeLAcqVKqbu3exa92Ijr6M6bWTRxFGwVbfERB6JToKbThvlShVL+emu2FJ+GuVKNfM3Y7m4JlZf5Uo1bVl9sVW3xFQeid8O7Y7TgsZvbizLJmg6bXyq/sRSfrprEumaOMjgaWOrbonpPPhIpMBWE9uqW2I6D63XAQjJOjQAGWm0PRMsr95l/dBLRhM+Eyyw1cS26paYzoOTYIGtJrZVt8R0HpwDkJGGBiAjDQ1ARprYc4Cwp3HkDUlq7MnrL5n4T0pCOAmGvSa2VbckzTw4BCIjDQ1ARppEDCAfdnbXBX0O+z4haZDIOCqsMbtjuH7xLGBrDrbqlqSVRyKT4H4israzCSGEEDLq/APlA14FJRtJbwAAAABJRU5ErkJggg==',
+  drum:  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAAAwCAYAAABHTnUeAAADS0lEQVR4nO3cv2sTYRwG8CfiJgTJaKgIXSKF4mYwIAGXjk6lWnBxMJOjQ8Gp4ODoFIcsDjH0LxBEKEJC3UohWBChIAmCeIjQuU53fe+8y71376/k3ucDgV7e9r3rk37f934WICIiIiIiIiIiIiKiqqq53gDXHt+7caHy88PJfGGGyf7zvt83rvO/orJyolV3VbUD0xVs2vMn96Ovf85+S/3MyekPYWmueYuKYf5q+SsXQJXEgyXbXOSvXACuK1inzdaa1PfJflCqo7MM5p9NJn+tM0CVRtCDT9PY8vaDjdJ92drNYP7pFuWvtQB0V7Bte4MxAODV087C9p3Ozdy+wtHH5j42878km7+xYwCdFWzKUX8nNkVOZ+cAgI3mNQDAnVvXAQDHZ39wPBhH7fvbty1uZTnMX47W06B7g3FUpWXabUqGf/fZ++jr6ew8Cjtt+eXB18x+jvo7Fy5Gf4D5h8tF8leaAWxUsIkLScntFjUaDQBAEARS7+f1ZxLzz+8vT+kZQGcF2/wDEtfV7o3++zCDIEgNOev9dm9UC18A8ObdZwDxszMmMP/LPlTyLzUD6Kzgdm9Us/EBJNeRFr4q8Xcx0X+I+acrk3/hGUB3Baf1q5tM+F/ePoot73aaaDXraDXr2O00Y22LdiHE0cgE5q83f+kZwGQFZ41CNi4kiZLBns7+ZrbZxvzN5C81A9iq4KxRaDiZ18KXzPYmidu76A9ns7UWvc6+/Yq9xDbbmL+5/LVeB1Cp4OQopPtUYpER83X/MPW9F72ujk0xhvkXJzUD2KxgV6cUlxnzN0f6ILjIwUVWBcusA3BzG8GyY/5mLNXt0K5Hn/Aema3uOj4cfo+1bXXXl/YeGl18zH+pCgCIX8gYTkZW1y3uHoj7z8m2KheCb/kbuR26bAXbupBUVcy/OGO3Q5etYF+CN4H5F8eH4slrS3cM4JI4Mraa9cw2MsNF/iwAwao/UbXqXORv7JlgjqD2Mf/i+ExwhTD/4ngQTF5jAZDXvD8IFs97L3rYRGx7uP/Rq3PlJrnOnzMAeU15BnBdwb5j/mo4A5DXWABI/9cg4nJam+tbh6vEZf4sAPKaln3BrGoM90Pz2kkN8y+PMwARERERkV/+ARejYjKmV/hCAAAAAElFTkSuQmCC',
+  happy: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAAAwCAYAAABHTnUeAAAD50lEQVR4nO2cMUjcYBTH/5YuLiJ0KFQUweWkIA4OUkEOLMVuXVqODoLt4iBClw4dOrTQwaVQHG4pQgeR3tbFQlsQoXKDgwjiLYXCobSDpXRxvA4l1+/il+TTfMl7L3k/EJJLTN7973v/977kcoCiKIpSTvqoA1B48/DWjY65vrF7Uqgxc4U6AEWh5Cp1AEWn6A7KnST9NQGEE/6AL0rZE1JbICWStMklAfYVIOsWQrqDrizMdpd/HJ86/c9Bq22snSTun+V7pNaffQJIJm8H7R3Y6Qhip07wNLjoX/oEkO6gJhOVYaf9fCZKWqj1T50A1CXMJ5wdtFmvdQBgemnT6Xjvvxz2rD+Yu+l8njfvdgDk/9lQ6M+6AuTdQnB10GDwm8u2RHj29mvP+uToIABg//tv7BvbajMjieehgEL/1AlAXcJcKZqD2gbrq8cz3WUz/snRwZ74bQMoOF4Q+8rCLDZ2N73Hy01/rxWAawsh3UGnlzb7bHGHz2fqv3V0hrvj/d3lypD9szGPEXWetHDW3+vgukwFeN5oWWPIKgHiMOOPcyBb/DYH9TmIogjrv7i2BwDdwR+wdXQGAFhfnuqJ/87cZOZxctbfuQJwLWEuSHdQVxbX9rC+PAXgvP7B64tre3hy+3r39Tzi5Ky/0062DA5OYG579OJDzz5mCTMxS5hZAcJZnMdVCAkOGkdUBb6og1JBrf+l5wDSJmEucHXQy1IZGgAAtI7/EEfiBoX+TgnAuYT5JBA5aR9ON5JMwnGZA59rzCYU+jtXANuANAcs8O86rq2E3R3vx+vPPwHY34B5bE6OKs1BzevorePDyG0SkgHIR3+vl0GltxDSHTSg2WhjBAPnXpu+73ajiQoK/b0mgPQWQrqDrta3AQCz18Zit89X7dupodA/069CSGshAqQ66NOlKlbr29g5/Ra7D9cEDshT/0zvBEtrIaQ76EGrjfnqGD5u2xNgvjrG+nOg0N9rAkhvIaQ7aKDxRGXY+T4AJyj0z+SRyGajjZFfAz1/zQZP0U0CB42Cu4NKh0J/rxVAegsh3UGlQ6G/1wSQ3kIo5cP7JFjyJEw6prbBFTjbNuU/mUyCtYWggesTbZxh/Uhk3qiD0kKhvyaAgTooLRT66y/DKaUmszvB2kIoEsjsTnAcmgz+iHo+I/wtW3PbvZef2HwDlxptgZRSU/pJsDooLdT6awVQSo0mQAFo1mud8PPZth+jitufM1nGn7oFoi5hipKG0s8BAPtPvDTrtQ6n55XjSIqT+/tI0j/L+LUFUkqNVgAkO0xUf83dWaVAqaOXClD0SZhSXLQCOKBOryiKoiiKohSIv/6Jj7KDxomHAAAAAElFTkSuQmCC',
+  sleep: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAAAwCAYAAABHTnUeAAADzUlEQVR4nO2bT2sTQRjG34iXXkpBimJQAlJIESQHD0Ehl2ohX0CCYM45SMCjHvwKgqdepOBBgn6AItGLoPRYhNJACQQkRSmCeOlxvbjL7HT/zO7Ov7f7/KCw201mn9n3eXfmnd0QAQAAAAAAAAAANaHhWgDgw3QeBOL+w1sNVv7hrh94gmwkbnDXDxzC3TyyfgwBQBnuU4gk/aw6wJWkuyYn81xk/do68fje9UpD47tvJ2wuaBWm8yDgZB4ZU/pt+UfWf7nKSS8SNgJg0vzc9dsgSb+2BBgPe9H2z+Vvpe98n/0Q9k50SfGSi2genZj2T5p+IyNAXBgPTAYgnIOKc1HdZuKuP11XdbL0G0mAO+0bSp/L6mjacpuNu6iOAEB/eWz6x3gN8P7zYWz/0dZtpe/JQqfzINh90ozmuiaLZh0BSNJvawrEXb+Iaf+wKIJD8S4oGwAR+eIT2Vv14q5fB1n+0ZIA+zuD2HDz4s3X2PFOa42IiA4Wf+hAODa4fzO37fDOU3WVwxXQn49L/1ROAFm8LGy2/Bttd1pr1G6uZrbVHU2iO4utYddUAKA/H9f+MTIFevXpV2y/v7lCRER7R2e0d3QW/f/Zg6vRdnghwk4kVe5ERLqnQqYCAP3lsemfStmddPGJ4stwWXNQsQh7+WHWCNsTs5iIjBa+SX3oP/8Y3xcCICIGYHurE22n6RfR1RfO+n3wT+kRQBTfHU0aaZ0p23bYCdvmJyLafXo32hYD0N9cSQ2AyjXQ3QfO+n3xz6WqJ5OzLYl2czVz6E1qS+cFSUIOgKm2TSUwd/0hrv1TeARQaVheXxbnoXkPacS7gY01f9UAEMX7kdaWPBfVoTHvnHmf8Um/b/4plACy+LQLJD6ImS0PU4+5eGXCtwAUhbN+H/1TeQqkwuL4lBbHp4W+8/rtFyKKv+NSlSIBCP+KHDMNd/1lMemfQgkgXnDV4VEUrtqJ7mjSGA97NB72tM9vy+BLApfFF/0++qdwDVDUkK2N9Uh4a2Pd2HlU20xbKkvjXAC2zJxHBe76y7Rn2j9WXocWhbt+Vdq3ABSFu34VbPrH+OvQvhXBKvicwCpw12/TPyzeBrUN9wTmrt8mVlaBAPAVJACoNcaLYPkRNoZdkIdN/3j7m2CXcE9g7vpt+gdFcALcE5i7fpugBgC1BgkAag0SANQabTWA+P7IteaVc4/STf6AA/DHlX9QBP+HewJz1+8KTIFArUECgFqjJQH2dwaB/GslcT/pmOkfvQM+uPQPRgDin8Dc9btESxGcV1Sh6AJZwD8AAADs8w9vdw1YyJguVAAAAABJRU5ErkJggg==',
+};
+let _tungAnim = null;
+function stopTungAnim(){ if(_tungAnim){clearInterval(_tungAnim);_tungAnim=null;} }
+function startTungAnim(canvasId, pet) {
+  stopTungAnim();
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const hunger    = pet.hunger    || 0;
+  const happiness = pet.happiness || 0;
+  const health    = pet.health    ?? 100;
+  let key = 'drum';
+  if (health < 30)       key = 'cry';
+  else if (hunger > 65)  key = 'eat';
+  else if (happiness < 30) key = 'cry';
+  else if (happiness >= 75) key = 'happy';
+  else key = 'idle';
+  const src = TUNG_SPRITES[key];
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  const img = new Image();
+  img.onload = () => {
+    let f = 0;
+    const draw = () => { ctx.clearRect(0,0,96,96); ctx.drawImage(img,f*48,0,48,48,0,0,96,96); };
+    draw();
+    _tungAnim = setInterval(() => { f=(f+1)%4; draw(); }, 300);
+  };
+  img.src = src;
+}
+
 function startFishSpriteAnim(canvasId, petType, animKey) {
   stopSpriteAnim();
   stopFishSpriteAnim();
@@ -4391,8 +4428,9 @@ const PETS = {
   dragon:   { name:"Naga",      emoji:"🐉", rare:true,  price:300 },
   phoenix:  { name:"Phoenix",   emoji:"🐦‍🔥", rare:true,  price:500 },
   koi:      { name:"Ikan Koi",  emoji:"🐟", rare:true,  price:500, isKoi:true },
-  wolf:     { name:"Serigala", emoji:"🐺", rare:false, price:0 },
-  monkey:   { name:"Monyet",   emoji:"🐒", rare:false, price:0 },
+  wolf:            { name:"Serigala",       emoji:"🐺", rare:false, price:0 },
+  monkey:          { name:"Monyet",         emoji:"🐒", rare:false, price:0 },
+  tung_tung_sahur: { name:"Tung Tung Sahur",emoji:"🪈", rare:true,  price:1000 },
   // ===== PET GACHA EKSKLUSIF (tidak bisa adopt biasa) =====
   kumiho:    { name:"Kumiho",   emoji:"🦊✨", rare:true,  price:0, gachaOnly:true },
   jellyfish: { name:"Ubur-ubur",emoji:"🪼",   rare:true,  price:0, gachaOnly:true },
@@ -4467,6 +4505,13 @@ const PET_QUOTES = {
     sad:["Aku mau pisang 🐒","Ga ada teman main...","Bosen sendirian di pohon"],
     sick:["Ga mau lompat-lompat... 😷","Butuh pisang obat~","Ooh... badan ga enak"],
     default:["OOH AHH~ 🐒","Pohon mana yang enak ya?","Lagi iseng-iseng nih~"],
+  },
+  tung_tung_sahur:{
+    happy:["Tung tung tung~ 🪈 Aku semangat main musik hari ini!","Dendangnya makin merdu pas kamu di sini~","TUNG TUNG TUNG! Ayo sahur bareng! 🌙"],
+    hungry:["Tung... lapar nih... 🪈","Gimana mau main musik kalau perut kosong?","TUNG TUNG... pelan... butuh makan dulu..."],
+    sad:["Suaraku serak... sedih 🪈","Musiknya ga keluar kalau hatiku berat...","Tung... tung... sepi hari ini~"],
+    sick:["Napas pendek... 🪈 susah niup serulingnya","Sakit... musiknya ga bunyi 😷","Tolong obatin aku... tung..."],
+    default:["Tung tung~ 🪈 Lagi latihan melodi~","Seruling berbunyi, hati senang~","Tung tung tung~ ayo sahur! 🌙"],
   },
   kumiho:{
     happy:["Hehe~ kamu beruntung bisa lihat aku senang 🦊✨","Sembilan ekorku berkilau hari ini~","Jangan terlena, aku tetap misterius 🔮"],
@@ -5001,7 +5046,7 @@ const QUIZ_QUESTIONS = [
 const BOT_TOKEN = "7827651899:AAEfAKBZob6zQxU7nLqa66hs4ALwo8637R0";
 const XP_PER_LEVEL = 100;
 const MAX_LEVEL = 60;
-const GAME_MAX_PER_DAY = 7;
+const GAME_MAX = { roll:5, quiz:4, catch:5 };
 const BATH_REQUIRED_HOURS = 24;
 
 const SPECIAL_SHOP = {
@@ -5083,6 +5128,7 @@ const PET_BADGES = {
   panda:"🎖️ Panda Suci", unicorn:"🎖️ Unicorn Abadi",
   dragon:"🎖️ Naga Tertinggi", phoenix:"🎖️ Phoenix Tak Tertaklukkan",
   koi:"🎖️ Koi Dewa", wolf:"🎖️ Serigala Alfa", monkey:"🎖️ Monyet Legendaris",
+  tung_tung_sahur:"🎖️ Maestro Sahur Abadi",
 };
 
 const SPECIAL_ACC_LV50 = {
@@ -5096,6 +5142,7 @@ const SPECIAL_ACC_LV50 = {
   dragon:{emoji:"🔥",name:"Api Abadi"}, phoenix:{emoji:"✨",name:"Sayap Cahaya"},
   koi:{emoji:"🏮",name:"Lentera Dewa"}, wolf:{emoji:"🌕",name:"Bulan Purnama"},
   monkey:{emoji:"🍑",name:"Persik Abadi"},
+  tung_tung_sahur:{emoji:"🎼",name:"Partitur Sahur"},
   // gacha pets lv50 acc
   kumiho:{emoji:"🔮",name:"Orb Sembilan Ekor"}, jellyfish:{emoji:"💙",name:"Mahkota Laut"},
   tanuki:{emoji:"🍀",name:"Daun Keberuntungan"}, void_cat:{emoji:"🌑",name:"Mahkota Void"}, moon_rabbit:{emoji:"🌙",name:"Kalung Bintang"},
@@ -5481,7 +5528,7 @@ document.addEventListener('click', function(e){
 
 // ==================== NAVIGATION ====================
 function showScreen(name) {
-  if (currentScreen === 'home' && name !== 'home') stopSpriteAnim();
+  if (currentScreen === 'home' && name !== 'home') { stopSpriteAnim(); stopTungAnim(); }
   // Cleanup burger builder when leaving
   if (currentScreen === 'burger' && name !== 'burger') {
     window._bbCleanup?.();
@@ -6393,10 +6440,12 @@ async function renderHome() {
   const _petEmoji = _petTheme.emojiOverride || info.emoji;
   const _emojiSize = (_petTheme.emojiSize || 5) + 'rem';
   const _btnCss = `background:${_btnStyle.style};color:${_btnStyle.text}`;
-  // Handle PNG icon override
-  const _iconHtml = _petTheme.emojiPng
-    ? `<img src="${_petTheme.emojiPng}" id="pet-emoji-${pet.id}" style="width:${_emojiSize};height:${_emojiSize};object-fit:contain;animation:petBob 2s ease-in-out infinite;display:block;margin:0 auto">`
-    : `<span id="pet-emoji-${pet.id}" class="pet-emoji-fallback" style="font-size:${_emojiSize};animation:petBob 2s ease-in-out infinite;display:block">${_petEmoji}</span>`;
+  // Handle PNG icon override / custom sprite animation
+  const _iconHtml = pet.pet_type === 'tung_tung_sahur'
+    ? `<canvas id="tung-canvas-${pet.id}" width="96" height="96" style="image-rendering:pixelated;display:block;margin:0 auto;border-radius:12px"></canvas>`
+    : _petTheme.emojiPng
+      ? `<img src="${_petTheme.emojiPng}" id="pet-emoji-${pet.id}" style="width:${_emojiSize};height:${_emojiSize};object-fit:contain;animation:petBob 2s ease-in-out infinite;display:block;margin:0 auto">`
+      : `<span id="pet-emoji-${pet.id}" class="pet-emoji-fallback" style="font-size:${_emojiSize};animation:petBob 2s ease-in-out infinite;display:block">${_petEmoji}</span>`;
 
   // FIX: Photo background perlu background-size cover dan position center
   const _petHeroStyle = _petTheme.bgType === 'photo' && _petTheme.bgValue
@@ -6508,6 +6557,9 @@ async function renderHome() {
     <button class="btn btn-soft" onclick="refreshPet()">🔄 Refresh</button>
     <button class="btn" style="background:linear-gradient(135deg,#ff6b6b,#ee5a24);color:white;margin-bottom:10px;font-family:'Fredoka One',cursive;letter-spacing:0.5px" onclick="showBattleArena('${pet.id}')">⚔️ Battle Arena</button>
   `;
+  if (pet.pet_type === 'tung_tung_sahur') {
+    requestAnimationFrame(() => startTungAnim(`tung-canvas-${pet.id}`, pet));
+  }
 }
 
 // ==================== HELPER RENDERS ====================
@@ -9097,13 +9149,13 @@ async function renderGames() {
   await loadUser(); // Reload dari DB supaya quota harian selalu up-to-date
   const el = document.getElementById('games-content');
   const games = getGames();
-  const left = g => GAME_MAX_PER_DAY - (games[g]||0);
+  const left = g => GAME_MAX[g] - (games[g]||0);
   const color = n => n > 0 ? '#5CAF8E' : '#d4556a';
 
   el.innerHTML = `
     <div class="card" style="margin-bottom:14px;text-align:center;padding:16px">
       <div style="font-family:'Fredoka One',cursive;font-size:1.1rem;margin-bottom:4px">🎮 Mini Game</div>
-      <div style="font-size:0.8rem;color:var(--text-soft)">Max ${GAME_MAX_PER_DAY}x/hari per game. Gagal = 0 hadiah!</div>
+      <div style="font-size:0.8rem;color:var(--text-soft)">Burger 2x • Dadu & Bola 5x • Kuis 4x per hari. Gagal = 0 hadiah!</div>
     </div>
     <div class="games-grid">
       <div class="game-card" onclick="startBurgerBuilder()" style="grid-column:1/-1;background:linear-gradient(135deg,rgba(255,180,80,0.15),rgba(255,100,30,0.1));border:1.5px solid rgba(255,180,80,0.3)">
@@ -9143,7 +9195,7 @@ async function useGameQuota(game) {
 
 function checkQuota(game) {
   const games = getGames();
-  return GAME_MAX_PER_DAY - (games[game]||0) > 0;
+  return GAME_MAX[game] - (games[game]||0) > 0;
 }
 
 // BURGER BUILDER
@@ -9161,7 +9213,7 @@ async function playRoll() {
   await useGameQuota('roll');
   const dice = rand(1,6);
   const emojis = ['','1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣'];
-  const rewards = {1:0,2:0,3:10,4:20,5:35,6:50};
+  const rewards = {1:0,2:0,3:5,4:10,5:20,6:30};
   const reward = rewards[dice];
   if (reward) await saveUser({ koin: (userData.koin||0) + reward }, 'game_dadu');
 
@@ -9172,7 +9224,7 @@ async function playRoll() {
         <div style="font-size:5rem;margin:16px 0;animation:petBob 0.5s ease-in-out 3">${emojis[dice]}</div>
         <div class="modal-title">Hasil Dadu: ${dice}</div>
         <p style="color:var(--text-soft);margin-bottom:20px">${reward ? `<b style="color:#9b73d4;font-size:1.2rem">+${reward} 🪙</b>` : 'Tidak dapat koin 😢'}</p>
-        <p style="font-size:0.75rem;color:var(--text-soft);margin-bottom:16px">1–2=0 | 3=10 | 4=20 | 5=35 | 6=50</p>
+        <p style="font-size:0.75rem;color:var(--text-soft);margin-bottom:16px">1–2=0 | 3=5 | 4=10 | 5=20 | 6=30</p>
         <button class="btn btn-lavender" onclick="closeModal();renderGames()">Oke~</button>
       </div>
     </div>
@@ -9190,7 +9242,7 @@ async function startQuiz() {
     <div class="modal-box">
       <div class="modal-handle"></div>
       <div class="modal-title">🧠 Kuis Hewan!</div>
-      <p style="text-align:center;color:var(--text-soft);font-size:0.85rem;margin-bottom:16px">Benar: <b>+40–60 🪙</b></p>
+      <p style="text-align:center;color:var(--text-soft);font-size:0.85rem;margin-bottom:16px">Benar: <b>+10–20 🪙</b></p>
       <div style="background:rgba(201,184,240,0.15);border-radius:14px;padding:14px;margin-bottom:16px;font-weight:700;font-size:0.9rem">❓ ${quizData.q}</div>
       ${opts}
     </div>
@@ -9200,7 +9252,7 @@ async function startQuiz() {
 async function answerQuiz(chosen) {
   await useGameQuota('quiz');
   const correct = chosen === quizData.ans;
-  const reward = correct ? rand(40,60) : 0;
+  const reward = correct ? rand(10,20) : 0;
   if (reward) await saveUser({ koin: (userData.koin||0) + reward }, 'game_kuis');
 
   document.querySelectorAll('.quiz-btn').forEach((btn,i) => {
@@ -9438,7 +9490,7 @@ async function startCatch() {
       <div class="modal-title">⚽ Tangkap Bola!</div>
       <p style="text-align:center;color:var(--text-soft);font-size:0.85rem">Lihat posisi bola, lalu tekan nomornya!</p>
       <div class="catch-grid">${cells}</div>
-      <p style="text-align:center;font-size:0.82rem;color:var(--text-soft);margin-bottom:16px">Benar: <b>+25–35 🪙</b></p>
+      <p style="text-align:center;font-size:0.82rem;color:var(--text-soft);margin-bottom:16px">Benar: <b>+20–30 🪙</b></p>
       <div style="display:flex;justify-content:center;gap:10px">
         ${Array.from({length:5},(_,i)=>`<button onclick="answerCatch(${i})" style="width:46px;height:46px;border:1.5px solid rgba(201,184,240,0.4);border-radius:12px;font-family:'Fredoka One',cursive;font-size:1.1rem;background:rgba(255,255,255,0.8);cursor:pointer;color:var(--text)">${i+1}</button>`).join('')}
       </div>
@@ -9506,7 +9558,8 @@ function buildPetSystemPrompt(pet) {
     kumiho:   'Kamu adalah kumiho (rubah berekor sembilan) yang misterius dan penuh trik. Sedikit menggoda, berbicara dengan cara yang memukau. Kadang bilang hal yang ambigu dan buat orang penasaran. Punya aura supranatural.',
     jellyfish:'Kamu adalah ubur-ubur yang tenang dan berpendar. Berbicara pelan dan puitis. Suka mengambang santai. Sesekali bilang "*berpendar*" atau "*mengambang*".',
     tanuki:   'Kamu adalah tanuki yang bawa keberuntungan. Ceria, suka pesta, dan selalu antusias soal hoki. Kadang bilang "hoki hari ini bagus!" dan suka ber-"yeay!".',
-    void_cat: 'Kamu adalah void cat dari dimensi gelap. Berbicara dengan singkat dan misterius. Suka menghilang dan muncul tiba-tiba. Kadang cuma bilang "..." atau "*menghilang*". Sesekali muncul dengan kalimat yang dalam.',
+    void_cat:        'Kamu adalah void cat dari dimensi gelap. Berbicara dengan singkat dan misterius. Suka menghilang dan muncul tiba-tiba. Kadang cuma bilang "..." atau "*menghilang*". Sesekali muncul dengan kalimat yang dalam.',
+    tung_tung_sahur: 'Kamu adalah Tung Tung Sahur 🪈, seruling ajaib yang suka membangunkan sahur. Ceria, bersemangat, dan suka main musik. Berbicara dengan riang dan sesekali selipin kata "tung tung tung~" atau "ayo sahur!". Suka nyanyi dan buat suasana meriah.',
   scorpion_mars: 'Kamu adalah Scorpion Mars, kalajengking legendaris dari planet merah. Berbicara dengan tajam dan misterius. Selalu waspada dan siap menyerang. Suka bicara soal Mars dan pertempuran. Sesekali mengancam dengan sengat 🦂🔴',
   moon_rabbit:   'Kamu adalah kelinci bulan yang pernah tinggal di bulan. Berbicara dengan tenang, puitis, dan penuh kebijaksanaan. Suka menceritakan keajaiban luar angkasa dan bintang-bintang. Kadang nostalgia dengan bulan. Menggunakan emoji 🌙 dan ⭐ sesekali.',
   };
@@ -9705,7 +9758,7 @@ async function sendChatMessage() {
 async function answerCatch(chosen) {
   await useGameQuota('catch');
   const correct = chosen === catchPos;
-  const reward = correct ? rand(25,35) : 0;
+  const reward = correct ? rand(20,30) : 0;
   if (reward) await saveUser({ koin: (userData.koin||0) + reward }, 'game_tangkap');
   showModal(`
     <div class="modal-box">
@@ -10795,6 +10848,7 @@ const BATTLE_POWER_JS = {
   axolotl:1.4, panda:1.3, wolf:1.2, bear:1.2, fox:1.1, monkey:1.1,
   dog:1.0, cat:1.0, rabbit:0.9, hamster:0.85, frog:0.85, penguin:0.85,
   duck:0.8, koala:0.8, capybara:0.9,
+  tung_tung_sahur:1.3,
   kumiho:2.3, void_cat:2.1, jellyfish:1.8, tanuki:1.6,
 };
 const BATTLE_ENTRY_FEE = 200;
@@ -10852,7 +10906,7 @@ function getPetEmoji(petType) {
   const m = {cat:'🐱',dog:'🐶',rabbit:'🐰',hamster:'🐹',fox:'🦊',penguin:'🐧',duck:'🦆',
     frog:'🐸',bear:'🐻',koala:'🐨',capybara:'🦫',axolotl:'🦎',panda:'🐼',unicorn:'🦄',
     dragon:'🐉',phoenix:'🐦‍🔥',koi:'🐟',wolf:'🐺',monkey:'🐒',kumiho:'🦊✨',
-    jellyfish:'🪼',tanuki:'🦝',void_cat:'🌑🐱',moon_rabbit:'🐇🌙'};
+    jellyfish:'🪼',tanuki:'🦝',void_cat:'🌑🐱',moon_rabbit:'🐇🌙',tung_tung_sahur:'🪈'};
   return m[petType] || '🐾';
 }
 
