@@ -3049,15 +3049,18 @@ function startTungAnim(canvasId, pet) {
   stopTungAnim();
   const canvas = document.getElementById(canvasId);
   if (!canvas) return;
+  canvas.width  = 96;
+  canvas.height = 96;
+  canvas.style.imageRendering = 'pixelated';
   const hunger    = pet.hunger    || 0;
   const happiness = pet.happiness || 0;
   const health    = pet.health    ?? 100;
-  let key = 'drum';
-  if (health < 30)       key = 'cry';
-  else if (hunger > 65)  key = 'eat';
-  else if (happiness < 30) key = 'cry';
+  let key;
+  if (health < 30)          key = 'cry';
+  else if (hunger > 65)     key = 'eat';
+  else if (happiness < 30)  key = 'cry';
   else if (happiness >= 75) key = 'happy';
-  else key = 'idle';
+  else                      key = 'idle';
   const src = TUNG_SPRITES[key];
   const ctx = canvas.getContext('2d');
   ctx.imageSmoothingEnabled = false;
@@ -5932,7 +5935,7 @@ async function renderHome() {
   const skinKey    = getActiveSkinKey(pet.pet_type, pet.id);
   const isKoiFish  = KOI_PET_TYPES.has(pet.pet_type);
   const isFishPet  = FISH_PET_TYPES.has(pet.pet_type);
-  const hasSprite  = SPRITE_PET_TYPES.has(pet.pet_type) || isKoiFish || isFishPet;
+  const hasSprite  = SPRITE_PET_TYPES.has(pet.pet_type) || isKoiFish || isFishPet || pet.pet_type === 'tung_tung_sahur';
   const room       = getRoomData(pet.id);
   const bgKey      = room.bg || 'classic2';
   const bgSrc      = (typeof PET_BACKGROUNDS !== 'undefined' && PET_BACKGROUNDS[bgKey]) || '';
@@ -6352,7 +6355,9 @@ async function renderHome() {
     // Init sprite + drag
     requestAnimationFrame(()=>{
       if (!isKoiFish) {
-        if (isFishPet) {
+        if (pet.pet_type === 'tung_tung_sahur') {
+          startTungAnim('room-pet-canvas', pet);
+        } else if (isFishPet) {
           startFishSpriteAnim('room-pet-canvas', pet.pet_type, baseAnimKey);
         } else {
           startSpriteAnim('room-pet-canvas', skinKey, baseAnimKey);
