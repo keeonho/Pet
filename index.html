@@ -6373,10 +6373,6 @@ async function renderHome() {
     return;
   } catch(e) {
     console.error('Room render error:', e.message||e);
-    if (pet.pet_type === 'tung_tung_sahur') {
-      el.innerHTML = `<div style="padding:20px;background:#fff3cd;border-radius:12px;margin:12px;font-size:0.82rem;color:#856404;font-weight:700">⚠️ Room render error (tung): ${e.message||String(e)}</div>`;
-      return;
-    }
     // fallthrough to legacy render
   }}
 
