@@ -7927,9 +7927,15 @@ async function doBuy(key, qty = 1) {
 
     const newKoin = koin - (item.price * actualQty);
     inv[key] = (inv[key]||0) + actualQty;
-    // Atomic: simpan inventory dulu, baru kurangi koin
-    await saveInv(inv);
-    await saveUser({ koin: newKoin }, 'beli_toko');
+    // Satu PATCH atomic: inventory + koin sekaligus biar ga ada race condition
+    const { error: buyErr } = await db.from('users').update({ inventory: inv, koin: newKoin }).eq('user_id', USER_ID);
+    if (buyErr) {
+      showToast('❌ Gagal beli, coba lagi!');
+      return;
+    }
+    if (userData) { userData.inventory = inv; userData.koin = newKoin; }
+    updateKoinBadge(newKoin);
+    logKoin(-(item.price * actualQty), 'beli_toko').catch(()=>{});
     await taskInc('buy_50', actualQty);
     closeModal();
     showToast(`✅ Beli ${item.emoji} ${item.name} x${actualQty}! Sisa ${newKoin.toLocaleString()} 🪙`);
