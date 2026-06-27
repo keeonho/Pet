@@ -9239,7 +9239,7 @@ async function playRoll() {
   await useGameQuota('roll');
   const dice = rand(1,6);
   const emojis = ['','1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣'];
-  const rewards = {1:0,2:0,3:5,4:10,5:20,6:30};
+  const rewards = {1:0,2:0,3:10,4:20,5:35,6:50};
   const reward = rewards[dice];
   if (reward) await saveUser({ koin: (userData.koin||0) + reward }, 'game_dadu');
 
@@ -9250,7 +9250,7 @@ async function playRoll() {
         <div style="font-size:5rem;margin:16px 0;animation:petBob 0.5s ease-in-out 3">${emojis[dice]}</div>
         <div class="modal-title">Hasil Dadu: ${dice}</div>
         <p style="color:var(--text-soft);margin-bottom:20px">${reward ? `<b style="color:#9b73d4;font-size:1.2rem">+${reward} 🪙</b>` : 'Tidak dapat koin 😢'}</p>
-        <p style="font-size:0.75rem;color:var(--text-soft);margin-bottom:16px">1–2=0 | 3=5 | 4=10 | 5=20 | 6=30</p>
+        <p style="font-size:0.75rem;color:var(--text-soft);margin-bottom:16px">1–2=0 | 3=10 | 4=20 | 5=35 | 6=50</p>
         <button class="btn btn-lavender" onclick="closeModal();renderGames()">Oke~</button>
       </div>
     </div>
@@ -9268,7 +9268,7 @@ async function startQuiz() {
     <div class="modal-box">
       <div class="modal-handle"></div>
       <div class="modal-title">🧠 Kuis Hewan!</div>
-      <p style="text-align:center;color:var(--text-soft);font-size:0.85rem;margin-bottom:16px">Benar: <b>+10–20 🪙</b></p>
+      <p style="text-align:center;color:var(--text-soft);font-size:0.85rem;margin-bottom:16px">Benar: <b>+20–35 🪙</b></p>
       <div style="background:rgba(201,184,240,0.15);border-radius:14px;padding:14px;margin-bottom:16px;font-weight:700;font-size:0.9rem">❓ ${quizData.q}</div>
       ${opts}
     </div>
@@ -9278,7 +9278,7 @@ async function startQuiz() {
 async function answerQuiz(chosen) {
   await useGameQuota('quiz');
   const correct = chosen === quizData.ans;
-  const reward = correct ? rand(10,20) : 0;
+  const reward = correct ? rand(20,35) : 0;
   if (reward) await saveUser({ koin: (userData.koin||0) + reward }, 'game_kuis');
 
   document.querySelectorAll('.quiz-btn').forEach((btn,i) => {
@@ -9516,7 +9516,7 @@ async function startCatch() {
       <div class="modal-title">⚽ Tangkap Bola!</div>
       <p style="text-align:center;color:var(--text-soft);font-size:0.85rem">Lihat posisi bola, lalu tekan nomornya!</p>
       <div class="catch-grid">${cells}</div>
-      <p style="text-align:center;font-size:0.82rem;color:var(--text-soft);margin-bottom:16px">Benar: <b>+20–30 🪙</b></p>
+      <p style="text-align:center;font-size:0.82rem;color:var(--text-soft);margin-bottom:16px">Benar: <b>+25–40 🪙</b></p>
       <div style="display:flex;justify-content:center;gap:10px">
         ${Array.from({length:5},(_,i)=>`<button onclick="answerCatch(${i})" style="width:46px;height:46px;border:1.5px solid rgba(201,184,240,0.4);border-radius:12px;font-family:'Fredoka One',cursive;font-size:1.1rem;background:rgba(255,255,255,0.8);cursor:pointer;color:var(--text)">${i+1}</button>`).join('')}
       </div>
@@ -9784,7 +9784,7 @@ async function sendChatMessage() {
 async function answerCatch(chosen) {
   await useGameQuota('catch');
   const correct = chosen === catchPos;
-  const reward = correct ? rand(20,30) : 0;
+  const reward = correct ? rand(25,40) : 0;
   if (reward) await saveUser({ koin: (userData.koin||0) + reward }, 'game_tangkap');
   showModal(`
     <div class="modal-box">
