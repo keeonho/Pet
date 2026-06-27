@@ -4356,18 +4356,15 @@ async function doFeedRoomItem(itemKey){
   }
   triggerPetAnim('eating');
   await doFeed(itemKey);
-  renderHome();
 }
 
 async function doPlayRoom(){
   triggerPetAnim('excited');
   await doPlay();
-  renderHome();
 }
 async function doHealRoom(){
   triggerPetAnim('surprised');
   await doHeal();
-  renderHome();
 }
 
 // ── PET SWITCH from room ───────────────────────────────────────
