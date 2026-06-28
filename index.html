@@ -8641,7 +8641,7 @@ function showCustomPetFlow() {
   if ((inv.custom_pet_card || 0) <= 0) { showToast('❌ Kartu Custom Pet habis!'); return; }
   _cpState = {};
   // Step 1: pilih jenis pet
-  const petBtns = Object.entries(PETS).filter(([k,v]) => !v.gacha_only)
+  const petBtns = Object.entries(PETS).filter(([k,v]) => !v.gacha_only && k !== 'ikan_biru')
     .map(([k,v]) => `<button class="btn btn-soft" onclick="_cpChooseType('${k}')" style="margin-bottom:6px;text-align:left">${v.emoji} ${v.name}</button>`)
     .join('');
   showModal(`<div class="modal-box" style="max-height:85vh;overflow-y:auto">
