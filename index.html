@@ -7904,7 +7904,7 @@ async function doBuy(key, qty = 1) {
       showToast(`⚠️ Koin kurang, beli ${actualQty}x aja ya~`);
     }
 
-    const inv = getInv();
+    const inv = { ...getInv() }; // copy, bukan reference — biar local cache ga ke-mutate sebelum PATCH berhasil
 
     // Cek daily limit (mbg_biasa: max 2/hari)
     if (item.limit) {
