@@ -2486,16 +2486,27 @@ input:focus,select:focus,textarea:focus{border-color:#6aa84f}
 #gdn-bubble::after{content:'';position:absolute;left:26px;bottom:-11px;width:14px;height:14px;
   background:#fffdf4;border-right:3px solid #8b5e34;border-bottom:3px solid #8b5e34;transform:rotate(45deg) skew(8deg,8deg)}
 
-/* dok perawatan bawah */
-#gdn-root .care-dock{position:absolute;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:20;
-  background:linear-gradient(170deg,#fffdf4,#f7ecd2);border:3.5px solid #8b5e34;border-radius:26px;
-  padding:13px 14px 14px;box-shadow:0 6px 0 rgba(107,68,35,.28), 0 18px 30px rgba(60,40,15,.28);max-width:480px;margin:0 auto}
-#gdn-root .cd-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:9px}
-#gdn-root .cd-name b{display:block;font-size:17px;color:#5a3d1e;line-height:1.1}
-#gdn-root .cd-name span{font-size:11px;font-weight:800;color:#6b8f4e;background:#eef6dd;border:2px solid #b9dfa0;border-radius:99px;padding:1.5px 9px;display:inline-block;margin-top:3px}
-#gdn-root .cd-day{text-align:right}
-#gdn-root .cd-day b{display:block;font-size:14px;color:#8a5f2a}
-#gdn-root .cd-day span{font-size:10.5px;font-weight:800;color:#8a7258}
+/* bottom sheet perawatan — collapsed kecil, expand penuh */
+#gdn-root .care-sheet{position:absolute;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:20;
+  max-width:480px;margin:0 auto;
+  background:linear-gradient(170deg,#fffdf4,#f7ecd2);border:3.5px solid #8b5e34;border-radius:24px;
+  box-shadow:0 6px 0 rgba(107,68,35,.28), 0 18px 30px rgba(60,40,15,.28);
+  overflow:hidden}
+#gdn-root .cs-grab{display:block;width:100%;background:none;border:none;font-family:inherit;
+  padding:9px 16px 8px;cursor:pointer;text-align:left}
+#gdn-root .cs-handle{display:block;width:44px;height:5px;border-radius:99px;background:#d9c294;margin:0 auto 7px}
+#gdn-root .cs-mini{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+#gdn-root .cs-mini b{font-size:17px;color:#5a3d1e}
+#gdn-root .cs-day{font-size:13px;font-weight:800;color:#8a5f2a;white-space:nowrap}
+#gdn-root .cs-hint{font-size:10.5px;font-weight:800;color:#b09468;text-align:center;margin-top:3px;
+  transition:opacity .25s}
+#gdn-root .care-sheet.open .cs-hint{opacity:0;height:0;margin:0;overflow:hidden}
+#gdn-root .cs-full{max-height:0;opacity:0;padding:0 14px;overflow:hidden;
+  transition:max-height .42s cubic-bezier(.3,.9,.35,1), opacity .3s, padding .3s}
+#gdn-root .care-sheet.open .cs-full{max-height:340px;opacity:1;padding:2px 14px 14px}
+#gdn-root .cd-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
+#gdn-root .cd-stage{font-size:11px;font-weight:800;color:#6b8f4e;background:#eef6dd;border:2px solid #b9dfa0;border-radius:99px;padding:2.5px 11px}
+#gdn-root .cd-count{font-size:10.5px;font-weight:800;color:#8a7258;text-align:right}
 #gdn-root .cd-bars{display:flex;flex-direction:column;gap:5px;margin-bottom:11px}
 #gdn-root .cd-bar{display:flex;align-items:center;gap:8px}
 #gdn-root .cd-bar .ic{width:19px;height:19px;flex:0 0 auto}
@@ -2504,22 +2515,55 @@ input:focus,select:focus,textarea:focus{border-color:#6aa84f}
 #gdn-root .cd-bar .bar.happy i{background:linear-gradient(90deg,#ffd875,#f2b23a)}
 #gdn-root .cd-bar .bar.clean i{background:linear-gradient(90deg,#a8d68c,#7ab85c)}
 #gdn-root .cd-bar em{font-style:normal;font-size:11px;font-weight:800;color:#7a6248;width:34px;text-align:right}
-#gdn-root .cd-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+#gdn-root .cd-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:11px}
 #gdn-root .act{display:flex;flex-direction:column;align-items:center;gap:4px;font-family:inherit;cursor:pointer;
   background:none;border:none;padding:0}
-#gdn-root .act .pad{width:54px;height:54px;border-radius:19px;display:flex;align-items:center;justify-content:center;
+#gdn-root .act .pad{width:52px;height:52px;border-radius:18px;display:flex;align-items:center;justify-content:center;
   border:3px solid;transition:transform .12s cubic-bezier(.34,1.56,.64,1)}
-#gdn-root .act .pad svg{width:30px;height:30px}
+#gdn-root .act .pad svg{width:29px;height:29px}
 #gdn-root .act b{font-size:11px;font-weight:800;color:#6b4e2e}
-#gdn-root .act:active .pad{transform:scale(.9)}
+#gdn-root .act:active .pad{transform:scale(.9);box-shadow:0 1px 0 rgba(0,0,0,.25)}
 #gdn-root .act.blue .pad{background:linear-gradient(#e7f4fb,#c9e6f5);border-color:#3f7ea3;box-shadow:0 4px 0 #35708f}
 #gdn-root .act.green .pad{background:linear-gradient(#eef6dd,#d5ecba);border-color:#4e8438;box-shadow:0 4px 0 #44742f}
 #gdn-root .act.sand .pad{background:linear-gradient(#fdf3da,#f5e0ae);border-color:#a8761b;box-shadow:0 4px 0 #906415}
 #gdn-root .act.pinkk .pad{background:linear-gradient(#fdeef2,#f8d3dc);border-color:#c05a72;box-shadow:0 4px 0 #a84c62}
-#gdn-root .act:active .pad{box-shadow:0 1px 0 rgba(0,0,0,.25)}
-
+#gdn-root .cs-owners{display:flex;align-items:center;gap:8px;width:100%;font-family:inherit;cursor:pointer;
+  background:#fffbe9;border:2.5px solid #e0cba0;border-radius:15px;padding:9px 12px;text-align:left}
+#gdn-root .cs-owners .ic{width:19px;height:19px;flex:0 0 auto}
+#gdn-root .cs-own-txt{flex:1;font-size:12px;font-weight:700;color:#7a6248}
+#gdn-root .cs-own-txt b{color:#5a3d1e}
+#gdn-root .cs-own-txt i{font-style:normal;color:#c05a72;font-weight:800}
+#gdn-root .cs-own-go{font-size:18px;font-weight:800;color:#b09468}
 #gdn-root .free-tag{font-size:10px;font-weight:900;background:#e8f5d9;color:#4e8438;border:2px solid #8fce7a;border-radius:99px;padding:2px 8px;margin-left:6px;vertical-align:2px}
 
+
+
+/* ==================== PET PAGE v3 — hero scene + dock aksi ==================== */
+.pet-hero{min-height:46vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:30px 18px 34px!important;margin-bottom:0!important;
+  border-radius:26px 26px 8px 8px!important}
+.pet-anim-wrap{width:168px!important;height:168px!important;animation:petBob 2.4s ease-in-out infinite!important}
+.pet-anim-wrap img.pet-anim{width:168px!important;height:168px!important}
+.pet-emoji,.pet-emoji-fallback{font-size:7rem!important}
+.pet-name{font-size:1.9rem!important;text-shadow:0 2px 0 rgba(255,253,244,.8)}
+.pet-acc{font-size:2.4rem!important}
+.pet-acc.glasses{top:54px!important}
+.pet-acc.aura{font-size:7rem!important}
+.card.pet-panel{margin-top:-18px;border-radius:8px 8px 24px 24px!important;position:relative;z-index:3}
+.pet-panel-wrap{display:flex;flex-direction:column-reverse;gap:13px}
+.pet-stats{width:100%}
+.pet-dock{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;width:100%;
+  padding-bottom:12px;border-bottom:2.5px dashed #e5d3a8}
+.pet-dock button{display:flex!important;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;min-height:0!important;aspect-ratio:1/1.12;padding:6px 2px!important;
+  background:linear-gradient(170deg,#fffbe9,#f3e4c0)!important;
+  border:2.5px solid #c9a878!important;border-radius:16px!important;
+  box-shadow:0 3.5px 0 rgba(140,90,20,.3)!important;color:#5a3d1e!important;
+  transition:transform .13s cubic-bezier(.34,1.56,.64,1)}
+.pet-dock button:active{transform:scale(.9)}
+.pet-dock button span:first-child{font-size:1.45rem!important;filter:drop-shadow(0 2px 0 rgba(107,68,35,.14))}
+.pet-dock button span:nth-child(2){font-size:.6rem!important;color:#6b4e2e!important}
+@media (max-width:380px){.pet-dock{grid-template-columns:repeat(3,1fr)}.pet-dock button{aspect-ratio:1/0.9}}
 
 /* ==================== SCREENS v2 — kartu ala game utk Home/Toko/Inventori/Game ==================== */
 .card{background:linear-gradient(170deg,#fffdf4,#faf0d8)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
@@ -2788,24 +2832,39 @@ document.addEventListener('DOMContentLoaded', function(){
 
   <div id="gdn-bubble"></div>
 
-  <div class="care-dock">
-    <div class="cd-head">
-      <div class="cd-name"><b id="gdn-rName">Bunga</b><span id="gdn-rStage">Benih</span></div>
-      <div class="cd-day"><b id="gdn-rDay">Hari 1 / 7</b><span id="gdn-rCountdown">Menuju tahap berikutnya · —</span></div>
-    </div>
-    <div class="cd-bars">
-      <div class="cd-bar"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-8.6-8.8C2.3 7.8 4.4 5.2 7.2 5.2c1.9 0 3.5 1 4.8 2.7 1.3-1.7 2.9-2.7 4.8-2.7 2.8 0 4.9 2.6 3.8 6C19 15.6 12 20 12 20z" fill="#f28ba0" stroke="#c05a72" stroke-width="1.8" stroke-linejoin="round"/></svg></span>
-        <div class="bar"><i id="gdn-bHealth"></i></div><em id="gdn-vHealth">90%</em></div>
-      <div class="cd-bar"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4" fill="#ffd875" stroke="#c8901f" stroke-width="1.8"/><circle cx="9" cy="10.4" r="1.1" fill="#6b4423"/><circle cx="15" cy="10.4" r="1.1" fill="#6b4423"/><path d="M8.4 14a4.4 4.4 0 0 0 7.2 0" fill="none" stroke="#6b4423" stroke-width="1.8" stroke-linecap="round"/></svg></span>
-        <div class="bar happy"><i id="gdn-bHappy"></i></div><em id="gdn-vHappy">80%</em></div>
-      <div class="cd-bar"><span class="ic"><svg viewBox="0 0 24 24"><path d="M5 4l7 7M14.5 3.5l4 4" stroke="#8b5e34" stroke-width="2.2" stroke-linecap="round"/><path d="M13 9l2 2-6.2 6.4c-1.6 1.6-3.9 2.2-5.8 1.6.6-1.9 1.2-4.2 2.8-5.8z" fill="#f2c96e" stroke="#a8761b" stroke-width="1.7" stroke-linejoin="round"/></svg></span>
-        <div class="bar clean"><i id="gdn-bClean"></i></div><em id="gdn-vClean">100%</em></div>
-    </div>
-    <div class="cd-actions">
-      <button class="act blue" id="gdn-aWater"><span class="pad"><svg viewBox="0 0 24 24"><path d="M12 3.5C9 8 6.5 11 6.5 14.3A5.5 5.5 0 0 0 12 19.8a5.5 5.5 0 0 0 5.5-5.5C17.5 11 15 8 12 3.5z" fill="#8ecbe8" stroke="#3f7ea3" stroke-width="1.8" stroke-linejoin="round"/><path d="M9.4 14.6a2.8 2.8 0 0 0 2 2.6" fill="none" stroke="#fffdf4" stroke-width="1.6" stroke-linecap="round"/></svg></span><b>Siram</b></button>
-      <button class="act green" id="gdn-aFert"><span class="pad"><svg viewBox="0 0 24 24"><path d="M7 8.5h10l-1 11a2 2 0 0 1-2 1.8h-4a2 2 0 0 1-2-1.8z" fill="#c98a4b" stroke="#6b4423" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.5 5.5h7a1.5 1.5 0 0 1 1.5 1.5v1.5H7V7a1.5 1.5 0 0 1 1.5-1.5z" fill="#e0aa60" stroke="#6b4423" stroke-width="1.8"/><path d="M10 13c1.4-.4 2 .4 2 1.6 0-1.2.6-2 2-1.6.8 1.6-.6 3-2 3.6-1.4-.6-2.8-2-2-3.6z" fill="#8fce7a" stroke="#4e8438" stroke-width="1.3" stroke-linejoin="round"/></svg></span><b>Pupuk</b></button>
-      <button class="act sand" id="gdn-aClean"><span class="pad"><svg viewBox="0 0 24 24"><path d="M14.5 3.5l4 4" stroke="#8b5e34" stroke-width="2.4" stroke-linecap="round"/><path d="M13 9l2 2-6.2 6.4c-1.6 1.6-3.9 2.2-5.8 1.6.6-1.9 1.2-4.2 2.8-5.8z" fill="#f2c96e" stroke="#a8761b" stroke-width="1.7" stroke-linejoin="round"/><path d="M6.5 14.5l3 3" stroke="#c8901f" stroke-width="1.4" stroke-linecap="round"/></svg></span><b>Bersihkan</b></button>
-      <button class="act pinkk" id="gdn-aTalk"><span class="pad"><svg viewBox="0 0 24 24"><path d="M4 6.6A3.2 3.2 0 0 1 7.2 3.4h9.6A3.2 3.2 0 0 1 20 6.6v6.2a3.2 3.2 0 0 1-3.2 3.2H10l-4.4 3.8.4-3.8H7.2A3.2 3.2 0 0 1 4 12.8z" fill="#fffdf4" stroke="#8b5e34" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 9.2c.5-1 1.4-1.1 2-.4.6-.7 1.5-.6 2 .4.4 1-.7 2-2 2.8-1.3-.8-2.4-1.8-2-2.8z" fill="#f28ba0"/></svg></span><b>Bicara</b></button>
+  <div class="care-sheet" id="gdn-sheet">
+    <button class="cs-grab" id="gdn-sheetGrab" type="button">
+      <i class="cs-handle"></i>
+      <div class="cs-mini">
+        <b id="gdn-rName">Bunga</b>
+        <span class="cs-day" id="gdn-rDay">Hari 1 / 7</span>
+      </div>
+      <div class="cs-hint">Geser ke atas untuk detail ▴</div>
+    </button>
+    <div class="cs-full">
+      <div class="cd-head">
+        <span class="cd-stage" id="gdn-rStage">Benih</span>
+        <span class="cd-count" id="gdn-rCountdown">Menuju tahap berikutnya · —</span>
+      </div>
+      <div class="cd-bars">
+        <div class="cd-bar"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-8.6-8.8C2.3 7.8 4.4 5.2 7.2 5.2c1.9 0 3.5 1 4.8 2.7 1.3-1.7 2.9-2.7 4.8-2.7 2.8 0 4.9 2.6 3.8 6C19 15.6 12 20 12 20z" fill="#f28ba0" stroke="#c05a72" stroke-width="1.8" stroke-linejoin="round"/></svg></span>
+          <div class="bar"><i id="gdn-bHealth"></i></div><em id="gdn-vHealth">90%</em></div>
+        <div class="cd-bar"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4" fill="#ffd875" stroke="#c8901f" stroke-width="1.8"/><circle cx="9" cy="10.4" r="1.1" fill="#6b4423"/><circle cx="15" cy="10.4" r="1.1" fill="#6b4423"/><path d="M8.4 14a4.4 4.4 0 0 0 7.2 0" fill="none" stroke="#6b4423" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+          <div class="bar happy"><i id="gdn-bHappy"></i></div><em id="gdn-vHappy">80%</em></div>
+        <div class="cd-bar"><span class="ic"><svg viewBox="0 0 24 24"><path d="M14.5 3.5l4 4" stroke="#8b5e34" stroke-width="2.4" stroke-linecap="round"/><path d="M13 9l2 2-6.2 6.4c-1.6 1.6-3.9 2.2-5.8 1.6.6-1.9 1.2-4.2 2.8-5.8z" fill="#f2c96e" stroke="#a8761b" stroke-width="1.7" stroke-linejoin="round"/></svg></span>
+          <div class="bar clean"><i id="gdn-bClean"></i></div><em id="gdn-vClean">100%</em></div>
+      </div>
+      <div class="cd-actions">
+        <button class="act blue" id="gdn-aWater"><span class="pad"><svg viewBox="0 0 24 24"><path d="M12 3.5C9 8 6.5 11 6.5 14.3A5.5 5.5 0 0 0 12 19.8a5.5 5.5 0 0 0 5.5-5.5C17.5 11 15 8 12 3.5z" fill="#8ecbe8" stroke="#3f7ea3" stroke-width="1.8" stroke-linejoin="round"/><path d="M9.4 14.6a2.8 2.8 0 0 0 2 2.6" fill="none" stroke="#fffdf4" stroke-width="1.6" stroke-linecap="round"/></svg></span><b>Siram</b></button>
+        <button class="act green" id="gdn-aFert"><span class="pad"><svg viewBox="0 0 24 24"><path d="M7 8.5h10l-1 11a2 2 0 0 1-2 1.8h-4a2 2 0 0 1-2-1.8z" fill="#c98a4b" stroke="#6b4423" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.5 5.5h7a1.5 1.5 0 0 1 1.5 1.5v1.5H7V7a1.5 1.5 0 0 1 1.5-1.5z" fill="#e0aa60" stroke="#6b4423" stroke-width="1.8"/><path d="M10 13c1.4-.4 2 .4 2 1.6 0-1.2.6-2 2-1.6.8 1.6-.6 3-2 3.6-1.4-.6-2.8-2-2-3.6z" fill="#8fce7a" stroke="#4e8438" stroke-width="1.3" stroke-linejoin="round"/></svg></span><b>Pupuk</b></button>
+        <button class="act sand" id="gdn-aClean"><span class="pad"><svg viewBox="0 0 24 24"><path d="M14.5 3.5l4 4" stroke="#8b5e34" stroke-width="2.4" stroke-linecap="round"/><path d="M13 9l2 2-6.2 6.4c-1.6 1.6-3.9 2.2-5.8 1.6.6-1.9 1.2-4.2 2.8-5.8z" fill="#f2c96e" stroke="#a8761b" stroke-width="1.7" stroke-linejoin="round"/><path d="M6.5 14.5l3 3" stroke="#c8901f" stroke-width="1.4" stroke-linecap="round"/></svg></span><b>Bersihkan</b></button>
+        <button class="act pinkk" id="gdn-aTalk"><span class="pad"><svg viewBox="0 0 24 24"><path d="M4 6.6A3.2 3.2 0 0 1 7.2 3.4h9.6A3.2 3.2 0 0 1 20 6.6v6.2a3.2 3.2 0 0 1-3.2 3.2H10l-4.4 3.8.4-3.8H7.2A3.2 3.2 0 0 1 4 12.8z" fill="#fffdf4" stroke="#8b5e34" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 9.2c.5-1 1.4-1.1 2-.4.6-.7 1.5-.6 2 .4.4 1-.7 2-2 2.8-1.3-.8-2.4-1.8-2-2.8z" fill="#f28ba0"/></svg></span><b>Bicara</b></button>
+      </div>
+      <button class="cs-owners" id="gdn-shOwnersBtn" type="button">
+        <span class="ic"><svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="3.4" fill="#f2c9a0" stroke="#8a5a34" stroke-width="1.7"/><path d="M3.4 19c.8-3.4 3.2-4.7 5.6-4.7s4.8 1.3 5.6 4.7" fill="#a8d68c" stroke="#4e8438" stroke-width="1.7" stroke-linecap="round"/><circle cx="16.6" cy="9.6" r="2.8" fill="#f2b8a0" stroke="#8a5a34" stroke-width="1.6"/><path d="M15.4 14.6c2.8-.4 5 .9 5.8 3.8" fill="none" stroke="#a35a3a" stroke-width="1.7" stroke-linecap="round"/></svg></span>
+        <span class="cs-own-txt">Pemilik: <b id="gdn-shOwners">—</b></span>
+        <span class="cs-own-go">›</span>
+      </button>
     </div>
   </div>
 </div>
@@ -7077,10 +7136,10 @@ async function renderHome() {
       ${cooldownTxt}
     </div>
     ${sickWarn}${poopWarn}${dirtyWarn}
-    <div class="card" style="padding:14px">
-      <div style="display:flex;gap:10px;align-items:stretch">
+    <div class="card pet-panel" style="padding:14px">
+      <div class="pet-panel-wrap">
         <!-- Kiri: Status bars -->
-        <div style="flex:1;min-width:0">
+        <div class="pet-stats">
           <div class="card-title" style="margin-bottom:8px">📊 Status</div>
           <div class="stat-row">
             <div class="stat-label"><span>🍖 Lapar</span><span>${hunger}%</span></div>
@@ -7100,7 +7159,7 @@ async function renderHome() {
           </div>
         </div>
         <!-- Kanan: Action buttons grid -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;width:118px;flex-shrink:0;align-content:start">
+        <div class="pet-dock">
           <button onclick="showScreen('feed')" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px;border:none;border-radius:12px;background:${_btnStyle.style};color:white;font-family:'Nunito',sans-serif;cursor:pointer;position:relative;min-height:52px">
             <span style="font-size:1.3rem">🍽️</span>
             <span style="font-size:0.62rem;font-weight:800;margin-top:2px">Makan</span>
@@ -12752,7 +12811,7 @@ const G={
 };
 for(let i=0;i<70;i++) G.stars.push({x:rand(W*1.4)-W*.2,y:rand(HOR*0.85),r:rand(.6,1.8),tw:rand(TAU)});
 
-const FLOWER_X=380, FLOWER_Y=880, BIG=5.2;   // bunga ±60-70% layar, di atas dok perawatan
+const FLOWER_X=380, FLOWER_Y=940, BIG=5.6;   // bunga = hero layar, sheet bawah collapsed
 
 /* ---- waktu & pertumbuhan: murni 7 hari NYATA ---- */
 const DAY_VIS=30*60*1000, SEASON_MS=2*24*3600*1000;
@@ -13651,9 +13710,10 @@ function drawWeeds(f){
 }
 /* bunga utama — renderer lama diskalakan besar */
 function drawBigFlower(f){
+  const breath=1+0.012*Math.sin(G.t*1.5);       // animasi napas halus
   ctx.save();
   ctx.translate(FLOWER_X,FLOWER_Y);
-  ctx.scale(BIG,BIG);
+  ctx.scale(BIG*breath,BIG*breath);
   ctx.translate(-f.px,-f.py);
   drawFlower(f);
   ctx.restore();
@@ -13813,9 +13873,11 @@ function bubble(text){
 function positionBubble(){
   const f=G.f; if(!f) return;
   const wy=FLOWER_Y-flowerHeight(f)*BIG-46;
-  const sxp=(FLOWER_X*scl+ox)/dpr, syp=(wy*scl+oy)/dpr;
+  let sxp=(FLOWER_X*scl+ox)/dpr, syp=(wy*scl+oy)/dpr;
   const b=$('bubble');
-  b.style.left=sxp+'px'; b.style.top=Math.max(70,syp)+'px';
+  const rw=ROOT.clientWidth||360;
+  sxp=Math.min(Math.max(sxp,118),rw-118);
+  b.style.left=sxp+'px'; b.style.top=Math.max(64,syp)+'px';
 }
 
 /* ============================================================
@@ -13952,6 +14014,7 @@ function openRoom(g){
   VIEW='room';
   $('collection').style.display='none';
   $('room').style.display='';
+  SHEET_OPEN=false; $('sheet').classList.remove('open');
   resize(); buildScene();
   if(!G.butterflies.length) spawnCreatures();
   G.flowers=[G.f];
@@ -13965,9 +14028,31 @@ function closeRoom(){
   $('bubble').classList.remove('show');
   loadGardens().then(()=>showCollection());
 }
+let SHEET_OPEN=false;
+function setSheet(open){
+  SHEET_OPEN=open;
+  $('sheet').classList.toggle('open',open);
+  Snd.click();
+}
+function wireSheet(){
+  const grab=$('sheetGrab');
+  grab.addEventListener('click',()=>setSheet(!SHEET_OPEN));
+  let y0=null;
+  const sheet=$('sheet');
+  sheet.addEventListener('touchstart',e=>{y0=e.touches[0].clientY;},{passive:true});
+  sheet.addEventListener('touchmove',e=>{
+    if(y0==null) return;
+    const dy=e.touches[0].clientY-y0;
+    if(dy<-38&&!SHEET_OPEN){setSheet(true);y0=null;}
+    else if(dy>38&&SHEET_OPEN){setSheet(false);y0=null;}
+  },{passive:true});
+  sheet.addEventListener('touchend',()=>{y0=null;},{passive:true});
+}
 function syncRoomUI(full){
   const f=G.f; if(!f) return;
   G.flowers=[f];
+  const g=G.cur;
+  $('shOwners').innerHTML=(g.owner1_name||'—')+(g.owner2_id?' & '+(g.owner2_name||'—'):' — <i>undang partnermu</i>');
   $('rName').textContent=f.name;
   $('rStage').textContent=STAGES7[f.stage];
   $('rDay').textContent=`Hari ${f.day} / 7`;
@@ -14144,6 +14229,8 @@ function wireOnce(){
   $('btnSettings').addEventListener('click',()=>{Snd.init();openPanel('setSheet');Snd.click();});
   $('btnInfo').addEventListener('click',()=>{Snd.init();renderInfo();openPanel('infoSheet');Snd.click();});
   $('btnOwners').addEventListener('click',()=>{Snd.init();renderInvite();openPanel('inviteSheet');Snd.click();});
+  $('shOwnersBtn').addEventListener('click',()=>{Snd.init();renderInvite();openPanel('inviteSheet');Snd.click();});
+  wireSheet();
   $('aWater').addEventListener('click',()=>{Snd.init();actWater();});
   $('aFert').addEventListener('click',()=>{Snd.init();actFert();});
   $('aClean').addEventListener('click',()=>{Snd.init();actClean();});
