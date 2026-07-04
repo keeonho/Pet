@@ -2436,7 +2436,7 @@ input:focus,select:focus,textarea:focus{border-color:#6aa84f}
 #gdn-cards{display:flex;flex-direction:column;gap:14px;max-width:480px;margin:0 auto}
 
 /* kartu taman */
-#gdn-root .gcard{display:flex;gap:14px;align-items:center;text-align:left;width:100%;
+#gdn-root .gcard{display:flex;gap:14px;align-items:center;text-align:left;width:100%;cursor:pointer;
   background:linear-gradient(170deg,#fffdf4,#faf0d8);
   border:3.5px solid #8b5e34;border-radius:24px;padding:14px;
   box-shadow:0 6px 0 rgba(107,68,35,.22), 0 16px 26px rgba(90,60,25,.16);
@@ -2536,7 +2536,145 @@ input:focus,select:focus,textarea:focus{border-color:#6aa84f}
 #gdn-root .cs-own-go{font-size:18px;font-weight:800;color:#b09468}
 #gdn-root .free-tag{font-size:10px;font-weight:900;background:#e8f5d9;color:#4e8438;border:2px solid #8fce7a;border-radius:99px;padding:2px 8px;margin-left:6px;vertical-align:2px}
 
+/* ---- dialog konfirmasi & tombol bahaya ---- */
+#gdn-root .g-overlay.center{align-items:center;justify-content:center;display:none}
+#gdn-root .g-overlay.center.open{display:flex}
+#gdn-root .g-panel.mini{width:min(310px,86vw);border-radius:24px;padding:22px 18px 18px;text-align:center;
+  background:linear-gradient(170deg,#fffdf4,#f7ecd2);border:3.5px solid #8b5e34;
+  box-shadow:0 6px 0 rgba(107,68,35,.26), 0 20px 34px rgba(60,40,15,.3);
+  animation:gdn-dialogIn .32s cubic-bezier(.34,1.45,.64,1)}
+@keyframes gdn-dialogIn{from{transform:scale(.82) translateY(14px);opacity:0}to{transform:none;opacity:1}}
+#gdn-root .cf-ic{width:64px;height:64px;margin:0 auto 8px;background:#fdeef2;border:3px solid #e2a8b8;border-radius:50%;padding:12px}
+#gdn-root .cf-ic svg{width:100%;height:100%}
+#gdn-root .g-panel.mini h3{font-size:18px;color:#5a3d1e;margin-bottom:6px}
+#gdn-root .g-panel.mini p{font-size:12.5px;font-weight:700;color:#8a7258;line-height:1.45;margin-bottom:15px}
+#gdn-root .cf-btns{display:flex;gap:9px}
+#gdn-root .cf-btns .g-btn{flex:1;padding:11px 6px;font-size:14px}
+#gdn-root .g-btn.danger{background:linear-gradient(#f28ba0,#e06a84);border-color:#a84c62;color:#fffdf4;box-shadow:0 4px 0 #8f3e52}
+#gdn-root .g-btn.danger:active{box-shadow:0 1px 0 #8f3e52}
+/* ---- slider volume ---- */
+#gdn-root .set-row.vol{padding-top:0;margin-top:-6px;border-bottom:none}
+#gdn-root input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:12px;border-radius:99px;
+  background:#f0e2c0;border:2px solid #c9ab78;outline:none}
+#gdn-root input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;
+  background:linear-gradient(#8fce7a,#6aa84f);border:3px solid #4a7a36;box-shadow:0 2.5px 0 rgba(60,90,30,.4);cursor:pointer}
 
+/* ---- fix scroll di dalam panel/sheet (root pakai touch-action:none) ---- */
+#gdn-root .g-panel-body{overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:contain}
+#gdn-root .g-overlay{touch-action:pan-y}
+#gdn-root .seed-grid{touch-action:pan-y}
+#gdn-root .care-sheet .cs-full{touch-action:pan-y;overscroll-behavior:contain}
+#gdn-root #gdn-collection{touch-action:pan-y}
+
+/* ---- tombol hapus di kartu koleksi ---- */
+#gdn-root .gcard{position:relative}
+#gdn-root .gc-del{position:absolute;top:9px;right:9px;z-index:3;width:34px;height:34px;padding:6px;
+  background:#fffdf4;border:2.5px solid #e2a8b8;border-radius:12px;cursor:pointer;
+  box-shadow:0 2.5px 0 rgba(192,90,114,.28);transition:transform .12s cubic-bezier(.34,1.56,.64,1)}
+#gdn-root .gc-del svg{width:100%;height:100%;display:block}
+#gdn-root .gc-del:active{transform:scale(.88)}
+#gdn-root .gcard.empty .gc-del,#gdn-root .gcard.add .gc-del{display:none}
+#gdn-root .gcard::after{right:5px;left:5px}
+
+
+
+
+/* ==================== ROOM MODE v3 — HUD & dock gaya Taman ==================== */
+.rico{display:inline-flex;width:18px;height:18px;vertical-align:-4px}
+.rico.b{width:26px;height:26px}
+.rico svg{width:100%;height:100%}
+.room-pill{background:linear-gradient(170deg,#fffdf4,#f7ecd2)!important;backdrop-filter:none!important;
+  border:2.5px solid #8b5e34!important;color:#4a3524!important;
+  box-shadow:0 3px 0 rgba(107,68,35,.22)!important;padding:6px 13px!important}
+.room-pill span{color:#8a7258!important}
+.room-icon-btn{width:46px!important;height:46px!important;border-radius:16px!important;
+  background:linear-gradient(170deg,#fffdf4,#f3e6c8)!important;backdrop-filter:none!important;
+  border:2.5px solid #8b5e34!important;box-shadow:0 3.5px 0 rgba(107,68,35,.24)!important;
+  transition:transform .13s cubic-bezier(.34,1.56,.64,1)!important}
+.room-icon-btn:active{transform:scale(.9)!important}
+.room-stat-mini{background:#fffdf4!important;backdrop-filter:none!important;
+  border:2.5px solid #d9c294!important;box-shadow:0 2.5px 0 rgba(107,68,35,.14);padding:4px 10px!important}
+.room-stat-mini-bar{width:56px!important;height:9px!important;background:#f0e2c0!important;
+  border:1.5px solid #c9ab78;border-radius:99px!important}
+.room-stat-mini-fill{border-radius:99px!important}
+/* dock aksi bawah (menggantikan kolom kiri) */
+.room-act-col{position:fixed!important;left:10px;right:10px;bottom:calc(66px + env(safe-area-inset-bottom));
+  z-index:40;flex-direction:row!important;align-items:stretch!important;gap:9px!important;
+  overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+  background:linear-gradient(170deg,#fffdf4,#f7ecd2);border:3.5px solid #8b5e34;border-radius:22px;
+  padding:9px 10px!important;box-shadow:0 6px 0 rgba(107,68,35,.28), 0 16px 26px rgba(60,40,15,.26);
+  max-width:480px;margin:0 auto!important}
+.room-act-col::-webkit-scrollbar{display:none}
+.room-act-btn{background:#fffbe9!important;backdrop-filter:none!important;
+  border:2.5px solid #c9a878!important;border-radius:15px!important;
+  width:56px!important;min-width:56px;min-height:56px!important;color:#5a3d1e!important;
+  box-shadow:0 3.5px 0 rgba(140,90,20,.3)!important;
+  transition:transform .13s cubic-bezier(.34,1.56,.64,1)!important}
+.room-act-btn:active{transform:scale(.9)!important;background:#fdf3da!important}
+.room-act-icon{font-size:1.15rem!important;width:26px;height:26px;display:flex;align-items:center;justify-content:center}
+.room-act-icon svg{width:26px;height:26px}
+.room-act-label{font-size:.56rem!important;color:#6b4e2e!important;opacity:1!important;font-weight:800!important}
+.room-act-badge{border:2px solid #fffdf4;top:-6px!important;right:-6px!important}
+/* panel geser bawah -> kertas hangat */
+.room-slide-panel{background:linear-gradient(170deg,#fffdf4,#f7ecd2)!important;backdrop-filter:none!important;
+  border:3.5px solid #8b5e34!important;border-bottom:none!important;
+  border-radius:26px 26px 0 0!important;box-shadow:0 -12px 34px rgba(80,50,20,.3)!important}
+.room-panel-pip{width:46px!important;height:5.5px!important;background:#d9c294!important;border-radius:99px!important}
+.room-panel-title{color:#5a3d1e!important}
+.room-feed-item,.room-decor-item,.room-pet-item,.room-skin-item,.room-furniture-item{
+  background:#fffbe9!important;border:2.5px solid #e0cba0!important;border-radius:16px!important;
+  box-shadow:0 3px 0 rgba(107,68,35,.12)!important;color:#5a3d1e!important;
+  transition:transform .13s cubic-bezier(.34,1.56,.64,1)}
+.room-feed-item:active,.room-decor-item:active,.room-pet-item:active,.room-skin-item:active{transform:scale(.95)}
+.room-feed-name,.room-decor-name,.room-pet-name,.room-skin-label{color:#5a3d1e!important}
+.room-feed-price,.room-decor-price,.room-pet-sub{color:#8a7258!important}
+.room-feed-qty{background:#fff3cf!important;border:1.5px solid #e8c86e;color:#8a6410!important;border-radius:99px!important}
+.room-decor-buy-btn{background:linear-gradient(#8fce7a,#6aa84f)!important;border:2.5px solid #4a7a36!important;
+  color:#fffdf4!important;border-radius:12px!important;box-shadow:0 3px 0 #3f6b2e!important}
+.room-decor-tab{background:#fffbe9!important;border:2px solid #e0cba0!important;color:#8a7258!important;border-radius:99px!important}
+.room-decor-tab.active{background:#eef6dd!important;border-color:#8fce7a!important;color:#4e8438!important}
+/* balon bicara pet */
+.room-speech{background:#fffdf4!important;border:2.5px solid #8b5e34;border-radius:15px!important;
+  color:#4a3524!important;box-shadow:0 3.5px 0 rgba(107,68,35,.2)!important;font-weight:800!important}
+.room-vignette{background:radial-gradient(ellipse at center, transparent 52%, rgba(40,26,12,.26) 100%)!important}
+/* banner peringatan hangat */
+.room-warn{background:#fffdf4!important;border:2.5px solid #e0cba0!important;border-radius:16px!important;
+  box-shadow:0 3px 0 rgba(107,68,35,.13);padding:11px 14px!important;margin-bottom:10px!important}
+.room-warn .btn{border-radius:12px!important}
+/* empty state premium */
+.cozy-empty{max-width:340px;margin:8vh auto 0;text-align:center;
+  background:linear-gradient(170deg,#fffdf4,#f7ecd2);border:3.5px solid #8b5e34;border-radius:26px;
+  padding:24px 20px 22px;box-shadow:0 6px 0 rgba(107,68,35,.22), 0 16px 28px rgba(90,60,25,.16);
+  animation:screenIn .35s cubic-bezier(.3,.9,.4,1)}
+.cozy-empty.away{background:linear-gradient(170deg,#fdf6e8,#f2e2c2)}
+.cozy-empty .ce-art{width:170px;margin:0 auto 6px}
+.cozy-empty .ce-art svg{width:100%;height:auto;filter:drop-shadow(0 5px 0 rgba(107,68,35,.12))}
+.cozy-empty .ce-title{display:block;font-family:'Fredoka One',cursive;font-size:1.35rem;color:#5a3d1e;margin-bottom:6px}
+.cozy-empty .ce-text{font-size:.85rem;font-weight:700;color:#8a7258;line-height:1.55;margin-bottom:13px}
+.cozy-empty .ce-card{background:#fffbe9;border:2.5px dashed #d9c294;border-radius:15px;padding:11px 13px;
+  font-size:.78rem;font-weight:700;color:#7a6248;line-height:1.5;margin-bottom:15px}
+.cozy-empty .ce-card b{color:#4e8438}
+.cozy-empty .ce-card.away{border-color:#d9a8a0;background:#fdf2ee}
+.cozy-empty .ce-card.away b{color:#b0543a}
+.cozy-empty .ce-btn{font-family:'Fredoka One',cursive;font-size:1rem;letter-spacing:.3px;color:#fffdf4;
+  background:linear-gradient(170deg,#8fce7a,#5f9c48);border:3px solid #4a7a36;border-radius:99px;
+  padding:12px 30px;box-shadow:0 5px 0 #3f6b2e;cursor:pointer;
+  transition:transform .13s cubic-bezier(.34,1.56,.64,1)}
+.cozy-empty .ce-btn:active{transform:scale(.94);box-shadow:0 1px 0 #3f6b2e}
+/* baris audio menu */
+.smi-audio{margin-top:11px;padding-top:11px;border-top:2.5px dashed #e5d3a8;display:flex;flex-direction:column;gap:9px}
+.smi-audio .row{display:flex;align-items:center;gap:9px}
+.smi-audio .rico{width:21px;height:21px;flex:0 0 auto}
+.smi-audio input[type=range]{flex:1;-webkit-appearance:none;appearance:none;height:11px;border-radius:99px;
+  background:#f0e2c0;border:2px solid #c9ab78;outline:none;min-width:0}
+.smi-audio input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:21px;height:21px;border-radius:50%;
+  background:linear-gradient(#8fce7a,#6aa84f);border:2.5px solid #4a7a36;box-shadow:0 2px 0 rgba(60,90,30,.4);cursor:pointer}
+.smi-audio .sw{width:40px;height:24px;border-radius:99px;background:#e0cba0;border:2px solid #c9a878;
+  position:relative;cursor:pointer;flex:0 0 auto;transition:background .2s}
+.smi-audio .sw::after{content:'';position:absolute;top:1.5px;left:2px;width:17px;height:17px;border-radius:50%;
+  background:#fffdf4;box-shadow:0 1.5px 0 rgba(107,68,35,.3);transition:left .2s}
+.smi-audio .sw.on{background:#8fce7a;border-color:#4e8438}
+.smi-audio .sw.on::after{left:17px}
 
 /* ==================== PET PAGE v3 — hero scene + dock aksi ==================== */
 .pet-hero{min-height:46vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -2893,6 +3031,7 @@ document.addEventListener('DOMContentLoaded', function(){
         </div>
       </div>
       <div class="info-grid" id="gdn-iGrid"></div>
+      <button class="g-btn danger" id="gdn-btnDelFlower" style="width:100%;margin-top:14px"><svg class="bic" viewBox="0 0 24 24"><path d="M5.5 7h13" stroke="#fffdf4" stroke-width="2" stroke-linecap="round"/><path d="M9 7V5.4A1.4 1.4 0 0 1 10.4 4h3.2A1.4 1.4 0 0 1 15 5.4V7" fill="none" stroke="#fffdf4" stroke-width="1.9"/><path d="M7 7l.9 11.4A2 2 0 0 0 9.9 20.2h4.2a2 2 0 0 0 2-1.8L17 7z" fill="none" stroke="#fffdf4" stroke-width="1.9" stroke-linejoin="round"/><path d="M10.3 10.5v6M13.7 10.5v6" stroke="#fffdf4" stroke-width="1.8" stroke-linecap="round"/></svg> Hapus Bunga</button>
     </div>
   </div>
 </div>
@@ -2923,10 +3062,24 @@ document.addEventListener('DOMContentLoaded', function(){
     <div class="g-panel-head"><h2><svg viewBox="0 0 24 24"><path d="M12 3l1.2 2.4 2.6-.6 1.1 2.4 2.6.7-.6 2.6L21 12l-2.1 1.5.6 2.6-2.6.7-1.1 2.4-2.6-.6L12 21l-1.2-2.4-2.6.6-1.1-2.4-2.6-.7.6-2.6L3 12l2.1-1.5-.6-2.6 2.6-.7 1.1-2.4 2.6.6z" fill="#c9b18a" stroke="#6b4423" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.2" fill="#fffdf4" stroke="#6b4423" stroke-width="1.5"/></svg> Pengaturan</h2><button class="g-panel-x" data-close>✕</button></div>
     <div class="g-panel-body">
       <div class="set-row"><span>Musik</span><div class="switch on" id="gdn-swMusic"></div></div>
+      <div class="set-row vol"><input type="range" id="gdn-volMusic" min="0" max="100" value="60"></div>
       <div class="set-row"><span>Efek suara</span><div class="switch on" id="gdn-swSfx"></div></div>
+      <div class="set-row vol"><input type="range" id="gdn-volSfx" min="0" max="100" value="70"></div>
       <div class="set-row"><span>Suasana (angin, hujan, burung)</span><div class="switch on" id="gdn-swAmb"></div></div>
       <div class="set-row"><span>Partikel ekstra</span><div class="switch on" id="gdn-swFx"></div></div>
       <div class="credit">Taman Bunga · Carpets<br>Tersimpan otomatis & disinkronkan untuk kalian berdua.</div>
+    </div>
+  </div>
+</div>
+<!-- ============ KONFIRMASI HAPUS ============ -->
+<div class="g-overlay center" id="gdn-confirmSheet">
+  <div class="g-panel mini">
+    <div class="cf-ic"><svg viewBox="0 0 24 24"><path d="M12 20c0-3 .4-5.6 1.6-8" fill="none" stroke="#8a9a5a" stroke-width="2" stroke-linecap="round"/><path d="M13.6 12c2.6-.6 4.2-2.4 4.6-5.2-2.8-.2-4.8 1-5.8 3.4" fill="#c9d49a" stroke="#8a9a5a" stroke-width="1.6" stroke-linejoin="round"/><path d="M13.2 13.6C11 11.4 8.2 10.8 5.4 11.8c1 2.8 3.2 4.2 6.4 4" fill="#b5c284" stroke="#8a9a5a" stroke-width="1.6" stroke-linejoin="round"/><circle cx="16.8" cy="5.2" r="2" fill="#e8b8c4" stroke="#c05a72" stroke-width="1.3"/><path d="M15 7.4l-1.2 1.4M18.6 6.8l1.6.8" stroke="#c05a72" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+    <h3>Hapus bunga ini?</h3>
+    <p>Bunga yang dihapus tidak dapat dikembalikan.</p>
+    <div class="cf-btns">
+      <button class="g-btn" data-close>Batal</button>
+      <button class="g-btn danger" id="gdn-btnConfirmDel">Hapus</button>
     </div>
   </div>
 </div>
@@ -2953,6 +3106,19 @@ document.addEventListener('DOMContentLoaded', function(){
     <button class="side-menu-item" onclick="showScreen('chat');toggleSideMenu()" id="nav-chat"><span class="smi-ic"><svg viewBox="0 0 24 24"><path d="M4 6.6A3.2 3.2 0 0 1 7.2 3.4h9.6A3.2 3.2 0 0 1 20 6.6v6.2a3.2 3.2 0 0 1-3.2 3.2H10l-4.4 3.8.4-3.8H7.2A3.2 3.2 0 0 1 4 12.8z" fill="#fffdf4" stroke="#8b5e34" stroke-width="1.8" stroke-linejoin="round"/><circle cx="8.6" cy="9.8" r="1.1" fill="#f0968f"/><circle cx="12" cy="9.8" r="1.1" fill="#f7c948"/><circle cx="15.4" cy="9.8" r="1.1" fill="#8fce7a"/></svg></span><span class="smi-lb">Chat</span></button>
     <button class="side-menu-item" onclick="showScreen('task');toggleSideMenu()" id="nav-task"><span class="smi-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.2" fill="#fffdf4" stroke="#8b5e34" stroke-width="1.8"/><circle cx="12" cy="12" r="5.2" fill="#f2a4b8" stroke="#c05a72" stroke-width="1.5"/><circle cx="12" cy="12" r="2.2" fill="#f7c948" stroke="#c8901f" stroke-width="1.3"/><path d="M12 12l4.6-4.6" stroke="#4e8438" stroke-width="1.9" stroke-linecap="round"/><path d="M16.6 7.4l2 .4.4 2-2-.4z" fill="#8fce7a" stroke="#4e8438" stroke-width="1.3" stroke-linejoin="round"/></svg></span><span class="smi-lb">Misi</span></button>
   </div>
+  <div class="smi-audio" id="csnd-ui">
+    <div class="row">
+      <span class="rico"><svg viewBox="0 0 24 24"><path d="M9.5 17.5V6.8l9-2v10.4" fill="none" stroke="#8b5e34" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="7" cy="17.6" rx="2.6" ry="2.2" fill="#f2a4b8" stroke="#c05a72" stroke-width="1.6"/><ellipse cx="16" cy="15.4" rx="2.6" ry="2.2" fill="#a8d68c" stroke="#4e8438" stroke-width="1.6"/></svg></span>
+      <input type="range" id="csnd-mv" min="0" max="100" value="50">
+      <div class="sw on" id="csnd-msw"></div>
+    </div>
+    <div class="row">
+      <span class="rico"><svg viewBox="0 0 24 24"><path d="M12 3.6c-3.4 0-5.6 2.4-5.6 5.8 0 3.8-1 5.2-2.2 6.4h15.6c-1.2-1.2-2.2-2.6-2.2-6.4 0-3.4-2.2-5.8-5.6-5.8z" fill="#f7c948" stroke="#a8761b" stroke-width="1.7" stroke-linejoin="round"/><path d="M10 18.8a2 2 0 0 0 4 0" fill="none" stroke="#a8761b" stroke-width="1.7" stroke-linecap="round"/></svg></span>
+      <input type="range" id="csnd-sv" min="0" max="100" value="70">
+      <div class="sw on" id="csnd-ssw"></div>
+    </div>
+  </div>
+
 </div>
 
 <!-- Modal container -->
@@ -6355,10 +6521,22 @@ async function renderHome() {
   const el = document.getElementById('home-content');
   if (!activePet) {
     el.innerHTML = `
-      <div class="empty-state">
-        <span class="empty-state-emoji">🐾</span>
-        <div class="empty-state-title">Belum punya pet!</div>
-        <p style="font-size:0.85rem;color:var(--text-soft);margin-bottom:16px">Adopsi hewan dullu di bot ya~</p>
+      <div class="cozy-empty">
+        <div class="ce-art">
+          <svg viewBox="0 0 120 100">
+            <ellipse cx="60" cy="86" rx="42" ry="9" fill="#e5d5ae"/>
+            <path d="M28 62c0-18 14-32 32-32s32 14 32 32v16a6 6 0 0 1-6 6H34a6 6 0 0 1-6-6z" fill="#fffdf4" stroke="#8b5e34" stroke-width="3"/>
+            <path d="M22 60L60 28l38 32" fill="none" stroke="#a35a3a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="50" y="58" width="20" height="26" rx="4" fill="#e0aa60" stroke="#8b5e34" stroke-width="2.6"/>
+            <circle cx="65" cy="71" r="1.8" fill="#6b4423"/>
+            <path d="M36 66c2.2 0 3.4-1.7 3.4-3.7S38.2 59 36.4 59 33 60.3 33 62.3s.8 3.7 3 3.7zm10-6c2 0 2.9-1.6 2.9-3.5S47.7 53 46 53s-3.1 1.6-3.1 3.5 1.1 3.5 3.1 3.5z" fill="#c9a878" opacity=".7"/>
+            <path d="M78 50c1.6-3.4 5.4-3 6.2-.4.8-2.6 4.6-3 6.2.4 1.2 2.6-2.4 5.4-6.2 7.6-3.8-2.2-7.4-5-6.2-7.6z" fill="#f2a4b8" stroke="#c05a72" stroke-width="2"/>
+          </svg>
+        </div>
+        <b class="ce-title">Rumahnya masih sepi...</b>
+        <p class="ce-text">Belum ada pet yang tinggal di sini.<br>Adopsi teman berbulumu lewat bot, yuk!</p>
+        <div class="ce-card">Ketik perintah <b>adopsi</b> di chat bot @Carpetsrobot untuk memilih pet pertamamu</div>
+        <button class="ce-btn" onclick="try{Telegram.WebApp.openTelegramLink('https://t.me/Carpetsrobot')}catch(e){window.open('https://t.me/Carpetsrobot','_blank')}">Adopsi Pet</button>
       </div>`;
     return;
   }
@@ -6366,16 +6544,27 @@ async function renderHome() {
   if (activePet.is_missing) {
     const missingInfo = PETS[activePet.pet_type] || { emoji:'🐾', name:'?' };
     el.innerHTML = `
-      <div class="empty-state" style="padding:32px 20px">
-        <span class="empty-state-emoji">🏃💨</span>
-        <div class="empty-state-title" style="color:#d4556a">${activePet.name} kabur!</div>
-        <p style="font-size:0.85rem;color:var(--text-soft);margin-bottom:20px;line-height:1.6">
-          ${missingInfo.emoji} <b>${activePet.name}</b> kabur karena terlalu lama kelaparan.<br>
-          Kamu tidak bisa kasih makan atau interaksi sampai pet kembali.
-        </p>
-        <div style="background:rgba(255,100,120,0.1);border:1.5px solid rgba(255,100,120,0.3);border-radius:14px;padding:14px 16px;font-size:0.82rem;color:#d4556a;font-weight:700;margin-bottom:16px">
-          💬 Panggil balik lewat bot dengan perintah cari pet!
+      <div class="cozy-empty away">
+        <div class="ce-art">
+          <svg viewBox="0 0 120 100">
+            <ellipse cx="60" cy="86" rx="42" ry="9" fill="#d8c8a8"/>
+            <path d="M20 84c10-3 18-2 26 1" fill="none" stroke="#b8a582" stroke-width="3" stroke-linecap="round"/>
+            <g fill="#a8865a" opacity=".85">
+              <ellipse cx="34" cy="80" rx="4" ry="3"/><ellipse cx="30" cy="75.4" rx="1.5" ry="1.2"/><ellipse cx="34" cy="74.4" rx="1.5" ry="1.2"/><ellipse cx="38" cy="75.4" rx="1.5" ry="1.2"/>
+              <ellipse cx="56" cy="70" rx="3.4" ry="2.6"/><ellipse cx="52.6" cy="66" rx="1.3" ry="1"/><ellipse cx="56" cy="65.2" rx="1.3" ry="1"/><ellipse cx="59.4" cy="66" rx="1.3" ry="1"/>
+              <ellipse cx="78" cy="60" rx="2.8" ry="2.2" opacity=".7"/><ellipse cx="75.2" cy="56.6" rx="1.1" ry=".9" opacity=".7"/><ellipse cx="78" cy="56" rx="1.1" ry=".9" opacity=".7"/><ellipse cx="80.8" cy="56.6" rx="1.1" ry=".9" opacity=".7"/>
+              <ellipse cx="96" cy="50" rx="2.2" ry="1.8" opacity=".45"/>
+            </g>
+            <path d="M96 26a10 10 0 1 0 8 16 8.6 8.6 0 0 1-8-16z" fill="#f5e9b8" stroke="#c8ab6a" stroke-width="2.4"/>
+            <path d="M18 34h12M24 28v12" stroke="#e8d8a8" stroke-width="2.4" stroke-linecap="round" opacity=".9"/>
+            <circle cx="42" cy="22" r="1.6" fill="#e8d8a8"/><circle cx="70" cy="16" r="1.3" fill="#e8d8a8"/>
+            <path d="M50 44c2-4.4 7-4 8-.6 1-3.4 6-3.8 8 .6 1.6 3.4-3.2 7-8 9.8-4.8-2.8-9.6-6.4-8-9.8z" fill="none" stroke="#c98a9a" stroke-width="2.4" stroke-dasharray="4 3"/>
+          </svg>
         </div>
+        <b class="ce-title" style="color:#b0543a">${activePet.name} kabur!</b>
+        <p class="ce-text">${activePet.name} pergi karena terlalu lama kelaparan.<br>Jejak kakinya masih hangat — dia pasti belum jauh.</p>
+        <div class="ce-card away">Panggil dia pulang lewat bot dengan perintah <b>cari pet</b> ya. Kamu belum bisa berinteraksi sampai dia kembali.</div>
+        <button class="ce-btn" onclick="try{Telegram.WebApp.openTelegramLink('https://t.me/Carpetsrobot')}catch(e){window.open('https://t.me/Carpetsrobot','_blank')}">Cari ${activePet.name}</button>
       </div>`;
     return;
   }
@@ -6415,9 +6604,9 @@ async function renderHome() {
     : `<div style="font-size:0.82rem;color:var(--text-soft);font-style:italic;margin:6px 0 4px;text-align:center">"${quote}"</div>`;
 
   let sickWarn = '';
-  if (pet.is_sleeping) sickWarn = `<div style="background:rgba(100,150,255,0.12);border-radius:12px;padding:10px 14px;font-size:0.82rem;font-weight:700;color:${isKoi?'#7dd8ff':'#4a6fa5'};margin-bottom:12px">😴 Pet lagi tidur — health & happiness recovering. Bangun jam 07.00 WIB!</div>`;
-  else if (hunger >= 70) sickWarn = `<div style="background:rgba(255,100,120,0.12);border-radius:12px;padding:10px 14px;font-size:0.82rem;font-weight:700;color:${isKoi?'#ff8faa':'#d4556a'};margin-bottom:12px">🤒 ${isKoi?'Ikan koi':'Pet'} sakit! Kelaparan terlalu tinggi, kasih makan segera!</div>`;
-  else if (hunger >= 40) sickWarn = `<div style="background:rgba(255,181,100,0.12);border-radius:12px;padding:10px 14px;font-size:0.82rem;font-weight:700;color:${isKoi?'#ffcc66':'#c47a00'};margin-bottom:12px">⚠️ Kelaparan ${hunger}% — jangan sampai lebih dari 70%!</div>`;
+  if (pet.is_sleeping) sickWarn = `<div class="room-warn" style="color:${isKoi?'#7dd8ff':'#4a6fa5'};margin-bottom:12px">😴 Pet lagi tidur — health & happiness recovering. Bangun jam 07.00 WIB!</div>`;
+  else if (hunger >= 70) sickWarn = `<div class="room-warn" style="color:${isKoi?'#ff8faa':'#d4556a'};margin-bottom:12px">🤒 ${isKoi?'Ikan koi':'Pet'} sakit! Kelaparan terlalu tinggi, kasih makan segera!</div>`;
+  else if (hunger >= 40) sickWarn = `<div class="room-warn" style="color:${isKoi?'#ffcc66':'#c47a00'};margin-bottom:12px">⚠️ Kelaparan ${hunger}% — jangan sampai lebih dari 70%!</div>`;
 
   const poopCount   = pet.poop_count || 0;
   const isDirty     = pet.is_dirty || false;
@@ -6425,13 +6614,13 @@ async function renderHome() {
   const wangiActive = pet.wangi_until && new Date(pet.wangi_until) > new Date();
 
   const poopWarn = poopCount > 0
-    ? `<div style="background:rgba(180,130,50,0.12);border-radius:12px;padding:10px 14px;font-size:0.82rem;font-weight:700;color:#8B6914;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
+    ? `<div class="room-warn" style="color:#8B6914;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
         <span>💩 ${poopCount === 1 ? 'Pet baru poop!' : `Pet poop ${poopCount}x!`}</span>
         <button class="btn btn-yellow" onclick="doCleanPoop()" style="padding:6px 14px;font-size:0.78rem;width:auto;margin:0">🧹 Bersihkan</button>
        </div>` : '';
 
   const dirtyWarn = isDirty && !isKoi
-    ? `<div style="background:rgba(100,180,220,0.12);border-radius:12px;padding:10px 14px;font-size:0.82rem;font-weight:700;color:#1a7a9e;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
+    ? `<div class="room-warn" style="color:#1a7a9e;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
         <span>🛁 Pet belum mandi! Happiness & health turun~</span>
         <button class="btn btn-mint" onclick="showBathMenu()" style="padding:6px 14px;font-size:0.78rem;width:auto;margin:0">Mandi</button>
        </div>` : '';
@@ -6546,9 +6735,9 @@ async function renderHome() {
         +'</div>'
       +'</div>'
       +'<div style="padding:4px 16px 8px">'
-        +'<div class="aq-bar"><span>🍖</span><div class="aq-track"><div class="aq-fill" style="width:'+hunger+'%;background:'+_hC+'"></div></div><span style="font-size:.7rem;color:rgba(150,220,255,.7);min-width:30px;text-align:right">'+hunger+'%</span></div>'
-        +'<div class="aq-bar"><span>😊</span><div class="aq-track"><div class="aq-fill" style="width:'+happy+'%;background:'+_hapC+'"></div></div><span style="font-size:.7rem;color:rgba(150,220,255,.7);min-width:30px;text-align:right">'+happy+'%</span></div>'
-        +'<div class="aq-bar"><span>💖</span><div class="aq-track"><div class="aq-fill" style="width:'+health+'%;background:'+_hlC+'"></div></div><span style="font-size:.7rem;color:rgba(150,220,255,.7);min-width:30px;text-align:right">'+health+'%</span></div>'
+        +'<div class="aq-bar"><span><svg viewBox="0 0 24 24" style="width:16px;height:16px;vertical-align:-3px"><ellipse cx="10" cy="12" rx="5.6" ry="4.6" transform="rotate(-24 10 12)" fill="#e8a56a" stroke="#a35a3a" stroke-width="1.6"/><path d="M14.6 9.2l3.4-2.4a1.8 1.8 0 0 1 2.4 2.6L18 12.6" fill="#fffdf4" stroke="#a35a3a" stroke-width="1.6" stroke-linejoin="round"/></svg></span><div class="aq-track"><div class="aq-fill" style="width:'+hunger+'%;background:'+_hC+'"></div></div><span style="font-size:.7rem;color:rgba(150,220,255,.7);min-width:30px;text-align:right">'+hunger+'%</span></div>'
+        +'<div class="aq-bar"><span><svg viewBox="0 0 24 24" style="width:16px;height:16px;vertical-align:-3px"><circle cx="12" cy="12" r="8.4" fill="#ffd875" stroke="#c8901f" stroke-width="1.8"/><circle cx="9" cy="10.4" r="1.1" fill="#6b4423"/><circle cx="15" cy="10.4" r="1.1" fill="#6b4423"/><path d="M8.4 14a4.4 4.4 0 0 0 7.2 0" fill="none" stroke="#6b4423" stroke-width="1.8" stroke-linecap="round"/></svg></span><div class="aq-track"><div class="aq-fill" style="width:'+happy+'%;background:'+_hapC+'"></div></div><span style="font-size:.7rem;color:rgba(150,220,255,.7);min-width:30px;text-align:right">'+happy+'%</span></div>'
+        +'<div class="aq-bar"><span><svg viewBox="0 0 24 24" style="width:16px;height:16px;vertical-align:-3px"><path d="M12 20s-7-4.4-8.6-8.8C2.3 7.8 4.4 5.2 7.2 5.2c1.9 0 3.5 1 4.8 2.7 1.3-1.7 2.9-2.7 4.8-2.7 2.8 0 4.9 2.6 3.8 6C19 15.6 12 20 12 20z" fill="#f28ba0" stroke="#c05a72" stroke-width="1.7" stroke-linejoin="round"/></svg></span><div class="aq-track"><div class="aq-fill" style="width:'+health+'%;background:'+_hlC+'"></div></div><span style="font-size:.7rem;color:rgba(150,220,255,.7);min-width:30px;text-align:right">'+health+'%</span></div>'
       +'</div>'
       +'<div style="display:flex;gap:7px;padding:0 14px 12px;flex-wrap:wrap;justify-content:center">'+_actH+'</div>';
 
@@ -6699,15 +6888,32 @@ async function renderHome() {
     // Action buttons
     const _mg = PET_MINIGAMES[pet.pet_type];
     const _partnerUid = getPartnerIdOf(pet);
-    const acts = [
-      {icon:'🍽️', label:'Makan',   panel:'panel-feed',   badge: hunger>=40?'!':''},
-      {icon:'🎾', label:'Main',    fn:'doPlayRoom()',     badge: canPlay?'':'⏰'},
-      {icon:'💊', label:'Obati',   fn:'doHealRoom()',     badge: health<=50?'!':''},
-      {icon:'🛁', label:'Mandi',   fn:'showBathMenu()',   badge: isDirty?'!':''},
-      ...(poopCount>0 ? [{icon:'🧹', label:'Bersih', fn:'doCleanPoop()', badge: poopCount}] : []),
+    const RICO={
+ feed:'<svg viewBox=\"0 0 24 24\"><path d=\"M4 11h16a8 8 0 0 1-16 0z\" fill=\"#fffdf4\" stroke=\"#8b5e34\" stroke-width=\"1.8\" stroke-linejoin=\"round\"/><path d=\"M4 11c1.4-1.6 3-2.4 5-1.4 1.6.8 3 .8 4.6-.2 1.8-1.1 4-.4 6.4 1.6\" fill=\"#f2c96e\" stroke=\"#a8761b\" stroke-width=\"1.5\" stroke-linejoin=\"round\"/><path d=\"M7.5 15.5c2.8 1.4 6.2 1.4 9 0\" fill=\"none\" stroke=\"#d9c294\" stroke-width=\"1.5\" stroke-linecap=\"round\"/></svg>',
+ play:'<svg viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"8.2\" fill=\"#a8d0e8\" stroke=\"#3f7ea3\" stroke-width=\"1.8\"/><path d=\"M4.4 9.4c4.8 2 10.4 2 15.2 0M4.4 14.6c4.8-2 10.4-2 15.2 0\" fill=\"none\" stroke=\"#fffdf4\" stroke-width=\"1.8\" stroke-linecap=\"round\"/></svg>',
+ heal:'<svg viewBox=\"0 0 24 24\"><rect x=\"4\" y=\"8.6\" width=\"16\" height=\"7\" rx=\"3.5\" transform=\"rotate(-32 12 12)\" fill=\"#fffdf4\" stroke=\"#8b5e34\" stroke-width=\"1.8\"/><path d=\"M8.2 9.6l5.4 4.4\" stroke=\"#8b5e34\" stroke-width=\"1.6\"/><path d=\"M14 6.6c2.8 1.8 4 4.4 2.6 7.4\" fill=\"#f28ba0\" stroke=\"#c05a72\" stroke-width=\"0\" opacity=\"0\"/><rect x=\"12.4\" y=\"7.2\" width=\"8\" height=\"7\" rx=\"3.5\" transform=\"rotate(-32 16.4 10.7)\" fill=\"#f28ba0\" stroke=\"#c05a72\" stroke-width=\"1.6\" opacity=\"0\"/></svg>',
+ bath:'<svg viewBox=\"0 0 24 24\"><path d=\"M4 12h16v2.6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z\" fill=\"#fffdf4\" stroke=\"#8b5e34\" stroke-width=\"1.8\" stroke-linejoin=\"round\"/><path d=\"M6 12V6.4A2.4 2.4 0 0 1 8.4 4c1.2 0 2 .6 2.4 1.6\" fill=\"none\" stroke=\"#8b5e34\" stroke-width=\"1.8\" stroke-linecap=\"round\"/><circle cx=\"12\" cy=\"9\" r=\"1.1\" fill=\"#8ecbe8\"/><circle cx=\"15\" cy=\"7.4\" r=\"1.4\" fill=\"#8ecbe8\"/><circle cx=\"17.6\" cy=\"9.6\" r=\"1\" fill=\"#8ecbe8\"/><path d=\"M6.5 19.6l-.8 1.6M17.5 19.6l.8 1.6\" stroke=\"#8b5e34\" stroke-width=\"1.7\" stroke-linecap=\"round\"/></svg>',
+ clean:'<svg viewBox=\"0 0 24 24\"><path d=\"M14.5 3.5l4 4\" stroke=\"#8b5e34\" stroke-width=\"2.4\" stroke-linecap=\"round\"/><path d=\"M13 9l2 2-6.2 6.4c-1.6 1.6-3.9 2.2-5.8 1.6.6-1.9 1.2-4.2 2.8-5.8z\" fill=\"#f2c96e\" stroke=\"#a8761b\" stroke-width=\"1.7\" stroke-linejoin=\"round\"/><path d=\"M6.5 14.5l3 3\" stroke=\"#c8901f\" stroke-width=\"1.4\" stroke-linecap=\"round\"/></svg>',
+ gift:'<svg viewBox=\"0 0 24 24\"><rect x=\"4\" y=\"9.4\" width=\"16\" height=\"10.6\" rx=\"2.4\" fill=\"#f2a4b8\" stroke=\"#c05a72\" stroke-width=\"1.7\"/><path d=\"M4 9.4h16v3.4H4z\" fill=\"#f7c0cf\" stroke=\"#c05a72\" stroke-width=\"1.4\"/><path d=\"M12 9.4V20\" stroke=\"#c05a72\" stroke-width=\"1.8\"/><path d=\"M12 9C10.6 5.8 6.8 6.2 6.8 8.4c0 1 .8 1.6 2 1.6H12zm0 0c1.4-3.2 5.2-2.8 5.2-.6 0 1-.8 1.6-2 1.6H12z\" fill=\"#ffd875\" stroke=\"#c8901f\" stroke-width=\"1.4\" stroke-linejoin=\"round\"/></svg>',
+ battle:'<svg viewBox=\"0 0 24 24\"><path d=\"M5 4l9.5 9.5M19 4l-9.5 9.5\" stroke=\"#9aa4b0\" stroke-width=\"2.6\" stroke-linecap=\"round\"/><path d=\"M5 4l3.2.4L5.4 7.2zM19 4l-3.2.4 2.8 2.8z\" fill=\"#c8d2dc\" stroke=\"#5a6a7a\" stroke-width=\"1.2\" stroke-linejoin=\"round\"/><path d=\"M8.4 15.6l-2.6 2.6M15.6 15.6l2.6 2.6\" stroke=\"#8b5e34\" stroke-width=\"2.6\" stroke-linecap=\"round\"/><circle cx=\"5\" cy=\"19\" r=\"1.7\" fill=\"#e0aa60\" stroke=\"#8b5e34\" stroke-width=\"1.3\"/><circle cx=\"19\" cy=\"19\" r=\"1.7\" fill=\"#e0aa60\" stroke=\"#8b5e34\" stroke-width=\"1.3\"/></svg>',
+ paw:'<svg viewBox=\"0 0 24 24\"><path d=\"M8.2 9.6c1.5 0 2.4-1.3 2.4-2.8S9.7 4 8.4 4 6 5.3 6 6.8s.7 2.8 2.2 2.8zm7.6 0c1.5 0 2.2-1.3 2.2-2.8S17 4 15.6 4s-2.4 1.3-2.4 2.8.9 2.8 2.6 2.8zM4.6 14.2c1.3 0 2-1.1 2-2.4S5.9 9.4 4.7 9.4 3 10.5 3 11.8s.4 2.4 1.6 2.4zm14.8 0c1.2 0 1.6-1.1 1.6-2.4s-.5-2.4-1.7-2.4-1.9 1.1-1.9 2.4.7 2.4 2 2.4zM12 11c-3 0-5.8 2.6-5.8 5.4 0 1.9 1.3 3.1 3 3.1 1 0 1.8-.5 2.8-.5s1.8.5 2.8.5c1.7 0 3-1.2 3-3.1C17.8 13.6 15 11 12 11z\" fill=\"#f2c9a0\" stroke=\"#8a5a34\" stroke-width=\"1.2\" stroke-linejoin=\"round\"/></svg>',
+ home:'<svg viewBox=\"0 0 24 24\"><path d=\"M4 11l8-6.5L20 11v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z\" fill=\"#f2b8a0\" stroke=\"#a35a3a\" stroke-width=\"1.7\" stroke-linejoin=\"round\"/><path d=\"M9.5 21v-6h5v6\" fill=\"#fffdf4\" stroke=\"#a35a3a\" stroke-width=\"1.5\"/></svg>',
+ swap:'<svg viewBox=\"0 0 24 24\"><path d=\"M7 8h9.4M13.6 4.6L17 8l-3.4 3.4\" fill=\"none\" stroke=\"#4e8438\" stroke-width=\"2.1\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M17 16H7.6M10.4 19.4L7 16l3.4-3.4\" fill=\"none\" stroke=\"#a8761b\" stroke-width=\"2.1\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>',
+ cam:'<svg viewBox=\"0 0 24 24\"><rect x=\"3\" y=\"7\" width=\"18\" height=\"13\" rx=\"3\" fill=\"#8ecbe8\" stroke=\"#3f7ea3\" stroke-width=\"1.7\"/><path d=\"M8.5 7l1.4-2.4h4.2L15.5 7\" fill=\"#8ecbe8\" stroke=\"#3f7ea3\" stroke-width=\"1.7\"/><circle cx=\"12\" cy=\"13.5\" r=\"3.6\" fill=\"#fffdf4\" stroke=\"#3f7ea3\" stroke-width=\"1.7\"/><circle cx=\"12\" cy=\"13.5\" r=\"1.5\" fill=\"#3f7ea3\"/></svg>',
+ coin:'<svg viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"8.4\" fill=\"#ffd75e\" stroke=\"#c8901f\" stroke-width=\"1.9\"/><circle cx=\"12\" cy=\"12\" r=\"5.4\" fill=\"none\" stroke=\"#e8b23a\" stroke-width=\"1.5\"/><path d=\"M12 8.6v6.8M10 10.4c.6-.9 3.2-1.1 3.6.2.4 1.4-1.4 1.5-1.6 1.6-.3 0-2 .2-1.7 1.6.4 1.3 3 1.1 3.7.2\" fill=\"none\" stroke=\"#a8761b\" stroke-width=\"1.5\" stroke-linecap=\"round\"/></svg>',
+ food:'<svg viewBox=\"0 0 24 24\"><ellipse cx=\"10\" cy=\"12\" rx=\"5.6\" ry=\"4.6\" transform=\"rotate(-24 10 12)\" fill=\"#e8a56a\" stroke=\"#a35a3a\" stroke-width=\"1.6\"/><path d=\"M14.6 9.2l3.4-2.4a1.8 1.8 0 0 1 2.4 2.6L18 12.6\" fill=\"#fffdf4\" stroke=\"#a35a3a\" stroke-width=\"1.6\" stroke-linejoin=\"round\"/><ellipse cx=\"8.6\" cy=\"11\" rx=\"2\" ry=\"1.5\" transform=\"rotate(-24 8.6 11)\" fill=\"#f7d3a0\"/></svg>',
+ smile:'<svg viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"8.4\" fill=\"#ffd875\" stroke=\"#c8901f\" stroke-width=\"1.8\"/><circle cx=\"9\" cy=\"10.4\" r=\"1.1\" fill=\"#6b4423\"/><circle cx=\"15\" cy=\"10.4\" r=\"1.1\" fill=\"#6b4423\"/><path d=\"M8.4 14a4.4 4.4 0 0 0 7.2 0\" fill=\"none\" stroke=\"#6b4423\" stroke-width=\"1.8\" stroke-linecap=\"round\"/></svg>',
+ heart:'<svg viewBox=\"0 0 24 24\"><path d=\"M12 20s-7-4.4-8.6-8.8C2.3 7.8 4.4 5.2 7.2 5.2c1.9 0 3.5 1 4.8 2.7 1.3-1.7 2.9-2.7 4.8-2.7 2.8 0 4.9 2.6 3.8 6C19 15.6 12 20 12 20z\" fill=\"#f28ba0\" stroke=\"#c05a72\" stroke-width=\"1.7\" stroke-linejoin=\"round\"/></svg>',
+};
+const acts = [
+      {icon:RICO.feed, label:'Makan',   panel:'panel-feed',   badge: hunger>=40?'!':''},
+      {icon:RICO.play, label:'Main',    fn:'doPlayRoom()',     badge: canPlay?'':'⏰'},
+      {icon:RICO.heal, label:'Obati',   fn:'doHealRoom()',     badge: health<=50?'!':''},
+      {icon:RICO.bath, label:'Mandi',   fn:'showBathMenu()',   badge: isDirty?'!':''},
+      ...(poopCount>0 ? [{icon:RICO.clean, label:'Bersih', fn:'doCleanPoop()', badge: poopCount}] : []),
       ...(_mg && petLv>=5 ? [{icon:_mg.emoji, label:_mg.name, fn:'startPetMinigame()'}] : []),
-      ...(petLv>=15 && _partnerUid ? [{icon:'🎁', label:'Gift', fn:"showGiftMenu('partner')"}] : []),
-      {icon:'⚔️', label:'Battle',  fn:`showBattleArena('${pet.id}')`},
+      ...(petLv>=15 && _partnerUid ? [{icon:RICO.gift, label:'Gift', fn:"showGiftMenu('partner')"}] : []),
+      {icon:RICO.battle, label:'Battle',  fn:`showBattleArena('${pet.id}')`},
     ];
     const actBtnsHtml = acts.map(a=>`
       <button class="room-act-btn" onclick="${a.panel?`openRoomPanel('${a.panel}')`:a.fn}">
@@ -6739,20 +6945,20 @@ async function renderHome() {
         <!-- TOP LEFT: name + stats + action buttons -->
         <div class="room-hud-tl">
           <div class="room-pill">
-            🐾 ${pet.name}
+            <span class="rico">${RICO.paw}</span> ${pet.name}
             <span style="font-size:0.7rem;opacity:0.65;font-family:'Nunito',sans-serif;font-weight:700">Lv.${petLv}${wangiActive?' 🌸':''}</span>
             ${petLv>=20?'<span>👑</span>':''}
           </div>
           <div class="room-stat-mini">
-            <span style="font-size:0.8rem">🍖</span>
+            <span class="rico">${RICO.food}</span>
             <div class="room-stat-mini-bar"><div class="room-stat-mini-fill" style="width:${hunger}%;background:${hColor}"></div></div>
           </div>
           <div class="room-stat-mini">
-            <span style="font-size:0.8rem">😊</span>
+            <span class="rico">${RICO.smile}</span>
             <div class="room-stat-mini-bar"><div class="room-stat-mini-fill" style="width:${happy}%;background:${hapColor}"></div></div>
           </div>
           <div class="room-stat-mini">
-            <span style="font-size:0.8rem">💖</span>
+            <span class="rico">${RICO.heart}</span>
             <div class="room-stat-mini-bar"><div class="room-stat-mini-fill" style="width:${health}%;background:${hlColor}"></div></div>
           </div>
           <!-- Action buttons di bawah status -->
@@ -6762,25 +6968,25 @@ async function renderHome() {
         <!-- TOP RIGHT: coins + pet switch + decor -->
         <div class="room-hud-tr">
           <div class="room-pill" style="font-size:0.82rem;font-family:'Nunito',sans-serif;font-weight:800">
-            💰 ${userKoin.toLocaleString()}
+            <span class="rico">${RICO.coin}</span> ${userKoin.toLocaleString()}
           </div>
-          <div class="room-icon-btn" onclick="openRoomPanel('panel-pets')" title="Ganti Pet">🐾</div>
-          <div class="room-icon-btn" onclick="openRoomPanel('panel-decor')" title="Dekorasi">🏠</div>
-          <div class="room-icon-btn" onclick="refreshPet()" title="Refresh">🔄</div>
-          <div class="room-icon-btn" onclick="toggleCleanMode()" title="Clean Mode">📷</div>
+          <div class="room-icon-btn" onclick="openRoomPanel('panel-pets')" title="Ganti Pet"><span class="rico b">${RICO.paw}</span></div>
+          <div class="room-icon-btn" onclick="openRoomPanel('panel-decor')" title="Dekorasi"><span class="rico b">${RICO.home}</span></div>
+          <div class="room-icon-btn" onclick="refreshPet()" title="Refresh"><span class="rico b">${RICO.swap}</span></div>
+          <div class="room-icon-btn" onclick="toggleCleanMode()" title="Clean Mode"><span class="rico b">${RICO.cam}</span></div>
         </div>
 
         <!-- PANEL: Feed -->
         <div class="room-slide-panel" id="panel-feed">
           <div class="room-panel-pip" onclick="closeRoomPanel('panel-feed')"></div>
-          <div class="room-panel-title">🍽️ Kasih Makan ${pet.name}</div>
+          <div class="room-panel-title">Kasih Makan ${pet.name}</div>
           <div class="room-feed-grid">${feedGridHtml}</div>
         </div>
 
         <!-- PANEL: Pet Switcher -->
         <div class="room-slide-panel" id="panel-pets">
           <div class="room-panel-pip" onclick="closeRoomPanel('panel-pets')"></div>
-          <div class="room-panel-title">🐾 Pilih Pet</div>
+          <div class="room-panel-title">Pilih Pet</div>
           <div class="room-pet-list">${petListHtml}</div>
         </div>
 
@@ -13884,6 +14090,7 @@ function positionBubble(){
    UI — Koleksi Taman (album) & Ruang Taman
    ============================================================ */
 const ICO={
+ trash:'<svg viewBox="0 0 24 24"><path d="M5.5 7h13" stroke="#c05a72" stroke-width="2" stroke-linecap="round"/><path d="M9 7V5.4A1.4 1.4 0 0 1 10.4 4h3.2A1.4 1.4 0 0 1 15 5.4V7" fill="none" stroke="#c05a72" stroke-width="1.8"/><path d="M7 7l.9 11.4A2 2 0 0 0 9.9 20.2h4.2a2 2 0 0 0 2-1.8L17 7z" fill="#fdeef2" stroke="#c05a72" stroke-width="1.8" stroke-linejoin="round"/><path d="M10.3 10.6v6M13.7 10.6v6" stroke="#c05a72" stroke-width="1.7" stroke-linecap="round"/></svg>',
  drop:'<svg viewBox="0 0 24 24"><path d="M12 3.5C9 8 6.5 11 6.5 14.3A5.5 5.5 0 0 0 12 19.8a5.5 5.5 0 0 0 5.5-5.5C17.5 11 15 8 12 3.5z" fill="#8ecbe8" stroke="#3f7ea3" stroke-width="1.8" stroke-linejoin="round"/><path d="M9.4 14.6a2.8 2.8 0 0 0 2 2.6" fill="none" stroke="#fffdf4" stroke-width="1.6" stroke-linecap="round"/></svg>',
  user:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8.6" r="4" fill="#f2c9a0" stroke="#8a5a34" stroke-width="1.8"/><path d="M4.8 20c1-4 4-5.6 7.2-5.6s6.2 1.6 7.2 5.6" fill="#a8d68c" stroke="#4e8438" stroke-width="1.8" stroke-linecap="round"/></svg>',
  users:'<svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="3.4" fill="#f2c9a0" stroke="#8a5a34" stroke-width="1.7"/><path d="M3.4 19c.8-3.4 3.2-4.7 5.6-4.7s4.8 1.3 5.6 4.7" fill="#a8d68c" stroke="#4e8438" stroke-width="1.7" stroke-linecap="round"/><circle cx="16.6" cy="9.6" r="2.8" fill="#f2b8a0" stroke="#8a5a34" stroke-width="1.6"/><path d="M15.4 14.6c2.8-.4 5 .9 5.8 3.8" fill="none" stroke="#a35a3a" stroke-width="1.7" stroke-linecap="round"/></svg>',
@@ -13958,7 +14165,7 @@ function renderCollection(){
   for(const g of G.gardens){
     const f=derive(g);
     const st=statusLabel(f);
-    const card=document.createElement('button');
+    const card=document.createElement('div');
     card.className='gcard';
     const owners2=!!g.owner2_id;
     const owners=(g.owner1_name||'—')+(owners2?' & '+(g.owner2_name||'—'):'');
@@ -13973,9 +14180,13 @@ function renderCollection(){
           <span class="gc-chip"><span class="ic">${ICO.drop}</span>${timeAgo(f.lastWater)}</span>
         </div>
         <div class="gc-own"><span class="ic">${owners2?ICO.users:ICO.user}</span>${owners}</div>
-      </div>`;
+      </div>
+      <button class="gc-del" title="Hapus bunga" aria-label="Hapus bunga">${ICO.trash}</button>`;
     cardThumb(card.querySelector('canvas'),g);
     card.addEventListener('click',()=>{Snd.select();openRoom(g);});
+    card.querySelector('.gc-del').addEventListener('click',e=>{
+      e.stopPropagation(); Snd.click(); askDelete(g);
+    });
     el.appendChild(card);
   }
   const add=document.createElement('button');
@@ -14029,6 +14240,7 @@ function closeRoom(){
   loadGardens().then(()=>showCollection());
 }
 let SHEET_OPEN=false;
+function askDelete(g){ G.delTarget=g; openPanel('confirmSheet'); }
 function setSheet(open){
   SHEET_OPEN=open;
   $('sheet').classList.toggle('open',open);
@@ -14118,9 +14330,12 @@ function wireSwitch(id,get,set){
   const el=$(id); el.classList.toggle('on',get());
   el.addEventListener('click',()=>{set(!get());el.classList.toggle('on',get());Snd.click();saveSndPrefs();});
 }
-function saveSndPrefs(){try{localStorage.setItem('gdn.snd',JSON.stringify({m:Snd.music,s:Snd.sfx,a:Snd.amb,mu:Snd.muted,fx:G.fxOn}));}catch(e){}}
+function saveSndPrefs(){try{localStorage.setItem('gdn.snd',JSON.stringify({m:Snd.music,s:Snd.sfx,a:Snd.amb,mu:Snd.muted,fx:G.fxOn,mv:Snd.mVol??0.6,sv:Snd.sVol??0.7}));}catch(e){}}
 function loadSndPrefs(){try{const d=JSON.parse(localStorage.getItem('gdn.snd')||'{}');
-  if('m'in d){Snd.music=!!d.m;Snd.sfx=!!d.s;Snd.amb=!!d.a;Snd.muted=!!d.mu;G.fxOn=d.fx!==false;}}catch(e){}}
+  if('m'in d){Snd.music=!!d.m;Snd.sfx=!!d.s;Snd.amb=!!d.a;Snd.muted=!!d.mu;G.fxOn=d.fx!==false;}
+  Snd.mVol=('mv'in d)?d.mv:0.6; Snd.sVol=('sv'in d)?d.sv:0.7;}catch(e){}}
+function applyVol(){ if(!Snd.ctx) return;
+  try{ Snd.musG.gain.value=.55*(Snd.mVol??0.6)/0.6; Snd.sfxG.gain.value=.9*(Snd.sVol??0.7)/0.7; }catch(e){} }
 
 /* ============================================================
    RENDER LOOP & UKURAN
@@ -14236,7 +14451,27 @@ function wireOnce(){
   $('aClean').addEventListener('click',()=>{Snd.init();actClean();});
   $('aTalk').addEventListener('click',()=>{Snd.init();actTalk();});
   ['pointerdown','touchstart','keydown'].forEach(ev=>
-    ROOT.addEventListener(ev,()=>Snd.init(),{once:true,passive:true}));
+    ROOT.addEventListener(ev,()=>{Snd.init();applyVol();},{once:true,passive:true}));
+  // slider volume
+  const wireVol=(id,get,set)=>{ const el=$(id); el.value=Math.round(get()*100);
+    el.addEventListener('input',()=>{ set(el.value/100); Snd.init(); applyVol(); saveSndPrefs(); }); };
+  wireVol('volMusic',()=>Snd.mVol??0.6,v=>Snd.mVol=v);
+  wireVol('volSfx',()=>Snd.sVol??0.7,v=>{Snd.sVol=v; Snd.click&&Snd.click();});
+  // hapus bunga
+  $('btnDelFlower').addEventListener('click',()=>{Snd.click();closePanel('infoSheet');askDelete(G.cur);});
+  $('btnConfirmDel').addEventListener('click',async ()=>{
+    const g=G.delTarget||G.cur; if(!g) return;
+    $('btnConfirmDel').disabled=true;
+    try{ await db.from('gardens').delete().eq('id',g.id); }catch(e){}
+    $('btnConfirmDel').disabled=false;
+    const i=G.gardens.findIndex(x=>x.id===g.id); if(i>=0)G.gardens.splice(i,1);
+    if(G.cur&&G.cur.id===g.id){ G.cur=null; stopPolling(); $('bubble').classList.remove('show'); }
+    G.delTarget=null;
+    closePanel('confirmSheet');
+    Snd.dig();
+    toast('🥀 Bunga telah dihapus. Sampai jumpa lagi...');
+    showCollection();
+  });
 }
 async function open(){
   if(OPEN) return;
@@ -14288,6 +14523,106 @@ return { open, close, handleStartParam };
   }
   const sp=window.Telegram?.WebApp?.initDataUnsafe?.start_param||'';
   if(sp.startsWith('garden_')) tryStart(0);
+})();
+</script>
+
+<script>
+/* ==================== CARPETS AUDIO (musik latar + SFX lembut) ==================== */
+window.CSnd=(function(){
+  const S={ctx:null,master:null,musG:null,sfxG:null,
+    mOn:true,sOn:true,mV:0.5,sV:0.7,_step:0,_timer:null};
+  try{const d=JSON.parse(localStorage.getItem('carpets.audio')||'{}');
+    if('mOn'in d){S.mOn=!!d.mOn;S.sOn=!!d.sOn;S.mV=d.mV??0.5;S.sV=d.sV??0.7;}}catch(e){}
+  function save(){try{localStorage.setItem('carpets.audio',JSON.stringify({mOn:S.mOn,sOn:S.sOn,mV:S.mV,sV:S.sV}));}catch(e){}}
+  function init(){
+    if(S.ctx) return;
+    const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
+    const c=S.ctx=new AC();
+    S.master=c.createGain(); S.master.gain.value=1; S.master.connect(c.destination);
+    S.musG=c.createGain(); S.musG.gain.value=0; S.musG.connect(S.master);
+    S.sfxG=c.createGain(); S.sfxG.gain.value=S.sOn?S.sV:0; S.sfxG.connect(S.master);
+    const dl=c.createDelay(1); dl.delayTime.value=0.46;
+    const fb=c.createGain(); fb.gain.value=0.34;
+    const wet=c.createGain(); wet.gain.value=0.4;
+    S.musG.connect(dl); dl.connect(fb); fb.connect(dl); dl.connect(wet); wet.connect(S.master);
+    startMusic();
+  }
+  function gardenOpen(){const r=document.getElementById('gdn-root');return r&&r.style.display!=='none';}
+  /* kotak musik: melodi pentatonik lembut, loop mulus */
+  const SCALE=[523.25,587.33,659.25,783.99,880.0,1046.5];
+  const BASS=[130.81,146.83,164.81,196.0];
+  const PATTERN=[0,2,4,5,4,2,1,-1, 0,2,3,4,3,1,0,-1, 2,4,5,4,2,0,1,-1, 4,3,2,1,0,-1,-1,-1];
+  function pluck(f,t,vol,dur){
+    const c=S.ctx;
+    const o=c.createOscillator(); o.type='sine'; o.frequency.value=f;
+    const o2=c.createOscillator(); o2.type='triangle'; o2.frequency.value=f*2.001;
+    const g=c.createGain(); g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(vol,t+0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    const g2=c.createGain(); g2.gain.value=0.22;
+    o.connect(g); o2.connect(g2); g2.connect(g); g.connect(S.musG);
+    o.start(t); o2.start(t); o.stop(t+dur+0.1); o2.stop(t+dur+0.1);
+  }
+  function startMusic(){
+    if(S._timer) return;
+    const STEP=0.62;
+    let next=S.ctx.currentTime+0.15;
+    S._timer=setInterval(()=>{
+      if(!S.ctx) return;
+      const duck=gardenOpen();
+      const tgt=(S.mOn&&!duck)?S.mV*0.5:0;
+      try{S.musG.gain.linearRampToValueAtTime(tgt,S.ctx.currentTime+0.6);}catch(e){}
+      while(next<S.ctx.currentTime+0.9){
+        const n=PATTERN[S._step%PATTERN.length];
+        if(n>=0){
+          pluck(SCALE[n],next,0.16,2.2);
+          if(S._step%8===0) pluck(BASS[(S._step/8|0)%BASS.length],next,0.09,3.4);
+          if(Math.random()<0.16) pluck(SCALE[n]*2,next+STEP*0.5,0.05,1.4);
+        }
+        S._step++; next+=STEP;
+      }
+    },420);
+  }
+  function blip(f0,f1,dur,vol,type){
+    if(!S.ctx||!S.sOn) return;
+    const c=S.ctx,t=c.currentTime;
+    const o=c.createOscillator(); o.type=type||'sine';
+    o.frequency.setValueAtTime(f0,t);
+    o.frequency.exponentialRampToValueAtTime(f1,t+dur);
+    const g=c.createGain();
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(g); g.connect(S.sfxG); o.start(t); o.stop(t+dur+0.05);
+  }
+  S.click=()=>blip(660,520,0.09,0.18,'triangle');
+  S.pop=()=>blip(420,880,0.12,0.2,'sine');
+  let lastClick=0;
+  document.addEventListener('pointerdown',e=>{
+    init();
+    const b=e.target.closest('button, .room-icon-btn, .side-menu-item, .gcard');
+    if(!b||gardenOpen()) return;
+    const now=Date.now(); if(now-lastClick<70) return; lastClick=now;
+    S.click();
+  },{capture:true,passive:true});
+  function apply(){ if(S.ctx){ try{S.sfxG.gain.value=S.sOn?S.sV:0;}catch(e){} } }
+  S.setMusic=v=>{S.mOn=v;save();};
+  S.setSfx=v=>{S.sOn=v;apply();save(); if(v)S.click();};
+  S.setMVol=v=>{S.mV=v;save();};
+  S.setSVol=v=>{S.sV=v;apply();save();};
+  function wireUI(){
+    const el=document.getElementById('csnd-ui'); if(!el) return;
+    const mSw=el.querySelector('#csnd-msw'), sSw=el.querySelector('#csnd-ssw');
+    const mR=el.querySelector('#csnd-mv'), sR=el.querySelector('#csnd-sv');
+    mSw.classList.toggle('on',S.mOn); sSw.classList.toggle('on',S.sOn);
+    mR.value=Math.round(S.mV*100); sR.value=Math.round(S.sV*100);
+    mSw.addEventListener('click',()=>{init();S.setMusic(!S.mOn);mSw.classList.toggle('on',S.mOn);S.click();});
+    sSw.addEventListener('click',()=>{init();S.setSfx(!S.sOn);sSw.classList.toggle('on',S.sOn);});
+    mR.addEventListener('input',()=>{init();S.setMVol(mR.value/100);});
+    sR.addEventListener('input',()=>{init();S.setSVol(sR.value/100);S.click();});
+  }
+  if(document.readyState!=='loading') wireUI();
+  else document.addEventListener('DOMContentLoaded',wireUI);
+  return S;
 })();
 </script>
 
