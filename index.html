@@ -9619,6 +9619,7 @@ async function renderInventory() {
 }
 
 function _renderInventoryContent(el, inv, customItemsMeta = {}) {
+  try{ if(window.CFLOW&&CFLOW.renderInvSection) setTimeout(()=>CFLOW.renderInvSection(el),0); }catch(e){ console.error('CFLOW hook error:', e); }
   const allFoodShop = { ...FOOD_SHOP, ...KOI_FOOD_SHOP };
   const foodItems    = Object.entries(inv).filter(([k,v]) => (v||0) > 0 && allFoodShop[k] && !allFoodShop[k].isPil && !allFoodShop[k].astro && !allFoodShop[k].astro2 && !allFoodShop[k].ph && !allFoodShop[k].aqua);
   const specialItems = Object.entries(inv).filter(([k,v]) => (v||0) > 0 && SPECIAL_SHOP[k]);
