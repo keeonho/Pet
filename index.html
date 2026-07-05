@@ -2780,6 +2780,13 @@ body:has(.screen.active .room-fullscreen.inside-home) .header{display:none!impor
 
 
 /* ==================== CUSTOM FLOWER (CFLOW) ==================== */
+/* toast mandiri CFLOW — jaga-jaga kalau #toast host ketutup/rusak, ini selalu di atas semua overlay CFLOW */
+#cf-toast{position:fixed;left:50%;top:calc(16px + env(safe-area-inset-top));transform:translateX(-50%) translateY(-30px);
+  z-index:500;background:#3a2612;color:#fff3dd;font-weight:800;font-size:.82rem;
+  padding:10px 18px;border-radius:99px;box-shadow:0 6px 18px rgba(0,0,0,.35);
+  opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;max-width:86vw;text-align:center}
+#cf-toast.cf-toast-show{opacity:1;transform:translateX(-50%) translateY(0)}
+
 /* Flower Gift section di dalam Inventory — pakai .inv-item bawaan, tinggal tambah thumbnail */
 .cf-invthumb{width:100%;aspect-ratio:1/1;background:#fff;border:2px solid #f2c4d0;border-radius:12px;
   overflow:hidden;margin-bottom:4px}
@@ -15466,7 +15473,18 @@ function onMsg(e){
   S.pending={svg:d.svg, items:d.items, modeId:d.modeId, modeName:d.modeName, count:d.count};
   openActionSheet();
 }
-function toastX(m){ try{ if(typeof window.showToast==='function'){window.showToast(m);return;} }catch(e){} try{console.log(m);}catch(_){} }
+function toastX(m){
+  try{ if(typeof window.showToast==='function'){ window.showToast(m); return; } }catch(e){}
+  // fallback: toast host gagal (elemen null / fungsi beda) -> tampilkan toast sendiri di atas overlay CFLOW
+  try{
+    let t=document.getElementById('cf-toast');
+    if(!t){ t=document.createElement('div'); t.id='cf-toast'; document.body.appendChild(t); }
+    t.textContent=m;
+    t.className='cf-toast-show';
+    clearTimeout(window.__cfToastT);
+    window.__cfToastT=setTimeout(()=>{ t.className=''; },2400);
+  }catch(e){ try{console.log(m);}catch(_){} }
+}
 
 /* ---------- ACTION SHEET ---------- */
 function sheet(id,inner){
@@ -15751,6 +15769,41 @@ async function renderInvSection(el){
 return {open, openGift, checkUnread, renderInvSection};
 })();
 
+</script>
+<script>
+window.addEventListener('error', function(ev){
+  try{
+    var box=document.getElementById('__dbgerr');
+    if(!box){
+      box=document.createElement('div'); box.id='__dbgerr';
+      box.style.cssText='position:fixed;left:8px;right:8px;bottom:8px;z-index:999999;'+
+        'max-height:60dvh;overflow:auto;background:#2a0f0f;color:#ffdada;'+
+        'border:2px solid #ff6b6b;border-radius:12px;padding:10px 12px;'+
+        'font-family:monospace;font-size:11px;white-space:pre-wrap;line-height:1.4;box-shadow:0 6px 20px rgba(0,0,0,.5)';
+      var close=document.createElement('button');
+      close.textContent='✕ Tutup';
+      close.style.cssText='display:block;margin-bottom:6px;background:#ff6b6b;color:#2a0f0f;border:none;'+
+        'border-radius:8px;padding:5px 10px;font-weight:bold;font-family:sans-serif;font-size:11px';
+      close.onclick=function(){ box.remove(); };
+      box.appendChild(close);
+      var pre=document.createElement('div'); pre.id='__dbgerr_body';
+      box.appendChild(pre);
+      document.body.appendChild(box);
+    }
+    var pre=document.getElementById('__dbgerr_body');
+    var msg = (ev.message||'Error') + '\n' + (ev.filename?('at '+ev.filename+':'+ev.lineno+':'+ev.colno):'') +
+      (ev.error&&ev.error.stack ? ('\n'+ev.error.stack) : '');
+    var line=document.createElement('div');
+    line.style.cssText='border-top:1px solid #ff6b6b44;padding-top:6px;margin-top:6px';
+    line.textContent = new Date().toLocaleTimeString() + '\n' + msg;
+    pre.appendChild(line);
+  }catch(e){}
+});
+window.addEventListener('unhandledrejection', function(ev){
+  try{
+    window.dispatchEvent(new ErrorEvent('error', { message: 'Promise rejected: ' + (ev.reason&&ev.reason.message||ev.reason), error: ev.reason }));
+  }catch(e){}
+});
 </script>
 <script type="importmap">
 { "imports": { "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.module.min.js" } }
