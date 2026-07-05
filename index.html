@@ -15523,16 +15523,19 @@ async function doSave(ov){
   const btn=ov.querySelector('#cf-actSave'); btn.disabled=true;
   if(!await charge()){ btn.disabled=false; return; }
   try{
-    await window.db.from('custom_flowers').insert({
+    const {error} = await window.db.from('custom_flowers').insert({
       creator_id: window.USER_ID, creator_name: dName(), creator_username: uName()||null,
       recipient_id: null, recipient_name: null,
       mode_id: p.modeId, mode_name: p.modeName, item_count: p.count,
       items: p.items, svg: p.svg, message: null, seen: true,
     });
+    if(error) throw error;
     ov.remove(); sparkleSnd();
     toastX('🌸 Tersimpan di Flower Gift!');
     close();
-  }catch(e){ toastX('Gagal menyimpan — koin dikembalikan');
+  }catch(e){
+    console.error('CFLOW doSave insert error:', e);
+    toastX('Gagal menyimpan: ' + (e?.message || e?.code || 'error tidak dikenal') + ' — koin dikembalikan');
     try{ await window.saveUser({koin:(window.userData.koin||0)+PRICE},'custom_flower_refund'); }catch(_){}
     btn.disabled=false;
   }
@@ -15578,18 +15581,21 @@ async function doSend(ov){
   const msg=(ov.querySelector('#cf-msg').value||'').trim()||null;
   if(!await charge()){ go.disabled=false; return; }
   try{
-    await window.db.from('custom_flowers').insert({
+    const {error} = await window.db.from('custom_flowers').insert({
       creator_id: window.USER_ID, creator_name: dName(), creator_username: uName()||null,
       recipient_id: target.user_id,
       recipient_name: target.nickname||target.nama||('@'+(target.username||target.user_id)),
       mode_id: p.modeId, mode_name: p.modeName, item_count: p.count,
       items: p.items, svg: p.svg, message: msg, seen: false,
     });
+    if(error) throw error;
     try{ window.sendTgNotif(target.user_id, `🌸 Ada yang kirim bunga nih buat kamu, dari ${dName()}${uName()?' (@'+uName()+')':''}!\nBuka Mini App yuk buat lihat 💐`); }catch(e){}
     ov.remove(); sparkleSnd();
     toastX(`🌸 Bunga terkirim ke ${target.nickname||target.nama||'@'+target.username}!`);
     close();
-  }catch(e){ toastX('Gagal mengirim — koin dikembalikan');
+  }catch(e){
+    console.error('CFLOW doSend insert error:', e);
+    toastX('Gagal mengirim: ' + (e?.message || e?.code || 'error tidak dikenal') + ' — koin dikembalikan');
     try{ await window.saveUser({koin:(window.userData.koin||0)+PRICE},'custom_flower_refund'); }catch(_){}
     go.disabled=false;
   }
@@ -15598,14 +15604,15 @@ async function doSend(ov){
 /* ---------- UNREAD POPUP ---------- */
 async function checkUnread(){
   try{
-    const {data}=await window.db.from('custom_flowers')
+    const {data,error}=await window.db.from('custom_flowers')
       .select('id,creator_name,creator_username,svg,message,created_at,recipient_name')
       .eq('recipient_id',window.USER_ID).eq('seen',false)
       .order('created_at',{ascending:false});
+    if(error){ console.error('CFLOW checkUnread error:', error); return; }
     if(!data||!data.length) return;
     S.unread=data;
     showPopup(data);
-  }catch(e){}
+  }catch(e){ console.error('CFLOW checkUnread exception:', e); }
 }
 function showPopup(list){
   const f=list[0];
@@ -15733,14 +15740,29 @@ async function renderInvSection(el){
     const r=await window.db.from('custom_flowers').select('*')
       .or(`creator_id.eq.${window.USER_ID},recipient_id.eq.${window.USER_ID}`)
       .order('created_at',{ascending:false});
+    if(r.error) throw r.error;
     data=r.data||[];
-  }catch(e){ try{
-    // fallback tanpa .or (kalau versi klien lama): gabung dua query
-    const a=await window.db.from('custom_flowers').select('*').eq('creator_id',window.USER_ID).order('created_at',{ascending:false});
-    const b=await window.db.from('custom_flowers').select('*').eq('recipient_id',window.USER_ID).order('created_at',{ascending:false});
-    const seen={}; data=[...(a.data||[]),...(b.data||[])].filter(x=>!seen[x.id]&&(seen[x.id]=1));
-    data.sort((x,y)=>new Date(y.created_at)-new Date(x.created_at));
-  }catch(_){ data=[]; } }
+  }catch(e){
+    console.error('CFLOW renderInvSection .or() query failed, trying fallback:', e);
+    try{
+      // fallback tanpa .or (kalau versi klien lama / RLS beda perlakuan): gabung dua query
+      const a=await window.db.from('custom_flowers').select('*').eq('creator_id',window.USER_ID).order('created_at',{ascending:false});
+      if(a.error) throw a.error;
+      const b=await window.db.from('custom_flowers').select('*').eq('recipient_id',window.USER_ID).order('created_at',{ascending:false});
+      if(b.error) throw b.error;
+      const seen={}; data=[...(a.data||[]),...(b.data||[])].filter(x=>!seen[x.id]&&(seen[x.id]=1));
+      data.sort((x,y)=>new Date(y.created_at)-new Date(x.created_at));
+    }catch(e2){
+      console.error('CFLOW renderInvSection fallback query ALSO failed:', e2);
+      data=[];
+      host.querySelector('#cf-inv-grid').outerHTML =
+        `<div class="cf-inv-empty" id="cf-inv-grid" style="border-color:#e0908a;background:linear-gradient(170deg,#fff0ee,#fde0dc)">
+          <span class="cf-inv-emptyic">${IC.flower}</span>
+          <p style="color:#a94438">Gagal memuat Flower Gift: ${(e2?.message||e2?.code||'error tidak dikenal')}</p>
+        </div>`;
+      return;
+    }
+  }
   const grid=host.querySelector('#cf-inv-grid');
   if(!data.length){
     grid.outerHTML=`<div class="cf-inv-empty" id="cf-inv-grid">
