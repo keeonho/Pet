@@ -14575,7 +14575,8 @@ function drawBigFlower(f){
 /* ============================================================
    SUPABASE — taman bersama (arsitektur shared pet)
    ============================================================ */
-const myName=()=> (window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name||'Kamu').slice(0,20);
+const safeSlice=(str,maxLen)=>Array.from(str||'').slice(0,maxLen).join('');
+const myName=()=> safeSlice(window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name||'Kamu', 20);
 function inviteCode(){const c='abcdefghjkmnpqrstuvwxyz23456789';let s='';
   for(let i=0;i<8;i++)s+=c[Math.floor(Math.random()*c.length)];return s;}
 
@@ -15661,11 +15662,14 @@ async function checkUnread(){
       .select('id,creator_name,creator_username,svg,message,created_at,recipient_name')
       .eq('recipient_id',window.USER_ID).eq('seen',false)
       .order('created_at',{ascending:false});
-    if(error){ console.error('CFLOW checkUnread error:', error); return; }
+    if(error){ console.error('CFLOW checkUnread error:', error.message || error.code || error); return; }
     if(!data||!data.length) return;
     S.unread=data;
     showPopup(data);
-  }catch(e){ console.error('CFLOW checkUnread exception:', e); }
+  }catch(e){
+    console.error('CFLOW checkUnread exception:', e?.message || e);
+    toastX('Gagal cek bunga masuk: ' + (e?.message || 'error tidak dikenal'));
+  }
 }
 function showPopup(list){
   const f=list[0];
