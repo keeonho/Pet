@@ -10481,15 +10481,10 @@ async function claimTask(taskId) {
   const rewardPill = task.pill || 0;
   if (rewardPill) inv['pil_levelup'] = (inv['pil_levelup']||0) + rewardPill;
 
-  await db.from('users').update({ inventory: inv }).eq('user_id', USER_ID);
-
-  // Add koin via Supabase
-  if (task.coin) {
-    const koin = (userData?.koin||0) + task.coin;
-    await db.from('users').update({ koin }).eq('user_id', USER_ID);
-    if (userData) userData.koin = koin;
-  }
-  if (userData) userData.inventory = inv;
+  const newKoin = task.coin ? (userData?.koin||0) + task.coin : (userData?.koin||0);
+  const updatePayload = task.coin ? { inventory: inv, koin: newKoin } : { inventory: inv };
+  await db.from('users').update(updatePayload).eq('user_id', USER_ID);
+  if (userData) { userData.inventory = inv; userData.koin = newKoin; }
 
   // Create pet reward
   if (task.petType) {
