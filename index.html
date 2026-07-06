@@ -866,9 +866,17 @@ async function confirmUpgradeBarn() {
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
+  html {
+    height: 100%;
+    /* warm background as the ultimate fallback layer, visible only if something
+       above it is ever shorter than the viewport (shouldn't happen anymore, but safe) */
+    background: linear-gradient(135deg, #fdf3dd 0%, #f7ead0 40%, #e9f2d8 100%);
+  }
+
   body {
     font-family: 'Nunito', sans-serif;
     background: linear-gradient(135deg, #fdf3dd 0%, #f7ead0 40%, #e9f2d8 100%);
+    height: 100%;
     min-height: 100vh;
     color: var(--text);
     overflow-x: hidden;
@@ -922,7 +930,7 @@ async function confirmUpgradeBarn() {
   body { padding-bottom: 0 !important; }
 
   /* Screens */
-  .screen { display: none; padding: 16px; position: relative; z-index: 1; }
+  .screen { display: none; padding: 16px; position: relative; z-index: 1; min-height: 100vh; }
   .screen.active { display: block; animation: fadeUp 0.3s ease; }
   #screen-task { padding: 0; background: #241a10; min-height: 100vh; }
 
@@ -1149,7 +1157,7 @@ async function confirmUpgradeBarn() {
   /* Loading */
   .loading {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    min-height: 60vh; gap: 16px;
+    min-height: 60vh; width: 100%; height: 100%; gap: 16px;
   }
   .loading-emoji { font-size: 3rem; animation: petBob 1s ease-in-out infinite; }
   .loading-text { font-family: 'Fredoka One', cursive; font-size: 1.2rem; color: var(--text-soft); }
@@ -1745,11 +1753,38 @@ async function confirmUpgradeBarn() {
 #screen-home {
   padding: 0 !important;
   margin-top: 0 !important;
-  background: #000;
+  background: linear-gradient(170deg, #fdf3dd 0%, #f7ead0 45%, #e9f2d8 100%);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   position: relative;
   height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+/* While loading or showing the "no pet"/"pet missing" card, lock the screen to
+   exactly one viewport and disable scrolling so no empty strip can ever appear
+   below the popup, on any screen size or aspect ratio. */
+#screen-home:has(> #home-content > .loading),
+#screen-home:has(> #home-content > .cozy-empty),
+#screen-home.screen-empty-state {
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+body:has(#screen-home.screen-empty-state.active) {
+  overflow: hidden;
+}
+#home-content:has(> .loading),
+#home-content:has(> .cozy-empty),
+.screen-empty-state #home-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  width: 100%;
 }
 
 /* Room takes full viewport */
@@ -3186,7 +3221,7 @@ body:has(.screen.active .room-fullscreen.inside-home) .header{display:none!impor
   box-shadow:0 3px 0 rgba(107,68,35,.13);padding:11px 14px!important;margin-bottom:10px!important}
 .room-warn .btn{border-radius:12px!important}
 /* empty state premium */
-.cozy-empty{max-width:340px;margin:8vh auto 0;text-align:center;
+.cozy-empty{max-width:340px;width:calc(100% - 40px);margin:0 auto;text-align:center;
   background:linear-gradient(170deg,#fffdf4,#f7ecd2);border:3.5px solid #8b5e34;border-radius:26px;
   padding:24px 20px 22px;box-shadow:0 6px 0 rgba(107,68,35,.22), 0 16px 28px rgba(90,60,25,.16);
   animation:screenIn .35s cubic-bezier(.3,.9,.4,1)}
@@ -3358,7 +3393,7 @@ document.addEventListener('DOMContentLoaded', function(){
 </div>
 
 <!-- Screens -->
-<div id="screen-home" class="screen active">
+<div id="screen-home" class="screen active screen-empty-state">
   <div id="home-content">
     <div class="loading"><div class="loading-emoji">🐾</div><div class="loading-text">Loading pet kamu...</div></div>
   </div>
@@ -7069,7 +7104,9 @@ async function renderHome() {
     await _loadRoomFromDB(activePet.id);
   }
   const el = document.getElementById('home-content');
+  const screenHomeEl = document.getElementById('screen-home');
   if (!activePet) {
+    screenHomeEl.classList.add('screen-empty-state');
     el.innerHTML = `
       <div class="cozy-empty">
         <div class="ce-art">
@@ -7092,6 +7129,7 @@ async function renderHome() {
   }
 
   if (activePet.is_missing) {
+    screenHomeEl.classList.add('screen-empty-state');
     const missingInfo = PETS[activePet.pet_type] || { emoji:'🐾', name:'?' };
     el.innerHTML = `
       <div class="cozy-empty away">
@@ -7119,6 +7157,7 @@ async function renderHome() {
     return;
   }
 
+  screenHomeEl.classList.remove('screen-empty-state');
   const pet = applyDecayToActivePet(activePet); // apply decay client-side supaya sinkron dgn bot
   const info = PETS[pet.pet_type] || { emoji:'🐾', name:'?' };
   const isKoi = pet.pet_type === 'koi';
@@ -14552,6 +14591,11 @@ async function loadGardens(){
 async function createGarden(speciesId,variant){
   if(G.gardens.length>=6){ toast('Maksimal 6 taman dulu ya 🌷'); return null; }
   const sp=SPECIES_BY_ID[speciesId];
+  if(!sp){
+    console.error('createGarden: speciesId tidak valid:', speciesId, '| SPECIES_BY_ID keys:', Object.keys(SPECIES_BY_ID||{}));
+    toast('Gagal membuat taman: jenis bunga tidak dikenali (' + speciesId + ')');
+    return null;
+  }
   const now=new Date().toISOString();
   const row={ invite_code:inviteCode(), owner1_id:USER_ID, owner1_name:myName(),
     garden_name:'Taman '+sp.name, species:speciesId, variant:variant||0,
@@ -14560,12 +14604,20 @@ async function createGarden(speciesId,variant){
     cleanliness:100, clean_at:now, last_water:now, updated_at:now };
   try{
     const { data, error } = await db.from('gardens').insert(row).select().single();
-    if(error){ toast('Gagal membuat taman 😢'); console.warn(error); return null; }
+    if(error){
+      console.error('createGarden Supabase error:', error);
+      toast('Gagal membuat taman: ' + (error.message || error.code || 'error tidak dikenal'));
+      return null;
+    }
     G.gardens.push(data);
     Snd.success();
     toast(`🌱 Benih ${sp.name} tertanam. Sampai jumpa 7 hari lagi!`,true);
     return data;
-  }catch(e){ return null; }
+  }catch(e){
+    console.error('createGarden exception:', e);
+    toast('Gagal membuat taman: ' + (e?.message || 'error tidak dikenal'));
+    return null;
+  }
 }
 async function joinGardenByCode(code){
   const { data:g } = await db.from('gardens').select('*').eq('invite_code',code).maybeSingle();
