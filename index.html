@@ -15849,40 +15849,6 @@ return {open, openGift, checkUnread, renderInvSection};
 })();
 
 </script>
-<script>
-window.addEventListener('error', function(ev){
-  try{
-    var box=document.getElementById('__dbgerr');
-    if(!box){
-      box=document.createElement('div'); box.id='__dbgerr';
-      box.style.cssText='position:fixed;left:8px;right:8px;bottom:8px;z-index:999999;'+
-        'max-height:60dvh;overflow:auto;background:#2a0f0f;color:#ffdada;'+
-        'border:2px solid #ff6b6b;border-radius:12px;padding:10px 12px;'+
-        'font-family:monospace;font-size:11px;white-space:pre-wrap;line-height:1.4;box-shadow:0 6px 20px rgba(0,0,0,.5)';
-      var close=document.createElement('button');
-      close.textContent='✕ Tutup';
-      close.style.cssText='display:block;margin-bottom:6px;background:#ff6b6b;color:#2a0f0f;border:none;'+
-        'border-radius:8px;padding:5px 10px;font-weight:bold;font-family:sans-serif;font-size:11px';
-      close.onclick=function(){ box.remove(); };
-      box.appendChild(close);
-      var pre=document.createElement('div'); pre.id='__dbgerr_body';
-      box.appendChild(pre);
-      document.body.appendChild(box);
-    }
-    var pre=document.getElementById('__dbgerr_body');
-    var msg = (ev.message||'Error') + '\n' + (ev.filename?('at '+ev.filename+':'+ev.lineno+':'+ev.colno):'') +
-      (ev.error&&ev.error.stack ? ('\n'+ev.error.stack) : '');
-    var line=document.createElement('div');
-    line.style.cssText='border-top:1px solid #ff6b6b44;padding-top:6px;margin-top:6px';
-    line.textContent = new Date().toLocaleTimeString() + '\n' + msg;
-    pre.appendChild(line);
-  }catch(e){}
-});
-window.addEventListener('unhandledrejection', function(ev){
-  try{
-    window.dispatchEvent(new ErrorEvent('error', { message: 'Promise rejected: ' + (ev.reason&&ev.reason.message||ev.reason), error: ev.reason }));
-  }catch(e){}
-});
 </script>
 <script type="importmap">
 { "imports": { "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.module.min.js" } }
@@ -15987,7 +15953,7 @@ window._bbInit = () => {
     renderer.domElement.onpointerdown = e=>{isDrag=true;px=e.clientX;py=e.clientY;};
     window.onpointermove = e=>{if(!isDrag)return; camA-=(e.clientX-px)*.008; camH=Math.max(1,Math.min(5,camH-(e.clientY-py)*.01)); px=e.clientX;py=e.clientY;};
     window.onpointerup = ()=>isDrag=false;
-    window.onresize = ()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);};
+    window.onresize = ()=>{if(!camera||!renderer)return; camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);};
   }
   bbClearBurger();
   bbShow('bb-startScreen');
@@ -15997,6 +15963,7 @@ window._bbCleanup = () => {
   if(playTimer) clearInterval(playTimer); if(memTimer) clearInterval(memTimer);
   if(bbAnimId) cancelAnimationFrame(bbAnimId); bbAnimId=null;
   if(renderer) { renderer.dispose(); renderer.domElement.remove(); renderer=null; }
+  window.onresize = null; window.onpointermove = null; window.onpointerup = null;
   scene=null; camera=null; burgerGroup=null; placed=[]; stackY=.25;
 };
 
