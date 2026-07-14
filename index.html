@@ -1764,9 +1764,9 @@ async function confirmUpgradeBarn() {
 /* While loading or showing the "no pet"/"pet missing" card, lock the screen to
    exactly one viewport and disable scrolling so no empty strip can ever appear
    below the popup, on any screen size or aspect ratio. */
-#screen-home:has(> #home-content > .loading),
-#screen-home:has(> #home-content > .cozy-empty),
-#screen-home.screen-empty-state {
+#screen-home.active:has(> #home-content > .loading),
+#screen-home.active:has(> #home-content > .cozy-empty),
+#screen-home.screen-empty-state.active {
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
