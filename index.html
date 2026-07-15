@@ -16031,10 +16031,8 @@ function openSendDialog(){
     <div class="cf-grab"></div>
     <div class="cf-stitle">${IC.send} Kirim Cookie</div>
     <div class="cf-prev sm"><img src="${thumb(p.svgFull)}" alt=""></div>
-    <label class="cf-lbl">Username Penerima</label>
-    <input class="cf-in" id="cc-touser" placeholder="@carter" autocomplete="off">
-    <label class="cf-lbl">atau User ID</label>
-    <input class="cf-in" id="cc-toid" inputmode="numeric" placeholder="512345678" autocomplete="off">
+    <label class="cf-lbl">Username atau User ID Penerima</label>
+    <input class="cf-in" id="cc-to" placeholder="@foocl atau 8513979925" autocomplete="off">
     <label class="cf-lbl">Pesan (opsional)</label>
     <input class="cf-in" id="cc-msg" maxlength="150" placeholder="Hope you like this cookie ❤️">
     <div class="cf-price">${IC.coin} Biaya: <b>${PRICE} koin</b></div>
@@ -16060,9 +16058,7 @@ async function doSend(ov){
   const p=S.pending;
   const err=ov.querySelector('#cc-err'); err.textContent='';
   const go=ov.querySelector('#cc-go'); go.disabled=true;
-  const uVal=(ov.querySelector('#cc-touser').value||'').trim();
-  const idVal=(ov.querySelector('#cc-toid').value||'').trim();
-  const q = idVal || uVal;
+  const q=(ov.querySelector('#cc-to').value||'').trim();
   if(!q){ err.textContent='Isi username atau User ID penerima'; go.disabled=false; return; }
   const target=await resolveUser(q);
   if(!target){ err.textContent='User tidak ditemukan — cek @username / ID-nya'; go.disabled=false; return; }
