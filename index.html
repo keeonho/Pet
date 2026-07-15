@@ -2998,6 +2998,23 @@ body:has(.screen.active .room-fullscreen.inside-home) .header{display:none!impor
 .cf-empty p{font-size:.78rem;font-weight:700;color:#8a7258}
 .cf-loading{grid-column:1/-1;text-align:center;padding:40px;font-weight:800;color:#8a7258}
 
+/* ==================== CUSTOM COOKIE (CCOOKIE) — reuse CFLOW styling ==================== */
+#cc-creator{position:fixed;inset:0;z-index:400;display:flex;flex-direction:column;
+  background:linear-gradient(170deg,#fdf3dd,#f7ead2);
+  opacity:0;transform:translateY(26px);transition:opacity .35s, transform .38s cubic-bezier(.34,1.2,.64,1)}
+#cc-creator.cf-on{opacity:1;transform:none}
+#cc-creator.cf-hide{display:none}
+#cc-frame{flex:1;width:100%;border:none;background:#fff}
+#cc-gift{position:fixed;inset:0;z-index:420;display:flex;flex-direction:column;
+  background:linear-gradient(170deg,#fdf3dd,#f7ead2);
+  opacity:0;transform:translateY(26px);transition:opacity .35s, transform .38s cubic-bezier(.34,1.2,.64,1)}
+#cc-gift.cf-on{opacity:1;transform:none}
+#cc-toast{position:fixed;left:50%;top:calc(16px + env(safe-area-inset-top));transform:translateX(-50%) translateY(-30px);
+  z-index:520;background:linear-gradient(170deg,#5a3d1e,#3f2a12);color:#fff6e2;font-weight:800;font-size:.86rem;
+  padding:11px 18px;border-radius:99px;box-shadow:0 8px 20px rgba(60,40,15,.4);opacity:0;pointer-events:none;
+  transition:opacity .3s, transform .3s;max-width:86%;text-align:center}
+#cc-toast.cf-toast-show{opacity:1;transform:translateX(-50%) translateY(0)}
+
 /* ==================== CHAT v2 ==================== */
 #chat.screen,#screen-chat{position:relative}
 #chat-content .chat-wrap{height:calc(100dvh - 118px)}
@@ -8473,6 +8490,11 @@ function renderSpecialStore() {
     <div class="cf-cat-tx"><b>Custom Flower</b><small>Rangkai bunga sendiri, kirim ke teman atau simpan · 300🪙</small></div>
     <div class="cf-cat-go">›</div>
   </div>`;
+  html += `<div class="cf-cat" onclick="CCOOKIE.open()">
+    <div class="cf-cat-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6" fill="#d9a05b" stroke="#a86e35" stroke-width="1.7"/><circle cx="9" cy="9.5" r="1.4" fill="#6b4423"/><circle cx="14.5" cy="8.8" r="1.2" fill="#6b4423"/><circle cx="15.2" cy="14" r="1.5" fill="#6b4423"/><circle cx="9.4" cy="14.6" r="1.2" fill="#6b4423"/><circle cx="12" cy="12" r="1.1" fill="#6b4423"/></svg></div>
+    <div class="cf-cat-tx"><b>Custom Cookie</b><small>Design your own cookie and send it as a special gift · 200🪙</small></div>
+    <div class="cf-cat-go">›</div>
+  </div>`;
   let lastCat = null;
   for (const [key, item] of Object.entries(SPECIAL_SHOP)) {
     if (item.category !== lastCat) {
@@ -9258,6 +9280,11 @@ function renderShop() {
       <div class="cf-cat-tx"><b>Custom Flower</b><small>Rangkai bunga sendiri, kirim ke teman atau simpan · 300🪙</small></div>
       <div class="cf-cat-go">›</div>
     </div>
+    <div class="cf-cat" onclick="CCOOKIE.open()">
+      <div class="cf-cat-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6" fill="#d9a05b" stroke="#a86e35" stroke-width="1.7"/><circle cx="9" cy="9.5" r="1.4" fill="#6b4423"/><circle cx="14.5" cy="8.8" r="1.2" fill="#6b4423"/><circle cx="15.2" cy="14" r="1.5" fill="#6b4423"/><circle cx="9.4" cy="14.6" r="1.2" fill="#6b4423"/><circle cx="12" cy="12" r="1.1" fill="#6b4423"/></svg></div>
+      <div class="cf-cat-tx"><b>Custom Cookie</b><small>Design your own cookie and send it as a special gift · 200🪙</small></div>
+      <div class="cf-cat-go">›</div>
+    </div>
     ${items}
     <div style="margin-top:14px;display:flex;flex-direction:column;gap:8px">
       <button class="btn btn-peach" onclick="showDapurMbg()" style="width:100%">🍳 Dapur MBG (Buat dari Ternak)</button>
@@ -9659,6 +9686,7 @@ async function renderInventory() {
 
 function _renderInventoryContent(el, inv, customItemsMeta = {}) {
   try{ if(window.CFLOW&&CFLOW.renderInvSection) setTimeout(()=>CFLOW.renderInvSection(el),0); }catch(e){ console.error('CFLOW hook error:', e); }
+  try{ if(window.CCOOKIE&&CCOOKIE.renderInvSection) setTimeout(()=>CCOOKIE.renderInvSection(el),0); }catch(e){ console.error('CCOOKIE hook error:', e); }
   const allFoodShop = { ...FOOD_SHOP, ...KOI_FOOD_SHOP };
   const foodItems    = Object.entries(inv).filter(([k,v]) => (v||0) > 0 && allFoodShop[k] && !allFoodShop[k].isPil && !allFoodShop[k].astro && !allFoodShop[k].astro2 && !allFoodShop[k].ph && !allFoodShop[k].aqua);
   const specialItems = Object.entries(inv).filter(([k,v]) => (v||0) > 0 && SPECIAL_SHOP[k]);
@@ -9704,6 +9732,11 @@ function _renderInventoryContent(el, inv, customItemsMeta = {}) {
   <div class="cf-cat" style="margin-bottom:14px" onclick="CFLOW.openGift()">
     <div class="cf-cat-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="2.6" fill="#f7c948"/><ellipse cx="12" cy="5.6" rx="2.2" ry="3" fill="#f2a4b8"/><ellipse cx="12" cy="14.4" rx="2.2" ry="3" fill="#f2a4b8"/><ellipse cx="7.6" cy="10" rx="3" ry="2.2" fill="#f2a4b8"/><ellipse cx="16.4" cy="10" rx="3" ry="2.2" fill="#f2a4b8"/><path d="M12 15.5v5" stroke="#4e8438" stroke-width="2.2" stroke-linecap="round"/></svg></div>
     <div class="cf-cat-tx"><b>Flower Gift</b><small>Koleksi bunga buatan & kiriman teman</small></div>
+    <div class="cf-cat-go">›</div>
+  </div>
+  <div class="cf-cat" style="margin-bottom:14px" onclick="CCOOKIE.openGift()">
+    <div class="cf-cat-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6" fill="#d9a05b" stroke="#a86e35" stroke-width="1.7"/><circle cx="9" cy="9.5" r="1.4" fill="#6b4423"/><circle cx="14.5" cy="8.8" r="1.2" fill="#6b4423"/><circle cx="15.2" cy="14" r="1.5" fill="#6b4423"/><circle cx="9.4" cy="14.6" r="1.2" fill="#6b4423"/><circle cx="12" cy="12" r="1.1" fill="#6b4423"/></svg></div>
+    <div class="cf-cat-tx"><b>Custom Cookies</b><small>Koleksi cookie buatan & kiriman teman</small></div>
     <div class="cf-cat-go">›</div>
   </div>
       <div class="empty-state">
@@ -15837,6 +15870,432 @@ async function renderInvSection(el){
   }).join('');
   grid.querySelectorAll('.cf-invcard .btn').forEach(b=>{
     b.onclick=()=>openCard(data[Number(b.dataset.i)], String(data[Number(b.dataset.i)].creator_id)===String(window.USER_ID)?'created':'received');
+  });
+}
+
+return {open, openGift, checkUnread, renderInvSection};
+})();
+
+</script>
+<script>
+const COOKIE_SRC="<!DOCTYPE html>\n<html lang=\"id\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover\">\n<title>Cookie Studio</title>\n<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n<link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n<link href=\"https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@500;600;700;800&display=swap\" rel=\"stylesheet\">\n<style>\n/* ================= TOKENS ================= */\n:root{\n  --warm-white:#FFFDF6;\n  --milk:#FFF8EC;\n  --cream:#FFF1DC;\n  --vanilla:#FBE6C4;\n  --beige:#F1DDBE;\n  --cookie:#C98F5C;\n  --cookie-deep:#9C6A3C;\n  --cocoa:#6E4A2B;\n  --caramel:#E8A75D;\n  --peach:#FFB878;\n  --peach-deep:#F09A4E;\n  --blush:#FFC9C0;\n  --ink:#5B4229;\n  --ink-soft:#8A6C4E;\n  --ink-faint:#B79A78;\n  --line:#F2E2C8;\n  --card:#FFFFFF;\n  --shadow-soft:0 10px 24px rgba(150,105,60,.14);\n  --shadow-tiny:0 4px 10px rgba(150,105,60,.12);\n  --r-lg:26px;\n  --r-md:20px;\n  --r-sm:14px;\n  --sheet-pad:16px;\n}\n*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}\nhtml,body{height:100%}\nbody{\n  font-family:'Nunito',system-ui,sans-serif;\n  color:var(--ink);\n  background:\n    radial-gradient(120% 70% at 50% -10%, #FFE9C9 0%, rgba(255,233,201,0) 60%),\n    radial-gradient(90% 60% at 100% 100%, #FFE3D2 0%, rgba(255,227,210,0) 55%),\n    linear-gradient(180deg,#FFF7E8 0%, #FFF1DE 45%, #FDE9D2 100%);\n  overflow:hidden;\n  user-select:none;-webkit-user-select:none;\n  touch-action:manipulation;\n}\nbutton{font-family:inherit;color:inherit;border:none;background:none;cursor:pointer}\n\n.app{\n  max-width:430px;min-width:320px;height:100dvh;margin:0 auto;\n  display:flex;flex-direction:column;position:relative;\n  padding-top:calc(env(safe-area-inset-top, 0px) + 10px);\n}\n\n/* ================= TOP BAR ================= */\n.topbar{\n  display:flex;align-items:center;justify-content:space-between;\n  padding:4px 16px 8px;position:relative;z-index:5;\n}\n.icon-btn{\n  width:44px;height:44px;border-radius:16px;\n  background:var(--warm-white);\n  box-shadow:var(--shadow-tiny), inset 0 -2px 0 rgba(150,105,60,.08);\n  display:grid;place-items:center;\n  transition:transform .18s cubic-bezier(.34,1.56,.64,1);\n  position:relative;overflow:hidden;\n}\n.icon-btn:active{transform:scale(.88)}\n.title-wrap{text-align:center;line-height:1.05}\n.title-wrap h1{\n  font-family:'Baloo 2',cursive;font-weight:800;font-size:22px;color:var(--ink);\n  letter-spacing:.2px;\n}\n.title-wrap p{font-size:12px;font-weight:700;color:var(--ink-faint);margin-top:1px}\n\n/* ================= STAGE ================= */\n.stage{\n  flex:1;min-height:230px;position:relative;z-index:2;\n  display:grid;place-items:center;\n}\n.stage svg.scene{width:min(88%,340px);height:100%;max-height:330px;overflow:visible}\n.cookie-float{animation:floaty 4.2s ease-in-out infinite}\n@keyframes floaty{\n  0%,100%{transform:translateY(0)}\n  50%{transform:translateY(-9px)}\n}\n.scene.saving .cookie-float{animation:savepulse .7s cubic-bezier(.34,1.56,.64,1)}\n@keyframes savepulse{\n  0%{transform:scale(1)}\n  35%{transform:scale(1.12) rotate(-2deg)}\n  70%{transform:scale(.97)}\n  100%{transform:scale(1)}\n}\n\n/* ambient flour + sparkles */\n.ambient{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1}\n.flour{\n  position:absolute;bottom:-12px;border-radius:50%;\n  background:rgba(255,255,255,.85);filter:blur(1.5px);\n  animation:rise linear infinite;\n}\n@keyframes rise{\n  0%{transform:translateY(0) translateX(0);opacity:0}\n  12%{opacity:.7}\n  85%{opacity:.4}\n  100%{transform:translateY(-52vh) translateX(14px);opacity:0}\n}\n.spark{\n  position:absolute;width:10px;height:10px;\n  background:#FFD98A;\n  clip-path:polygon(50% 0%,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0% 50%,38% 38%);\n  animation:twinkle ease-in-out infinite;\n  filter:drop-shadow(0 0 4px rgba(255,205,120,.9));\n}\n@keyframes twinkle{\n  0%,100%{opacity:0;transform:scale(.4) rotate(0deg)}\n  50%{opacity:.9;transform:scale(1) rotate(45deg)}\n}\n\n/* save confetti */\n.confetti{\n  position:absolute;width:9px;height:9px;border-radius:3px;\n  pointer-events:none;z-index:8;\n  animation:confet .95s cubic-bezier(.2,.7,.4,1) forwards;\n}\n.confetti.dot{border-radius:50%}\n@keyframes confet{\n  0%{transform:translate(0,0) scale(.6) rotate(0deg);opacity:1}\n  100%{transform:translate(var(--dx),var(--dy)) scale(1) rotate(var(--rot));opacity:0}\n}\n\n/* ================= CATEGORY CHIPS ================= */\n.chips{\n  display:flex;gap:8px;overflow-x:auto;padding:6px 16px 10px;\n  scrollbar-width:none;position:relative;z-index:5;flex-shrink:0;\n}\n.chips::-webkit-scrollbar{display:none}\n.chip{\n  display:flex;align-items:center;gap:7px;flex-shrink:0;\n  padding:9px 15px 9px 11px;border-radius:18px;\n  background:var(--warm-white);\n  box-shadow:var(--shadow-tiny), inset 0 -2px 0 rgba(150,105,60,.07);\n  font-weight:800;font-size:13.5px;color:var(--ink-soft);\n  transition:transform .2s cubic-bezier(.34,1.56,.64,1), background .2s, color .2s, box-shadow .2s;\n  position:relative;overflow:hidden;\n}\n.chip svg{width:19px;height:19px;flex-shrink:0}\n.chip .st{stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;fill:none}\n.chip:active{transform:scale(.92)}\n.chip.active{\n  background:linear-gradient(160deg,var(--peach) 0%,var(--peach-deep) 100%);\n  color:#fff;\n  box-shadow:0 8px 18px rgba(240,154,78,.4), inset 0 2px 0 rgba(255,255,255,.35);\n  animation:chippop .35s cubic-bezier(.34,1.56,.64,1);\n}\n@keyframes chippop{\n  0%{transform:scale(.9)}\n  60%{transform:scale(1.07)}\n  100%{transform:scale(1)}\n}\n\n/* ================= BOTTOM SHEET ================= */\n.sheet{\n  background:var(--warm-white);\n  border-radius:30px 30px 0 0;\n  box-shadow:0 -14px 34px rgba(150,105,60,.16);\n  padding:8px var(--sheet-pad) 0;\n  position:relative;z-index:6;flex-shrink:0;\n  border-top:1px solid rgba(255,255,255,.9);\n}\n.grabber{width:44px;height:5px;border-radius:99px;background:var(--line);margin:4px auto 8px}\n.panel-title{\n  display:flex;align-items:baseline;justify-content:space-between;\n  margin:0 2px 10px;\n}\n.panel-title h2{font-family:'Baloo 2',cursive;font-size:17px;font-weight:800}\n.panel-title span{font-size:11.5px;font-weight:800;color:var(--ink-faint)}\n.panel{\n  height:172px;overflow-y:auto;overscroll-behavior:contain;\n  padding-bottom:10px;scrollbar-width:none;\n  animation:panelin .28s cubic-bezier(.3,1.2,.5,1);\n}\n.panel::-webkit-scrollbar{display:none}\n@keyframes panelin{\n  from{opacity:0;transform:translateY(14px)}\n  to{opacity:1;transform:translateY(0)}\n}\n\n/* option cards */\n.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}\n.grid.wide{grid-template-columns:repeat(3,1fr)}\n.opt{\n  background:var(--milk);\n  border:2px solid transparent;border-radius:var(--r-sm);\n  padding:8px 4px 7px;display:flex;flex-direction:column;align-items:center;gap:5px;\n  transition:transform .2s cubic-bezier(.34,1.56,.64,1), border-color .2s, background .2s, box-shadow .2s;\n  position:relative;overflow:hidden;\n}\n.opt:active{transform:scale(.9)}\n.opt .th{width:46px;height:46px;display:grid;place-items:center}\n.opt .th svg{width:46px;height:46px;overflow:visible}\n.opt .nm{font-size:10.5px;font-weight:800;color:var(--ink-soft);line-height:1.1;text-align:center}\n.opt.sel{\n  background:#FFF6E6;border-color:var(--peach);\n  box-shadow:0 6px 14px rgba(240,154,78,.25);\n  animation:chippop .32s cubic-bezier(.34,1.56,.64,1);\n}\n.opt.sel .nm{color:var(--peach-deep)}\n.opt .tick{\n  position:absolute;top:5px;right:5px;width:16px;height:16px;border-radius:50%;\n  background:var(--peach-deep);display:grid;place-items:center;\n  opacity:0;transform:scale(.3);transition:all .22s cubic-bezier(.34,1.56,.64,1);\n}\n.opt.sel .tick{opacity:1;transform:scale(1)}\n.opt .tick svg{width:9px;height:9px}\n\n/* round swatches (icing) */\n.swatches{display:flex;flex-wrap:wrap;gap:13px;padding:6px 4px}\n.swatch{\n  width:52px;height:52px;border-radius:50%;position:relative;\n  box-shadow:inset 0 -5px 8px rgba(120,80,40,.14), inset 0 4px 6px rgba(255,255,255,.7), var(--shadow-tiny);\n  border:3px solid #fff;outline:3px solid transparent;outline-offset:2px;\n  transition:transform .2s cubic-bezier(.34,1.56,.64,1), outline-color .2s;\n}\n.swatch:active{transform:scale(.86)}\n.swatch.sel{outline-color:var(--peach);transform:scale(1.06)}\n.swatch .lbl{\n  position:absolute;left:50%;bottom:-16px;transform:translateX(-50%);\n  font-size:9.5px;font-weight:800;color:var(--ink-faint);white-space:nowrap;\n}\n.swatches .swrap{position:relative;padding-bottom:16px}\n\n/* ================= ACTION BAR ================= */\n.actions{\n  display:flex;gap:10px;align-items:center;\n  padding:10px var(--sheet-pad) calc(env(safe-area-inset-bottom,0px) + 14px);\n  background:var(--warm-white);position:relative;z-index:6;\n}\n.act{\n  height:52px;border-radius:19px;font-weight:800;font-size:14px;\n  display:flex;align-items:center;justify-content:center;gap:7px;\n  transition:transform .18s cubic-bezier(.34,1.56,.64,1);\n  position:relative;overflow:hidden;\n}\n.act:active{transform:scale(.93)}\n.act svg{width:18px;height:18px}\n.act .st{stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;fill:none}\n.act.ghost{\n  flex:0 0 52px;background:var(--milk);color:var(--ink-soft);\n  box-shadow:inset 0 0 0 2px var(--line);\n}\n.act.primary{\n  flex:1;font-family:'Baloo 2',cursive;font-size:17px;letter-spacing:.3px;\n  background:linear-gradient(160deg,#F5B471 0%,#EE9440 100%);color:#fff;\n  box-shadow:0 10px 22px rgba(238,148,64,.45), inset 0 2px 0 rgba(255,255,255,.4), inset 0 -3px 0 rgba(160,90,20,.18);\n}\n\n/* ripple */\n.rip{\n  position:absolute;border-radius:50%;pointer-events:none;\n  background:rgba(255,255,255,.55);transform:scale(0);\n  animation:rippl .5s ease-out forwards;\n}\n@keyframes rippl{to{transform:scale(2.6);opacity:0}}\n\n/* ================= TOAST ================= */\n.toast{\n  position:absolute;left:50%;top:38%;transform:translate(-50%,-50%) scale(.6);\n  background:var(--warm-white);border-radius:24px;\n  box-shadow:0 18px 44px rgba(140,95,50,.3);\n  padding:18px 26px 16px;text-align:center;z-index:20;\n  opacity:0;pointer-events:none;\n  transition:all .35s cubic-bezier(.34,1.56,.64,1);\n}\n.toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}\n.toast svg{width:46px;height:46px;margin-bottom:4px}\n.toast h3{font-family:'Baloo 2',cursive;font-size:18px;color:var(--ink)}\n.toast p{font-size:12px;font-weight:700;color:var(--ink-faint);margin-top:1px}\n\n/* drizzle draw-in */\n.drizz path{transition:stroke-dashoffset .9s ease .06s}\n\n/* pop-in for placed toppings */\n.popin{animation:toppop .34s cubic-bezier(.34,1.56,.64,1);transform-origin:center;transform-box:fill-box}\n@keyframes toppop{\n  0%{transform:scale(0) rotate(-20deg)}\n  70%{transform:scale(1.18)}\n  100%{transform:scale(1)}\n}\n\n@media (prefers-reduced-motion:reduce){\n  *,*::before,*::after{animation-duration:.001s !important;transition-duration:.001s !important}\n}\n@media (max-height:640px){\n  .panel{height:138px}\n  .stage svg.scene{max-height:240px}\n}\n\n/* drag / packaging behavior (no visual redesign) */\n.stage svg.scene{touch-action:none}\n.scene.grounded .cookie-float{animation:none}\n.scene.dragging .cookie-float{animation-play-state:paused}\ng[data-obj]{cursor:grab}\ng[data-obj].drag-active{filter:drop-shadow(0 5px 9px rgba(150,100,50,.4))}\n<\/style>\n</head>\n<body>\n<div class=\"app\">\n\n  <!-- ambient background -->\n  <div class=\"ambient\" id=\"ambient\"></div>\n\n  <!-- TOP BAR -->\n  <header class=\"topbar\">\n    <button class=\"icon-btn\" id=\"btnBack\" aria-label=\"Back\">\n      <svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\"><path d=\"M14.5 5.5 8 12l6.5 6.5\" stroke=\"#8A6C4E\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" fill=\"none\"/></svg>\n    </button>\n    <div class=\"title-wrap\">\n      <h1>Cookie Studio</h1>\n      <p>Decorate your own cookies</p>\n    </div>\n    <button class=\"icon-btn\" id=\"btnSettings\" aria-label=\"Settings\">\n      <svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"#8A6C4E\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n        <circle cx=\"12\" cy=\"12\" r=\"3.2\"/>\n        <path d=\"M12 3.2v2.2M12 18.6v2.2M20.8 12h-2.2M5.4 12H3.2M18.2 5.8l-1.6 1.6M7.4 16.6l-1.6 1.6M18.2 18.2l-1.6-1.6M7.4 7.4 5.8 5.8\"/>\n      </svg>\n    </button>\n  </header>\n\n  <!-- STAGE -->\n  <main class=\"stage\" id=\"stage\">\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 260 310\" aria-label=\"Cookie preview\">\n      <defs>\n        <clipPath id=\"clipCookie\"></clipPath>\n        <clipPath id=\"clipIcing\"></clipPath>\n        <radialGradient id=\"plateShine\" cx=\"50%\" cy=\"38%\" r=\"70%\">\n          <stop offset=\"0%\" stop-color=\"#FFFFFF\"/>\n          <stop offset=\"72%\" stop-color=\"#FBF3E6\"/>\n          <stop offset=\"100%\" stop-color=\"#EFDFC8\"/>\n        </radialGradient>\n        <linearGradient id=\"woodGrad\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\n          <stop offset=\"0%\" stop-color=\"#C89A6A\"/>\n          <stop offset=\"100%\" stop-color=\"#A97B4C\"/>\n        </linearGradient>\n        <linearGradient id=\"kraftGrad\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\n          <stop offset=\"0%\" stop-color=\"#E8C79A\"/>\n          <stop offset=\"100%\" stop-color=\"#D8B47F\"/>\n        </linearGradient>\n      </defs>\n\n      <!-- shadow under plate -->\n      <ellipse cx=\"130\" cy=\"278\" rx=\"86\" ry=\"14\" fill=\"rgba(150,100,55,.16)\"/>\n\n      <!-- packaging behind -->\n      <g id=\"wrapBack\"></g>\n\n      <!-- plate -->\n      <g id=\"plate\">\n        <ellipse cx=\"130\" cy=\"262\" rx=\"96\" ry=\"26\" fill=\"url(#plateShine)\"/>\n        <ellipse cx=\"130\" cy=\"258\" rx=\"96\" ry=\"26\" fill=\"#FFFDF6\"/>\n        <ellipse cx=\"130\" cy=\"258\" rx=\"70\" ry=\"17\" fill=\"#F7ECD9\"/>\n        <ellipse cx=\"130\" cy=\"257\" rx=\"70\" ry=\"17\" fill=\"#FCF5E9\"/>\n      </g>\n\n      <!-- floating cookie -->\n      <g class=\"cookie-float\">\n        <g id=\"cookieRoot\" transform=\"translate(30,44)\">\n          <g id=\"wrapOnBack\"></g>\n          <g id=\"layerBase\"></g>\n          <g id=\"layerIcing\"></g>\n          <g id=\"layerDrizzle\" class=\"drizz\" clip-path=\"url(#clipIcing)\"></g>\n          <g id=\"layerObjects\"></g>\n          <g id=\"wrapOnFront\"></g>\n        </g>\n      </g>\n\n      <!-- packaging front -->\n      <g id=\"wrapFront\"></g>\n    </svg>\n\n    <!-- toast -->\n    <div class=\"toast\" id=\"toast\">\n      <svg viewBox=\"0 0 48 48\">\n        <circle cx=\"24\" cy=\"24\" r=\"19\" fill=\"#C98F5C\"/>\n        <circle cx=\"24\" cy=\"24\" r=\"15.5\" fill=\"#D9A66F\"/>\n        <circle cx=\"18\" cy=\"19\" r=\"2.6\" fill=\"#7A4E2D\"/>\n        <circle cx=\"29\" cy=\"26\" r=\"2.2\" fill=\"#7A4E2D\"/>\n        <circle cx=\"22\" cy=\"30\" r=\"1.8\" fill=\"#7A4E2D\"/>\n        <circle cx=\"30\" cy=\"16\" r=\"1.7\" fill=\"#7A4E2D\"/>\n        <path d=\"M36 10l1.2 2.8L40 14l-2.8 1.2L36 18l-1.2-2.8L32 14l2.8-1.2z\" fill=\"#FFC95E\"/>\n      </svg>\n      <h3>Cookie saved!</h3>\n      <p>Added to your bakery box</p>\n    </div>\n  </main>\n\n  <!-- CATEGORY CHIPS -->\n  <nav class=\"chips\" id=\"chips\"></nav>\n\n  <!-- BOTTOM SHEET -->\n  <section class=\"sheet\">\n    <div class=\"grabber\"></div>\n    <div class=\"panel-title\">\n      <h2 id=\"panelName\">Shape</h2>\n      <span id=\"panelHint\">Pick a cookie cutter</span>\n    </div>\n    <div class=\"panel\" id=\"panel\"></div>\n  </section>\n\n  <!-- ACTION BAR -->\n  <footer class=\"actions\">\n    <button class=\"act ghost\" id=\"btnReset\" aria-label=\"Reset\">\n      <svg viewBox=\"0 0 24 24\"><path class=\"st\" d=\"M4.5 9.5A8 8 0 1 1 4 13.5M4.5 4.5v5h5\"/></svg>\n    </button>\n    <button class=\"act ghost\" id=\"btnRandom\" aria-label=\"Random\" style=\"flex:0 0 52px\">\n      <svg viewBox=\"0 0 24 24\">\n        <rect class=\"st\" x=\"4\" y=\"4\" width=\"16\" height=\"16\" rx=\"4.5\"/>\n        <circle cx=\"9\" cy=\"9\" r=\"1.5\" fill=\"currentColor\"/>\n        <circle cx=\"15\" cy=\"15\" r=\"1.5\" fill=\"currentColor\"/>\n        <circle cx=\"15\" cy=\"9\" r=\"1.5\" fill=\"currentColor\"/>\n        <circle cx=\"9\" cy=\"15\" r=\"1.5\" fill=\"currentColor\"/>\n      </svg>\n    </button>\n    <button class=\"act primary\" id=\"btnSave\">\n      <svg viewBox=\"0 0 24 24\"><path class=\"st\" d=\"M12 3.5l2.2 4.8 5.3.6-3.9 3.6 1 5.2L12 15.1l-4.6 2.6 1-5.2-3.9-3.6 5.3-.6z\"/></svg>\n      Save Cookie\n    </button>\n  </footer>\n\n</div>\n<script>\n/* =====================================================\n   COOKIE STUDIO \u2014 preview build (frontend only)\n   ===================================================== */\n'use strict';\n\n/* ---------- sound placeholders (integrate later) ---------- */\nconst SFX = { click:'click.wav', pop:'pop.wav', sprinkle:'sprinkle.wav', save:'save.wav' };\nfunction playSound(name){ /* TODO: hook up real audio, e.g. new Audio(SFX[name]).play() */ }\n\n/* ---------- tiny helpers ---------- */\nconst $ = s => document.querySelector(s);\nconst SVGNS = 'http://www.w3.org/2000/svg';\nfunction mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}\nfunction roundPoly(pts,rr){ // rounded polygon path\n  let d='';\n  for(let i=0;i<pts.length;i++){\n    const p=pts[i], prev=pts[(i-1+pts.length)%pts.length], next=pts[(i+1)%pts.length];\n    const v1={x:p.x-prev.x,y:p.y-prev.y}, v2={x:next.x-p.x,y:next.y-p.y};\n    const l1=Math.hypot(v1.x,v1.y), l2=Math.hypot(v2.x,v2.y);\n    const r=Math.min(rr,l1/2,l2/2);\n    const a={x:p.x-v1.x/l1*r, y:p.y-v1.y/l1*r};\n    const b={x:p.x+v2.x/l2*r, y:p.y+v2.y/l2*r};\n    d += (i===0?`M${a.x.toFixed(1)} ${a.y.toFixed(1)}`:`L${a.x.toFixed(1)} ${a.y.toFixed(1)}`);\n    d += `Q${p.x.toFixed(1)} ${p.y.toFixed(1)} ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;\n  }\n  return d+'Z';\n}\nfunction starPath(cx,cy,R,r,n,rot){\n  const pts=[];\n  for(let i=0;i<n*2;i++){\n    const rad=(i%2===0)?R:r, a=rot+i*Math.PI/n;\n    pts.push({x:cx+Math.cos(a)*rad, y:cy+Math.sin(a)*rad});\n  }\n  return roundPoly(pts,12);\n}\n\n/* ---------- SHAPES (200x200 space, union of primitives) ---------- */\nconst SHAPES = {\n  round:  {name:'Round',  els:[{k:'c',cx:100,cy:102,r:84}]},\n  heart:  {name:'Heart',  els:[{k:'p',d:'M100 178C60 142 20 112 20 70 20 42 42 24 67 24 82 24 95 32 100 45 105 32 118 24 133 24 158 24 180 42 180 70 180 112 140 142 100 178Z'}]},\n  star:   {name:'Star',   els:[{k:'p',d:starPath(100,104,88,52,5,-Math.PI/2)}]},\n  flower: {name:'Flower', els:[\n    {k:'c',cx:100,cy:102,r:54},\n    {k:'c',cx:100,cy:44,r:33},{k:'c',cx:150,cy:73,r:33},{k:'c',cx:150,cy:131,r:33},\n    {k:'c',cx:100,cy:160,r:33},{k:'c',cx:50,cy:131,r:33},{k:'c',cx:50,cy:73,r:33}\n  ]},\n  cloud:  {name:'Cloud',  els:[\n    {k:'c',cx:64,cy:96,r:36},{k:'c',cx:106,cy:80,r:44},{k:'c',cx:146,cy:102,r:32},\n    {k:'r',x:38,y:96,w:126,h:50,rx:25}\n  ]},\n  bear:   {name:'Bear',   els:[{k:'c',cx:100,cy:110,r:72},{k:'c',cx:50,cy:52,r:26},{k:'c',cx:150,cy:52,r:26}]},\n  bunny:  {name:'Bunny',  els:[\n    {k:'c',cx:100,cy:126,r:58},\n    {k:'e',cx:72,cy:58,rx:20,ry:46,rot:-12},{k:'e',cx:128,cy:58,rx:20,ry:46,rot:12}\n  ]},\n  cat:    {name:'Cat',    els:[\n    {k:'c',cx:100,cy:118,r:64},\n    {k:'p',d:'M44 96 51 24Q52 16 60 20L104 58Z'},\n    {k:'p',d:'M156 96 149 24Q148 16 140 20L96 58Z'}\n  ]},\n  moon:   {name:'Moon',   els:[{k:'p',d:'M128 16A88 88 0 1 0 128 188 72 72 0 1 1 128 16Z'}]},\n  ginger: {name:'Gingerbread', els:[\n    {k:'c',cx:100,cy:50,r:34},\n    {k:'r',x:74,y:76,w:52,h:62,rx:22},\n    {k:'r',x:26,y:84,w:60,h:24,rx:12,rot:-18},{k:'r',x:114,y:84,w:60,h:24,rx:12,rot:18},\n    {k:'r',x:66,y:124,w:26,h:60,rx:13,rot:14},{k:'r',x:108,y:124,w:26,h:60,rx:13,rot:-14}\n  ]},\n  tree:   {name:'Xmas Tree', els:[\n    {k:'p',d:roundPoly([{x:100,y:12},{x:142,y:68},{x:58,y:68}],10)},\n    {k:'p',d:roundPoly([{x:100,y:44},{x:154,y:114},{x:46,y:114}],10)},\n    {k:'p',d:roundPoly([{x:100,y:82},{x:166,y:164},{x:34,y:164}],10)},\n    {k:'r',x:86,y:158,w:28,h:32,rx:9}\n  ]}\n};\n\nfunction elToNode(e, extra, preT){\n  let n, own='';\n  if(e.k==='c'){n=document.createElementNS(SVGNS,'circle');n.setAttribute('cx',e.cx);n.setAttribute('cy',e.cy);n.setAttribute('r',e.r);}\n  else if(e.k==='e'){n=document.createElementNS(SVGNS,'ellipse');n.setAttribute('cx',e.cx);n.setAttribute('cy',e.cy);n.setAttribute('rx',e.rx);n.setAttribute('ry',e.ry);if(e.rot)own=`rotate(${e.rot} ${e.cx} ${e.cy})`;}\n  else if(e.k==='r'){n=document.createElementNS(SVGNS,'rect');n.setAttribute('x',e.x);n.setAttribute('y',e.y);n.setAttribute('width',e.w);n.setAttribute('height',e.h);n.setAttribute('rx',e.rx||0);if(e.rot)own=`rotate(${e.rot} ${e.x+e.w/2} ${e.y+e.h/2})`;}\n  else {n=document.createElementNS(SVGNS,'path');n.setAttribute('d',e.d);}\n  const tf=[(preT||''),own].filter(Boolean).join(' ');\n  if(tf) n.setAttribute('transform',tf);\n  if(extra)for(const k in extra)n.setAttribute(k,extra[k]);\n  return n;\n}\nfunction shapeGroup(shapeId, fill, scale){\n  const g=document.createElementNS(SVGNS,'g');\n  if(scale && scale!==1) g.setAttribute('transform',`translate(100 100) scale(${scale}) translate(-100 -100)`);\n  SHAPES[shapeId].els.forEach(e=>g.appendChild(elToNode(e, fill?{fill}:null)));\n  return g;\n}\nfunction shapeMiniSVG(shapeId, fill, edge){\n  let inner='';\n  SHAPES[shapeId].els.forEach(e=>{\n    if(e.k==='c') inner+=`<circle cx=\"${e.cx}\" cy=\"${e.cy}\" r=\"${e.r}\"/>`;\n    else if(e.k==='e') inner+=`<ellipse cx=\"${e.cx}\" cy=\"${e.cy}\" rx=\"${e.rx}\" ry=\"${e.ry}\" ${e.rot?`transform=\"rotate(${e.rot} ${e.cx} ${e.cy})\"`:''}/>`;\n    else if(e.k==='r') inner+=`<rect x=\"${e.x}\" y=\"${e.y}\" width=\"${e.w}\" height=\"${e.h}\" rx=\"${e.rx||0}\" ${e.rot?`transform=\"rotate(${e.rot} ${e.x+e.w/2} ${e.y+e.h/2})\"`:''}/>`;\n    else inner+=`<path d=\"${e.d}\"/>`;\n  });\n  return `<svg viewBox=\"-6 -6 212 212\"><g fill=\"${edge}\">${inner}</g><g fill=\"${fill}\" transform=\"translate(100 100) scale(.92) translate(-100 -100)\">${inner}</g></svg>`;\n}\n\n/* ---------- ICING ---------- */\nconst ICINGS = {\n  white:{name:'White',c:'#FFFDF7'}, vanilla:{name:'Vanilla',c:'#FBE9C6'},\n  chocolate:{name:'Chocolate',c:'#8A5A3B'}, caramel:{name:'Caramel',c:'#DFA25F'},\n  strawberry:{name:'Strawberry',c:'#FFC7D2'}, blueberry:{name:'Blueberry',c:'#BCD2EF'},\n  matcha:{name:'Matcha',c:'#CADDA9'}, pink:{name:'Pink',c:'#FFD5E4'}, lemon:{name:'Lemon',c:'#FBE79E'}\n};\n\n/* ---------- CHOCOLATE DRIZZLE ---------- */\nconst CHOCS = {\n  none:{name:'None',c:null}, milk:{name:'Milk Choc',c:'#9A6438'},\n  dark:{name:'Dark Choc',c:'#5B3820'}, whitec:{name:'White Choc',c:'#FFF6E9'},\n  caramel:{name:'Caramel',c:'#E2A24E'}, matcha:{name:'Matcha',c:'#A5C377'}\n};\n\n/* ---------- SPRINKLES (draw one piece at 0,0) ---------- */\nconst SPR = {\n  none:{name:'None',draw:null},\n  stars:{name:'Stars',draw:(r)=>`<path d=\"M0-4.6 1.3-1.5 4.6-1.1 2.1 1.2 2.8 4.5 0 2.8-2.8 4.5-2.1 1.2-4.6-1.1-1.3-1.5Z\" fill=\"${['#FFC95E','#FFB0C8','#9FD4F0'][r(3)]}\"/>`},\n  hearts:{name:'Hearts',draw:(r)=>`<path d=\"M0 3.8C-2.6 1.6-4.4.2-4.4-1.6-4.4-3-3.2-3.9-2-3.9-1.1-3.9-.3-3.4 0-2.6.3-3.4 1.1-3.9 2-3.9 3.2-3.9 4.4-3 4.4-1.6 4.4.2 2.6 1.6 0 3.8Z\" fill=\"${['#FF8FA8','#FFB3C4','#F76E8F'][r(3)]}\"/>`},\n  rainbow:{name:'Rainbow',draw:(r)=>`<rect x=\"-4.5\" y=\"-1.6\" width=\"9\" height=\"3.2\" rx=\"1.6\" fill=\"${['#FF9E7D','#FFD066','#9FD98F','#8FC7F2','#F6A6E0'][r(5)]}\"/>`},\n  chips:{name:'Choc Chips',draw:(r)=>`<circle r=\"3.1\" fill=\"${['#7A4E2D','#5E3A22'][r(2)]}\"/><circle cx=\"-.9\" cy=\"-1\" r=\"1\" fill=\"rgba(255,255,255,.22)\"/>`},\n  minicookies:{name:'Mini Cookies',draw:(r)=>`<circle r=\"4\" fill=\"#D9A66F\"/><circle cx=\"-1.3\" cy=\"-.8\" r=\".8\" fill=\"#7A4E2D\"/><circle cx=\"1.4\" cy=\"1\" r=\".8\" fill=\"#7A4E2D\"/><circle cx=\"1\" cy=\"-1.6\" r=\".7\" fill=\"#7A4E2D\"/>`},\n  pearls:{name:'Pearls',draw:(r)=>`<circle r=\"2.8\" fill=\"${['#FFFDF6','#FFE9F2','#EAF2FF'][r(3)]}\"/><circle cx=\"-.8\" cy=\"-.9\" r=\".9\" fill=\"#fff\"/>`},\n  flowers:{name:'Flowers',draw:(r)=>{const c=['#FFB3C4','#FFD9A0','#CBE3FA'][r(3)];let s='';for(let i=0;i<5;i++){const a=i*Math.PI*2/5;s+=`<circle cx=\"${(Math.cos(a)*2.6).toFixed(1)}\" cy=\"${(Math.sin(a)*2.6).toFixed(1)}\" r=\"1.7\" fill=\"${c}\"/>`}return s+`<circle r=\"1.4\" fill=\"#FFE07A\"/>`}},\n  snow:{name:'Snow',draw:(r)=>`<g stroke=\"#FFFFFF\" stroke-width=\"1.1\" stroke-linecap=\"round\"><path d=\"M0-3.6V3.6M-3.6 0H3.6M-2.5-2.5 2.5 2.5M2.5-2.5-2.5 2.5\"/></g>`},\n  gold:{name:'Gold Dust',draw:(r)=>`<circle r=\"${(1+r(3)*.5)}\" fill=\"${['#F5C462','#EFB03F','#FFDf8E'][r(3)]}\" opacity=\"${.65+r(3)*.12}\"/>`},\n  confetti:{name:'Confetti',draw:(r)=>r(2)?`<rect x=\"-2.6\" y=\"-2.6\" width=\"5.2\" height=\"5.2\" rx=\"1.4\" fill=\"${['#FF9E7D','#9FD98F','#FFD066'][r(3)]}\"/>`:`<circle r=\"2.5\" fill=\"${['#8FC7F2','#F6A6E0','#FFC95E'][r(3)]}\"/>`}\n};\n\n/* ---------- FRUIT (multi-select) ---------- */\nconst FRUITS = {\n  cherry:{name:'Cherry',draw:()=>`<path d=\"M-3-9Q0-14 5-13\" stroke=\"#7FA35C\" stroke-width=\"1.8\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M-3-9Q-1-13 5-13\" stroke=\"#7FA35C\" stroke-width=\"1.8\" fill=\"none\" stroke-linecap=\"round\" opacity=\"0\"/><circle cx=\"-4\" cy=\"-1\" r=\"5.6\" fill=\"#E4485B\"/><circle cx=\"4.5\" cy=\"1.5\" r=\"5.6\" fill=\"#D63B4F\"/><circle cx=\"-5.6\" cy=\"-2.8\" r=\"1.7\" fill=\"rgba(255,255,255,.5)\"/><circle cx=\"2.9\" cy=\"-.2\" r=\"1.5\" fill=\"rgba(255,255,255,.4)\"/><path d=\"M-4-6Q-3-11-3-9M4.5-4Q3-11-3-9\" stroke=\"#7FA35C\" stroke-width=\"1.6\" fill=\"none\" stroke-linecap=\"round\"/>`},\n  blueberry:{name:'Blueberry',draw:()=>`<circle r=\"6\" fill=\"#6D82C4\"/><circle r=\"6\" fill=\"rgba(70,80,140,.25)\" cx=\"1\" cy=\"1.4\"/><circle cx=\"-1.8\" cy=\"-2\" r=\"1.8\" fill=\"rgba(255,255,255,.45)\"/><path d=\"M-1.6-.4 0-2.2 1.6-.4 0 .8Z\" fill=\"#4C5B93\" transform=\"translate(0 -4.6) scale(.8)\"/>`},\n  orange:{name:'Orange Slice',draw:()=>`<path d=\"M-8 0A8 8 0 0 1 8 0Z\" fill=\"#FFB061\"/><path d=\"M-6.4 0A6.4 6.4 0 0 1 6.4 0Z\" fill=\"#FFD9A8\"/><g fill=\"#FFA24E\"><path d=\"M-5.4-.8 -.6-.8 -3-4.6Z\"/><path d=\"M.6-.8 5.4-.8 3-4.6Z\"/><path d=\"M-1.4-1.4 1.4-1.4 0-5.6Z\" transform=\"translate(0 .4)\"/></g>`},\n  strawberry:{name:'Strawberry',draw:()=>`<path d=\"M0 7C-5 4-7 .5-7-2.5-7-6-4.5-7.5-2.3-7.5-1.2-7.5-.4-7 0-6.2.4-7 1.2-7.5 2.3-7.5 4.5-7.5 7-6 7-2.5 7 .5 5 4 0 7Z\" fill=\"#EF5D74\"/><g fill=\"#FFD9DF\"><circle cx=\"-3\" cy=\"-2.5\" r=\".8\"/><circle cx=\"3\" cy=\"-2.5\" r=\".8\"/><circle cx=\"0\" cy=\"0\" r=\".8\"/><circle cx=\"-2\" cy=\"2.2\" r=\".8\"/><circle cx=\"2\" cy=\"2.2\" r=\".8\"/></g><path d=\"M-3.4-7 0-5.4 3.4-7 1.7-4.6H-1.7Z\" fill=\"#7FB069\" transform=\"translate(0 -1)\"/>`},\n  mint:{name:'Mint Leaf',draw:()=>`<path d=\"M0 6C-6 3-7-3-3-7-1-5 0-2 0 6Z\" fill=\"#8FBF77\"/><path d=\"M0 6C6 3 7-3 3-7 1-5 0-2 0 6Z\" fill=\"#7BAF62\"/><path d=\"M0-5V5\" stroke=\"#5F9449\" stroke-width=\"1\" stroke-linecap=\"round\"/>`},\n  rose:{name:'Rose Petals',draw:()=>`<circle r=\"5.6\" fill=\"#F9A8C0\"/><path d=\"M0-5.6A5.6 5.6 0 0 1 5.6 0 3.4 3.4 0 0 0 0-3.4 3.4 3.4 0 0 0-5.6 0 5.6 5.6 0 0 1 0-5.6Z\" fill=\"#F58BAD\"/><circle r=\"2.4\" fill=\"#F58BAD\"/><circle r=\"1.1\" fill=\"#E96D96\"/>`},\n  kiwi:{name:'Kiwi',draw:()=>`<circle r=\"6.4\" fill=\"#A5C96B\"/><circle r=\"6.4\" fill=\"none\" stroke=\"#8AB24E\" stroke-width=\"1.4\"/><circle r=\"2.6\" fill=\"#EFF6DC\"/><g fill=\"#3F4A2A\"><circle cx=\"0\" cy=\"-4\" r=\".7\"/><circle cx=\"3.4\" cy=\"-2\" r=\".7\"/><circle cx=\"3.4\" cy=\"2\" r=\".7\"/><circle cx=\"0\" cy=\"4\" r=\".7\"/><circle cx=\"-3.4\" cy=\"2\" r=\".7\"/><circle cx=\"-3.4\" cy=\"-2\" r=\".7\"/></g>`},\n  banana:{name:'Banana Slice',draw:()=>`<circle r=\"6.2\" fill=\"#FBE7A8\"/><circle r=\"6.2\" fill=\"none\" stroke=\"#F0D07E\" stroke-width=\"1.6\"/><circle r=\"2.6\" fill=\"#F5DE9A\"/><g stroke=\"#E8C77A\" stroke-width=\"1\" stroke-linecap=\"round\"><path d=\"M0-2.4 0-5M2.1 1.2 4.3 2.5M-2.1 1.2-4.3 2.5\"/></g>`}\n};\n\n/* ---------- CANDY (multi-select) ---------- */\nconst CANDIES = {\n  gummy:{name:'Gummy Bear',draw:()=>`<g fill=\"#FF9E7D\"><circle cx=\"-3\" cy=\"-5.4\" r=\"2.1\"/><circle cx=\"3\" cy=\"-5.4\" r=\"2.1\"/><circle cx=\"0\" cy=\"-3.4\" r=\"4\"/><rect x=\"-4.4\" y=\"-2\" width=\"8.8\" height=\"8.6\" rx=\"4\"/></g><circle cx=\"-1.4\" cy=\"-3.8\" r=\".6\" fill=\"#B35F41\"/><circle cx=\"1.4\" cy=\"-3.8\" r=\".6\" fill=\"#B35F41\"/>`},\n  candyheart:{name:'Candy Heart',draw:()=>`<path d=\"M0 5C-3.6 2-6 .2-6-2.2-6-4.4-4.3-5.6-2.7-5.6-1.5-5.6-.5-5 0-4 .5-5 1.5-5.6 2.7-5.6 4.3-5.6 6-4.4 6-2.2 6 .2 3.6 2 0 5Z\" fill=\"#FFC2D4\"/><path d=\"M-2.8-1.4H2.8\" stroke=\"#F077A0\" stroke-width=\"1.2\" stroke-linecap=\"round\"/>`},\n  starcandy:{name:'Star Candy',draw:()=>`<path d=\"M0-6.4 1.8-2.1 6.3-1.6 2.9 1.6 3.9 6.2 0 3.8-3.9 6.2-2.9 1.6-6.3-1.6-1.8-2.1Z\" fill=\"#FFCF5E\"/><circle cx=\"-1.2\" cy=\"-1.6\" r=\"1.1\" fill=\"rgba(255,255,255,.55)\"/>`},\n  marshmallow:{name:'Marshmallow',draw:()=>`<rect x=\"-5.4\" y=\"-4.6\" width=\"10.8\" height=\"9.2\" rx=\"3.6\" fill=\"#FFF8F0\"/><rect x=\"-5.4\" y=\"-4.6\" width=\"10.8\" height=\"9.2\" rx=\"3.6\" fill=\"none\" stroke=\"#F3E2D2\" stroke-width=\"1.2\"/><ellipse cx=\"-1.4\" cy=\"-1.8\" rx=\"2\" ry=\"1.2\" fill=\"#fff\"/>`},\n  chocbutton:{name:'Choc Button',draw:()=>`<circle r=\"5.6\" fill=\"#8A5A3B\"/><g fill=\"#FFF3D9\"><circle cx=\"0\" cy=\"-3.4\" r=\".8\"/><circle cx=\"3\" cy=\"-1.6\" r=\".8\"/><circle cx=\"3\" cy=\"1.8\" r=\".8\"/><circle cx=\"0\" cy=\"3.4\" r=\".8\"/><circle cx=\"-3\" cy=\"1.8\" r=\".8\"/><circle cx=\"-3\" cy=\"-1.6\" r=\".8\"/></g>`},\n  jellyring:{name:'Jelly Ring',draw:()=>`<circle r=\"5\" fill=\"none\" stroke=\"#9FD98F\" stroke-width=\"3.4\"/><circle r=\"5\" fill=\"none\" stroke=\"rgba(255,255,255,.4)\" stroke-width=\"1.2\"/>`},\n  cane:{name:'Candy Cane',draw:()=>`<path d=\"M-3 6V-2A5 5 0 0 1 7-2\" fill=\"none\" stroke=\"#E85D6E\" stroke-width=\"3.6\" stroke-linecap=\"round\"/><path d=\"M-3 6V-2A5 5 0 0 1 7-2\" fill=\"none\" stroke=\"#fff\" stroke-width=\"3.6\" stroke-linecap=\"round\" stroke-dasharray=\"3 4\"/>`},\n  lolli:{name:'Lollipop Swirl',draw:()=>`<circle r=\"5.8\" fill=\"#FFD3E3\"/><path d=\"M0 0m-4 0a4 4 0 0 1 8 0 3 3 0 0 1-6 0 2 2 0 0 1 4 0 1 1 0 0 1-2 0\" fill=\"none\" stroke=\"#F077A0\" stroke-width=\"1.5\" stroke-linecap=\"round\"/>`}\n};\n\n/* ---------- EXTRAS (single) ---------- */\nconst EXTRAS = {\n  none:{name:'None',draw:null},\n  bow:{name:'Tiny Bow',pos:[100,26],draw:()=>`<g><path d=\"M0 0-11-6Q-15-8-15-3T-11 4Z\" fill=\"#F58BAD\"/><path d=\"M0 0 11-6Q15-8 15-3T11 4Z\" fill=\"#F58BAD\"/><path d=\"M0 0-11-6Q-13-4-11 4Z\" fill=\"#E96D96\" opacity=\".5\"/><circle r=\"3.4\" fill=\"#E96D96\"/></g>`},\n  ribbon:{name:'Ribbon',pos:[100,168],draw:()=>`<g><rect x=\"-46\" y=\"-6\" width=\"92\" height=\"12\" rx=\"6\" fill=\"#F9A8C0\"/><rect x=\"-46\" y=\"-2\" width=\"92\" height=\"3\" rx=\"1.5\" fill=\"#F58BAD\"/></g>`},\n  crown:{name:'Mini Crown',pos:[100,22],draw:()=>`<g><path d=\"M-13 5-15-8-6-2 0-11 6-2 15-8 13 5Z\" fill=\"#FFCB5C\"/><rect x=\"-13\" y=\"4\" width=\"26\" height=\"4.5\" rx=\"2.2\" fill=\"#F2B23F\"/><circle cx=\"0\" cy=\"-11\" r=\"2\" fill=\"#FF8FA8\"/><circle cx=\"-15\" cy=\"-8\" r=\"1.7\" fill=\"#8FC7F2\"/><circle cx=\"15\" cy=\"-8\" r=\"1.7\" fill=\"#8FC7F2\"/></g>`},\n  butterfly:{name:'Butterfly',pos:[152,52],draw:()=>`<g transform=\"rotate(14)\"><ellipse cx=\"-6\" cy=\"-4\" rx=\"6\" ry=\"7.5\" fill=\"#B8D6F5\" transform=\"rotate(-24 -6 -4)\"/><ellipse cx=\"6\" cy=\"-4\" rx=\"6\" ry=\"7.5\" fill=\"#B8D6F5\" transform=\"rotate(24 6 -4)\"/><ellipse cx=\"-5\" cy=\"4.6\" rx=\"4.4\" ry=\"5.4\" fill=\"#D4E6FA\" transform=\"rotate(-18 -5 4.6)\"/><ellipse cx=\"5\" cy=\"4.6\" rx=\"4.4\" ry=\"5.4\" fill=\"#D4E6FA\" transform=\"rotate(18 5 4.6)\"/><rect x=\"-1.4\" y=\"-6\" width=\"2.8\" height=\"13\" rx=\"1.4\" fill=\"#7B6650\"/><path d=\"M-1-6Q-4-11-5-11M1-6Q4-11 5-11\" stroke=\"#7B6650\" stroke-width=\"1.1\" fill=\"none\" stroke-linecap=\"round\"/></g>`},\n  bee:{name:'Little Bee',pos:[50,48],draw:()=>`<g transform=\"rotate(-12)\"><ellipse cx=\"-4\" cy=\"-6\" rx=\"5\" ry=\"3.6\" fill=\"rgba(200,225,250,.85)\" transform=\"rotate(-30 -4 -6)\"/><ellipse cx=\"4\" cy=\"-6\" rx=\"5\" ry=\"3.6\" fill=\"rgba(200,225,250,.85)\" transform=\"rotate(30 4 -6)\"/><ellipse rx=\"7.5\" ry=\"6\" fill=\"#FFCB5C\"/><path d=\"M-3-5.6V5.6M1-6V6\" stroke=\"#6B4B2A\" stroke-width=\"2.4\" stroke-linecap=\"round\"/><circle cx=\"5.4\" cy=\"-1.6\" r=\".9\" fill=\"#4A3116\"/><path d=\"M6.4 1.4Q7.6 2.2 7.2 3\" stroke=\"#4A3116\" stroke-width=\"1\" fill=\"none\" stroke-linecap=\"round\"/></g>`},\n  catpaw:{name:'Cat Paw',pos:[100,108],draw:()=>`<g fill=\"#F4A9B8\" opacity=\".92\"><ellipse cx=\"0\" cy=\"3.5\" rx=\"8\" ry=\"6.6\"/><ellipse cx=\"-8.4\" cy=\"-4.4\" rx=\"3.2\" ry=\"4\" transform=\"rotate(-18 -8.4 -4.4)\"/><ellipse cx=\"-2.9\" cy=\"-7.4\" rx=\"3.1\" ry=\"4\"/><ellipse cx=\"2.9\" cy=\"-7.4\" rx=\"3.1\" ry=\"4\"/><ellipse cx=\"8.4\" cy=\"-4.4\" rx=\"3.2\" ry=\"4\" transform=\"rotate(18 8.4 -4.4)\"/></g>`},\n  bearface:{name:'Bear Face',pos:[100,104],draw:()=>`<g><ellipse cx=\"0\" cy=\"2.5\" rx=\"9\" ry=\"7\" fill=\"#FBEBD2\"/><circle cx=\"-7.5\" cy=\"-8\" r=\"2.6\" fill=\"#8A5A3B\"/><circle cx=\"7.5\" cy=\"-8\" r=\"2.6\" fill=\"#8A5A3B\"/><circle cx=\"-6\" cy=\"-3.4\" r=\"1.5\" fill=\"#4A3116\"/><circle cx=\"6\" cy=\"-3.4\" r=\"1.5\" fill=\"#4A3116\"/><path d=\"M-1.8 1.2 0 3 1.8 1.2\" fill=\"none\" stroke=\"#4A3116\" stroke-width=\"1.3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><ellipse cx=\"0\" cy=\"-.4\" rx=\"1.9\" ry=\"1.4\" fill=\"#4A3116\"/></g>`},\n  bunnyear:{name:'Bunny Ear',pos:[100,18],draw:()=>`<g><ellipse cx=\"-9\" cy=\"-2\" rx=\"6\" ry=\"14\" fill=\"#FFF3F0\" transform=\"rotate(-12 -9 -2)\"/><ellipse cx=\"9\" cy=\"-2\" rx=\"6\" ry=\"14\" fill=\"#FFF3F0\" transform=\"rotate(12 9 -2)\"/><ellipse cx=\"-9\" cy=\"-1\" rx=\"3\" ry=\"9.5\" fill=\"#FCC9CE\" transform=\"rotate(-12 -9 -1)\"/><ellipse cx=\"9\" cy=\"-1\" rx=\"3\" ry=\"9.5\" fill=\"#FCC9CE\" transform=\"rotate(12 9 -1)\"/></g>`},\n  snowflake:{name:'Snowflake',pos:[146,142],draw:()=>`<g stroke=\"#CFE6F8\" stroke-width=\"2\" stroke-linecap=\"round\"><path d=\"M0-9V9M-7.8-4.5 7.8 4.5M7.8-4.5-7.8 4.5\"/><path d=\"M-2.5-6.5 0-4.5 2.5-6.5M-2.5 6.5 0 4.5 2.5 6.5\" stroke-width=\"1.4\"/></g>`},\n  clover:{name:'Lucky Clover',pos:[58,142],draw:()=>`<g fill=\"#8FBF77\"><circle cx=\"-4\" cy=\"-4\" r=\"4.4\"/><circle cx=\"4\" cy=\"-4\" r=\"4.4\"/><circle cx=\"-4\" cy=\"4\" r=\"4.4\"/><circle cx=\"4\" cy=\"4\" r=\"4.4\"/></g><path d=\"M2 6Q5 10 7 11\" stroke=\"#6E9E58\" stroke-width=\"1.8\" fill=\"none\" stroke-linecap=\"round\"/><circle r=\"1.6\" fill=\"#A8D390\"/>`}\n};\n\n/* ---------- PACKAGING ---------- */\nconst PACKS = {\n  none:{name:'No Wrap'},\n  box:{name:'Bakery Box'},\n  gift:{name:'Gift Box'},\n  bag:{name:'Paper Bag'},\n  ribbonwrap:{name:'Ribbon Wrap'},\n  clear:{name:'Clear Bag'},\n  tray:{name:'Wooden Tray'}\n};\n\n/* =====================================================\n   STATE \u2014 sticker-object model\n   Every topping is an independent object:\n   {id, type, ref, x, y, rot, scale, z, vs?}\n   ===================================================== */\nconst DEFAULTS = {\n  selectedShape:'round',\n  selectedIcing:'strawberry',\n  selectedChocolate:'none',\n  selectedSprinkles:'none',\n  selectedCandy:[],\n  selectedFruit:[],\n  selectedExtras:'none',\n  selectedPackaging:'none',\n  objects:[]\n};\nlet state = JSON.parse(JSON.stringify(DEFAULTS));\nlet zTop = 0, oid = 0;\nconst SAVE_KEY = 'cookieStudioSave';\n\nfunction newObj(type, ref, x, y, scale, extra){\n  return Object.assign({id:'o'+(++oid), type, ref, x, y, rot:0, scale, z:++zTop, fresh:true}, extra||{});\n}\nconst objsOf = t => state.objects.filter(o=>o.type===t);\nconst findObj = id => state.objects.find(o=>o.id===id);\n\nconst FRUIT_SLOTS = [[74,74],[130,80],[100,128],[68,120],[136,126]];\nconst CANDY_SLOTS = [[100,64],[64,96],[140,102],[86,146],[122,150]];\n\n/* =====================================================\n   RENDER\n   ===================================================== */\nconst layers = {\n  base:$('#layerBase'), icing:$('#layerIcing'), driz:$('#layerDrizzle'),\n  objects:$('#layerObjects'), wrapOnBack:$('#wrapOnBack'), wrapOnFront:$('#wrapOnFront')\n};\n\n/* clipPath children MUST be raw shapes \u2014 never <g> (ignored by webviews) */\nfunction setClip(clipEl, shapeId, scale){\n  clipEl.innerHTML='';\n  const preT = scale!==1 ? `translate(100 100) scale(${scale}) translate(-100 -100)` : null;\n  SHAPES[shapeId].els.forEach(e=>clipEl.appendChild(elToNode(e,null,preT)));\n}\n\nfunction renderBase(){\n  const s=state.selectedShape;\n  setClip($('#clipCookie'), s, 1);\n  setClip($('#clipIcing'), s, .82);\n  layers.base.innerHTML='';\n  layers.base.appendChild(shapeGroup(s,'#A97449',1));\n  layers.base.appendChild(shapeGroup(s,'#CE9560',.94));\n  const g=document.createElementNS(SVGNS,'g');\n  g.setAttribute('clip-path','url(#clipCookie)');\n  const rnd=mulberry32(42);\n  let dots='';\n  for(let i=0;i<16;i++){\n    dots+=`<circle cx=\"${20+rnd()*160}\" cy=\"${20+rnd()*160}\" r=\"${1+rnd()*1.4}\" fill=\"rgba(140,90,45,.22)\"/>`;\n  }\n  g.innerHTML=dots;\n  layers.base.appendChild(g);\n}\n\nfunction renderIcing(){\n  const s=state.selectedShape, ic=ICINGS[state.selectedIcing];\n  layers.icing.innerHTML='';\n  const shade=shapeGroup(s,'rgba(120,75,35,.16)',.84);\n  shade.setAttribute('transform', shade.getAttribute('transform')+' translate(0 2.5)');\n  layers.icing.appendChild(shade);\n  layers.icing.appendChild(shapeGroup(s, ic.c, .82));\n  const hl=document.createElementNS(SVGNS,'g');\n  hl.setAttribute('clip-path','url(#clipIcing)');\n  hl.innerHTML=`<ellipse cx=\"76\" cy=\"66\" rx=\"34\" ry=\"18\" fill=\"rgba(255,255,255,.35)\" transform=\"rotate(-18 76 66)\"/>`;\n  layers.icing.appendChild(hl);\n}\n\nfunction objTransform(o){ return `translate(${o.x} ${o.y}) rotate(${o.rot}) scale(${o.scale})`; }\n\n/* chocolate drizzle = one draggable object, clipped to the icing */\nfunction renderDrizzle(animate){\n  layers.driz.innerHTML='';\n  const o = objsOf('drizzle')[0];\n  if(!o) return;\n  const ch=CHOCS[o.ref];\n  if(!ch || !ch.c) return;\n  const rows=[46,72,98,124,150];\n  let paths='', hits='';\n  rows.forEach((y,i)=>{\n    const off=(i%2)*10;\n    const d=`M-6 ${y} q12 ${i%2? -13:13} 24 0 t24 0 t24 0 t24 0 t24 0 t24 0 t24 0`;\n    const tr=`rotate(-14 100 100) translate(${off} 0)`;\n    paths+=`<path d=\"${d}\" fill=\"none\" stroke=\"${ch.c}\" stroke-width=\"6\" stroke-linecap=\"round\" transform=\"${tr}\"/>`;\n    hits +=`<path d=\"${d}\" fill=\"none\" stroke=\"transparent\" stroke-width=\"18\" transform=\"${tr}\"/>`;\n  });\n  /* dark chocolate gets a glossy pass */\n  if(o.ref==='dark'){\n    rows.forEach((y,i)=>{\n      const off=(i%2)*10;\n      paths+=`<path d=\"M-6 ${y-1.4} q12 ${i%2? -13:13} 24 0 t24 0 t24 0 t24 0 t24 0 t24 0 t24 0\" fill=\"none\" stroke=\"rgba(255,255,255,.22)\" stroke-width=\"1.8\" stroke-linecap=\"round\" transform=\"rotate(-14 100 100) translate(${off} 0)\"/>`;\n    });\n  }\n  const g=document.createElementNS(SVGNS,'g');\n  g.setAttribute('data-obj',o.id);\n  g.setAttribute('transform',objTransform(o));\n  g.innerHTML=paths+hits;\n  layers.driz.appendChild(g);\n  if(animate && o.fresh){\n    g.querySelectorAll('path[stroke]:not([stroke=\"transparent\"])').forEach(p=>{\n      const L=p.getTotalLength();\n      p.style.strokeDasharray=L;\n      p.style.strokeDashoffset=L;\n      requestAnimationFrame(()=>requestAnimationFrame(()=>{p.style.strokeDashoffset=0;}));\n    });\n  }\n  o.fresh=false;\n}\n\nfunction objInner(o){\n  if(o.type==='sprinkle'){\n    const rnd=mulberry32(o.vs||1); const ri=n=>Math.floor(rnd()*n);\n    const d=SPR[o.ref] && SPR[o.ref].draw;\n    return d ? d(ri) : '';\n  }\n  if(o.type==='fruit') return FRUITS[o.ref] ? FRUITS[o.ref].draw() : '';\n  if(o.type==='candy') return CANDIES[o.ref] ? CANDIES[o.ref].draw() : '';\n  if(o.type==='extra') return (EXTRAS[o.ref] && EXTRAS[o.ref].draw) ? EXTRAS[o.ref].draw() : '';\n  return '';\n}\n\nfunction renderObjects(){\n  layers.objects.innerHTML='';\n  const list = state.objects.filter(o=>o.type!=='drizzle').sort((a,b)=>a.z-b.z);\n  let stagger=0;\n  list.forEach(o=>{\n    const g=document.createElementNS(SVGNS,'g');\n    g.setAttribute('data-obj',o.id);\n    g.setAttribute('transform',objTransform(o));\n    const hitR = o.type==='sprinkle' ? 9 : 13;\n    let html = `<circle class=\"hit\" r=\"${hitR}\" fill=\"transparent\"/>` + objInner(o);\n    if(o.fresh){\n      html = `<g class=\"popin\" style=\"animation-delay:${stagger*14}ms\">${html}</g>`;\n      stagger++; o.fresh=false;\n    }\n    g.innerHTML=html;\n    layers.objects.appendChild(g);\n  });\n}\n\n/* ---------- packaging: proper layer order ---------- */\nconst GROUNDED = ['box','gift','bag','tray'];\nfunction renderPackaging(){\n  const back=$('#wrapBack'), front=$('#wrapFront'), plate=$('#plate');\n  const onBack=layers.wrapOnBack, onFront=layers.wrapOnFront;\n  back.innerHTML=''; front.innerHTML=''; onBack.innerHTML=''; onFront.innerHTML='';\n  const p=state.selectedPackaging;\n  plate.style.display = (p==='tray'||p==='bag'||p==='box'||p==='gift') ? 'none' : '';\n  $('#scene').classList.toggle('grounded', GROUNDED.includes(p));\n\n  if(p==='box'){\n    /* back walls behind cookie, tall front wall in front -> cookie sits inside */\n    back.innerHTML=`\n      <g class=\"popin\">\n        <path d=\"M34 150 12 96 Q10 88 20 90 L58 128Z\" fill=\"#EFCF9C\"/>\n        <path d=\"M226 150 248 96 Q250 88 240 90 L202 128Z\" fill=\"#EFCF9C\"/>\n        <rect x=\"34\" y=\"118\" width=\"192\" height=\"136\" rx=\"16\" fill=\"#F3D9AE\"/>\n        <rect x=\"46\" y=\"130\" width=\"168\" height=\"112\" rx=\"12\" fill=\"#FBEAC9\"/>\n      </g>`;\n    front.innerHTML=`\n      <g class=\"popin\">\n        <rect x=\"34\" y=\"204\" width=\"192\" height=\"56\" rx=\"14\" fill=\"#F3D9AE\"/>\n        <rect x=\"34\" y=\"204\" width=\"192\" height=\"8\" rx=\"4\" fill=\"#E5BF85\"/>\n        <path d=\"M100 232 H160 L150 254 H110 Z\" fill=\"#F0A96B\"/>\n      </g>`;\n  }\n  else if(p==='gift'){\n    back.innerHTML=`\n      <g class=\"popin\">\n        <rect x=\"42\" y=\"122\" width=\"176\" height=\"132\" rx=\"18\" fill=\"#FBD9DF\"/>\n        <rect x=\"120\" y=\"122\" width=\"20\" height=\"132\" fill=\"#F58BAD\"/>\n        <g transform=\"translate(130 116)\">\n          <path d=\"M0 0-16-10Q-22-13-22-5T-16 6Z\" fill=\"#F58BAD\"/>\n          <path d=\"M0 0 16-10Q22-13 22-5T16 6Z\" fill=\"#F58BAD\"/>\n          <circle r=\"5\" fill=\"#E96D96\"/>\n        </g>\n      </g>`;\n    front.innerHTML=`\n      <g class=\"popin\">\n        <rect x=\"42\" y=\"206\" width=\"176\" height=\"52\" rx=\"14\" fill=\"#FBD9DF\"/>\n        <rect x=\"42\" y=\"206\" width=\"176\" height=\"8\" rx=\"4\" fill=\"#F7C9D2\"/>\n        <rect x=\"120\" y=\"206\" width=\"20\" height=\"52\" fill=\"#F077A0\"/>\n      </g>`;\n  }\n  else if(p==='bag'){\n    /* bag front covers the lower half of the real cookie */\n    front.innerHTML=`\n      <g class=\"popin\">\n        <path d=\"M50 152 H210 L200 268 Q199 278 188 278 H72 Q61 278 60 268 Z\" fill=\"url(#kraftGrad)\"/>\n        <path d=\"M50 152 H210 L207.6 180 H52.4Z\" fill=\"#CDA671\"/>\n        <path d=\"M92 208 Q130 194 168 208\" fill=\"none\" stroke=\"#B98F58\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-dasharray=\"1 7\"/>\n        <path d=\"M78 246 Q130 236 182 246\" fill=\"none\" stroke=\"rgba(120,85,40,.18)\" stroke-width=\"2.4\" stroke-linecap=\"round\"/>\n      </g>`;\n  }\n  else if(p==='ribbonwrap'){\n    /* wraps AROUND the cookie: tails behind, band clipped to cookie, bow on the edge */\n    onBack.innerHTML=`\n      <g class=\"popin\">\n        <rect x=\"-26\" y=\"92\" width=\"60\" height=\"18\" rx=\"9\" fill=\"#F9A8C0\" transform=\"rotate(-9 4 101)\"/>\n        <rect x=\"166\" y=\"76\" width=\"60\" height=\"18\" rx=\"9\" fill=\"#F9A8C0\" transform=\"rotate(-9 196 85)\"/>\n      </g>`;\n    onFront.innerHTML=`\n      <g class=\"popin\">\n        <g clip-path=\"url(#clipCookie)\">\n          <rect x=\"-30\" y=\"86\" width=\"260\" height=\"20\" rx=\"10\" fill=\"#F9A8C0\" transform=\"rotate(-9 100 96)\"/>\n          <rect x=\"-30\" y=\"93\" width=\"260\" height=\"4\" rx=\"2\" fill=\"#F58BAD\" transform=\"rotate(-9 100 96)\"/>\n        </g>\n        <g transform=\"translate(168 76) rotate(-9)\">\n          <path d=\"M0 0-15-9Q-21-12-21-4T-15 6Z\" fill=\"#F58BAD\"/>\n          <path d=\"M0 0 15-9Q21-12 21-4T15 6Z\" fill=\"#F58BAD\"/>\n          <circle r=\"4.6\" fill=\"#E96D96\"/>\n        </g>\n      </g>`;\n  }\n  else if(p==='clear'){\n    /* bag lives in cookie space so the cookie floats with it, fully behind the plastic */\n    onFront.innerHTML=`\n      <g class=\"popin\">\n        <path d=\"M86-22 Q100-30 114-22 L110-8 H90Z\" fill=\"#F9A8C0\"/>\n        <rect x=\"-16\" y=\"-14\" width=\"232\" height=\"230\" rx=\"30\" fill=\"rgba(255,255,255,.32)\" stroke=\"rgba(255,255,255,.85)\" stroke-width=\"2.5\"/>\n        <path d=\"M4 8 Q12 100 4 196\" stroke=\"rgba(255,255,255,.75)\" stroke-width=\"7\" fill=\"none\" stroke-linecap=\"round\"/>\n        <path d=\"M196 20 Q190 100 196 184\" stroke=\"rgba(255,255,255,.5)\" stroke-width=\"5\" fill=\"none\" stroke-linecap=\"round\"/>\n        <rect x=\"78\" y=\"-18\" width=\"44\" height=\"10\" rx=\"5\" fill=\"#F58BAD\"/>\n      </g>`;\n  }\n  else if(p==='tray'){\n    back.innerHTML=`\n      <g class=\"popin\">\n        <ellipse cx=\"130\" cy=\"258\" rx=\"104\" ry=\"30\" fill=\"#8F6236\"/>\n        <ellipse cx=\"130\" cy=\"252\" rx=\"104\" ry=\"30\" fill=\"url(#woodGrad)\"/>\n        <ellipse cx=\"130\" cy=\"252\" rx=\"84\" ry=\"21\" fill=\"#B4855A\"/>\n        <path d=\"M60 250 Q130 236 200 250\" stroke=\"rgba(120,75,35,.35)\" stroke-width=\"2.5\" fill=\"none\"/>\n        <path d=\"M70 259 Q130 248 190 259\" stroke=\"rgba(120,75,35,.28)\" stroke-width=\"2\" fill=\"none\"/>\n      </g>`;\n  }\n}\n\nfunction renderCookie(opts={}){\n  renderBase();\n  renderIcing();\n  renderDrizzle(opts.drizzle);\n  renderObjects();\n  renderPackaging();\n}\n\n/* =====================================================\n   SELECTION -> OBJECTS\n   ===================================================== */\nfunction setChocolate(id){\n  state.selectedChocolate=id;\n  state.objects = state.objects.filter(o=>o.type!=='drizzle');\n  if(CHOCS[id] && CHOCS[id].c){\n    state.objects.push(newObj('drizzle', id, 0, 0, 1));\n  }\n}\nfunction setSprinkles(id){\n  state.selectedSprinkles=id;\n  state.objects = state.objects.filter(o=>o.type!=='sprinkle');\n  const sp=SPR[id];\n  if(!sp || !sp.draw) return;\n  const rnd=mulberry32(Math.floor(Math.random()*99999)+1);\n  const count = id==='gold' ? 40 : 26;\n  for(let i=0;i<count;i++){\n    const o=newObj('sprinkle', id, 34+rnd()*132, 34+rnd()*132, 1,\n      {vs:Math.floor(rnd()*99999)+1});\n    o.rot=Math.floor(rnd()*360);\n    state.objects.push(o);\n  }\n}\nfunction toggleTopping(type, id){\n  const dict = type==='fruit'?FRUITS:CANDIES;\n  const slots = type==='fruit'?FRUIT_SLOTS:CANDY_SLOTS;\n  const key = type==='fruit'?'selectedFruit':'selectedCandy';\n  const has = state[key].includes(id);\n  if(has){\n    state[key]=state[key].filter(x=>x!==id);\n    state.objects=state.objects.filter(o=>!(o.type===type&&o.ref===id));\n  }else{\n    if(state[key].length>=5){\n      const drop=state[key].shift();\n      state.objects=state.objects.filter(o=>!(o.type===type&&o.ref===drop));\n    }\n    state[key].push(id);\n    const idx=objsOf(type).length;\n    const [x,y]=slots[idx%slots.length];\n    state.objects.push(newObj(type, id, x+(idx>=slots.length?10:0), y+(idx>=slots.length?8:0), 1.35));\n  }\n}\nfunction setExtra(id){\n  state.selectedExtras=id;\n  state.objects=state.objects.filter(o=>o.type!=='extra');\n  const ex=EXTRAS[id];\n  if(ex && ex.draw){\n    state.objects.push(newObj('extra', id, ex.pos[0], ex.pos[1], 1.35));\n  }\n}\n\n/* =====================================================\n   DRAG / PINCH ENGINE (sticker editor)\n   ===================================================== */\nconst scene=$('#scene'), cookieRoot=$('#cookieRoot');\nconst ptrs=new Map();\nlet dragCtx=null; // {o, node, mode, ...}\n\nfunction toLocal(e){\n  const pt=scene.createSVGPoint();\n  pt.x=e.clientX; pt.y=e.clientY;\n  return pt.matrixTransform(cookieRoot.getScreenCTM().inverse());\n}\nfunction nodeOf(o){ return scene.querySelector(`[data-obj=\"${o.id}\"]`); }\nfunction applyObj(o){\n  const n=dragCtx && dragCtx.o===o ? dragCtx.node : nodeOf(o);\n  if(n) n.setAttribute('transform', objTransform(o));\n}\nfunction bringToFront(o, node){\n  o.z=++zTop;\n  if(o.type!=='drizzle' && node && node.parentNode) node.parentNode.appendChild(node);\n}\nfunction startGesture(o){\n  if(ptrs.size>=2){\n    const [a,b]=[...ptrs.values()];\n    dragCtx.g={d:Math.max(8,Math.hypot(b.x-a.x,b.y-a.y)),\n      a:Math.atan2(b.y-a.y,b.x-a.x), rot:o.rot, scale:o.scale, mode:'pinch'};\n  }else{\n    const p=[...ptrs.values()][0];\n    dragCtx.g={ox:o.x-p.x, oy:o.y-p.y, mode:'pan'};\n  }\n}\n\nscene.addEventListener('pointerdown', e=>{\n  const t=e.target.closest('[data-obj]');\n  if(!t) return;\n  const o=findObj(t.getAttribute('data-obj'));\n  if(!o) return;\n  e.preventDefault();\n  scene.setPointerCapture(e.pointerId);\n  ptrs.set(e.pointerId, toLocal(e));\n  if(!dragCtx || dragCtx.o!==o){\n    dragCtx={o, node:t};\n    bringToFront(o,t);\n  }\n  t.classList.add('drag-active');\n  scene.classList.add('dragging');\n  startGesture(o);\n});\n\nscene.addEventListener('pointermove', e=>{\n  if(!dragCtx || !ptrs.has(e.pointerId)) return;\n  e.preventDefault();\n  ptrs.set(e.pointerId, toLocal(e));\n  const o=dragCtx.o, g=dragCtx.g;\n  if(g.mode==='pinch' && ptrs.size>=2){\n    const [a,b]=[...ptrs.values()];\n    const d2=Math.max(8,Math.hypot(b.x-a.x,b.y-a.y));\n    const a2=Math.atan2(b.y-a.y,b.x-a.x);\n    o.scale=Math.min(2.6, Math.max(.45, g.scale*d2/g.d));\n    o.rot=g.rot+(a2-g.a)*180/Math.PI;\n  }else if(g.mode==='pan'){\n    const p=[...ptrs.values()][0];\n    o.x=p.x+g.ox; o.y=p.y+g.oy;\n  }\n  applyObj(o);\n});\n\nfunction endPointer(e){\n  if(!ptrs.has(e.pointerId)) return;\n  ptrs.delete(e.pointerId);\n  if(!dragCtx) return;\n  if(ptrs.size>0){ startGesture(dragCtx.o); return; }\n  dragCtx.node.classList.remove('drag-active');\n  scene.classList.remove('dragging');\n  dragCtx=null;\n  playSound('pop');\n}\nscene.addEventListener('pointerup', endPointer);\nscene.addEventListener('pointercancel', endPointer);\n\n/* =====================================================\n   CATEGORY CHIPS + PANELS (same UI, new handlers)\n   ===================================================== */\nconst chipIcon = {\n  shape:`<svg viewBox=\"0 0 24 24\"><circle class=\"st\" cx=\"12\" cy=\"12\" r=\"8.2\"/><circle cx=\"9\" cy=\"9.5\" r=\"1.3\" fill=\"currentColor\"/><circle cx=\"14.6\" cy=\"13.6\" r=\"1.3\" fill=\"currentColor\"/><circle cx=\"10.6\" cy=\"15\" r=\"1\" fill=\"currentColor\"/></svg>`,\n  icing:`<svg viewBox=\"0 0 24 24\"><path class=\"st\" d=\"M12 3.5C8.5 8 6.5 11 6.5 14a5.5 5.5 0 0 0 11 0c0-3-2-6-5.5-10.5Z\"/></svg>`,\n  chocolate:`<svg viewBox=\"0 0 24 24\"><path class=\"st\" d=\"M4 8q4-4 8 0t8 0M4 13q4-4 8 0t8 0M4 18q4-4 8 0t8 0\"/></svg>`,\n  sprinkles:`<svg viewBox=\"0 0 24 24\"><g class=\"st\"><path d=\"M5 7l3 2M16 5l3 2M10 12l3 1.5M5 17l3 1M17 15l3 2M11 19h3\"/></g></svg>`,\n  candy:`<svg viewBox=\"0 0 24 24\"><circle class=\"st\" cx=\"12\" cy=\"12\" r=\"4.6\"/><path class=\"st\" d=\"M16 9.5 20 6l-1 4 4-1-3.5 4M8 14.5 4 18l1-4-4 1 3.5-4\" transform=\"scale(.9) translate(1.3 1.3)\"/></svg>`,\n  fruit:`<svg viewBox=\"0 0 24 24\"><circle class=\"st\" cx=\"9\" cy=\"14\" r=\"4.4\"/><circle class=\"st\" cx=\"15.5\" cy=\"15\" r=\"4.4\"/><path class=\"st\" d=\"M9 9.6Q11 4 16 4M15.5 10.6Q15 5.5 16 4\"/></svg>`,\n  extras:`<svg viewBox=\"0 0 24 24\"><path class=\"st\" d=\"M12 12 5.5 8.2Q3.5 7 3.5 9.5t2 4.3L12 12l6.5-3.8q2-1.2 2 1.3t-2 4.3Z\"/><circle cx=\"12\" cy=\"12\" r=\"1.8\" fill=\"currentColor\"/></svg>`,\n  packaging:`<svg viewBox=\"0 0 24 24\"><rect class=\"st\" x=\"4\" y=\"8\" width=\"16\" height=\"12\" rx=\"3\"/><path class=\"st\" d=\"M4 12h16M12 8v12M8.5 8 12 4l3.5 4\"/></svg>`\n};\n\nconst CATS = [\n  {id:'shape', name:'Shape', hint:'Pick a cookie cutter'},\n  {id:'icing', name:'Icing', hint:'Flooded icing flavor'},\n  {id:'chocolate', name:'Chocolate', hint:'Drizzle on top'},\n  {id:'sprinkles', name:'Sprinkles', hint:'Shake shake shake'},\n  {id:'candy', name:'Candy', hint:'Tap to add, drag to place'},\n  {id:'fruit', name:'Fruit', hint:'Tap to add, drag to place'},\n  {id:'extras', name:'Extras', hint:'One cute finishing touch'},\n  {id:'packaging', name:'Packaging', hint:'Ready to gift'}\n];\nlet activeCat='shape';\n\nfunction buildChips(){\n  const nav=$('#chips');\n  nav.innerHTML='';\n  CATS.forEach(c=>{\n    const b=document.createElement('button');\n    b.className='chip'+(c.id===activeCat?' active':'');\n    b.innerHTML = chipIcon[c.id] + c.name;\n    b.onclick=(ev)=>{ ripple(b,ev); playSound('click'); activeCat=c.id; buildChips(); buildPanel();\n      nav.querySelector('.chip.active')?.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'}); };\n    nav.appendChild(b);\n  });\n}\n\nconst TICK=`<span class=\"tick\"><svg viewBox=\"0 0 10 10\"><path d=\"M1.5 5.5 4 8 8.5 2.5\" stroke=\"#fff\" stroke-width=\"2\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg></span>`;\n\nfunction miniSVG(inner, vb='-10 -10 20 20'){ return `<svg viewBox=\"${vb}\">${inner}</svg>`; }\nfunction sprMini(id){\n  if(!SPR[id].draw) return `<svg viewBox=\"-10 -10 20 20\"><circle r=\"7\" fill=\"none\" stroke=\"#E8D6BC\" stroke-width=\"1.6\" stroke-dasharray=\"3 3\"/></svg>`;\n  const rnd=mulberry32(id.length*13+5); const ri=n=>Math.floor(rnd()*n);\n  let s='';\n  [[-4,-3,20],[4,-4,-30],[-3,4,60],[4,4,10],[0,0,-15]].forEach(([x,y,r])=>{\n    s+=`<g transform=\"translate(${x} ${y}) rotate(${r}) scale(.9)\">${SPR[id].draw(ri)}</g>`;\n  });\n  return miniSVG(s,'-10 -10 20 20');\n}\nfunction noneMini(){ return `<svg viewBox=\"-10 -10 20 20\"><circle r=\"7\" fill=\"none\" stroke=\"#E8D6BC\" stroke-width=\"1.6\" stroke-dasharray=\"3 3\"/><path d=\"M-3 3 3-3\" stroke=\"#E8D6BC\" stroke-width=\"1.6\" stroke-linecap=\"round\"/></svg>`; }\n\nfunction optCard(sel, name, thumb, onClick){\n  const b=document.createElement('button');\n  b.className='opt'+(sel?' sel':'');\n  b.innerHTML=`<span class=\"th\">${thumb}</span><span class=\"nm\">${name}</span>${TICK}`;\n  b.onclick=(ev)=>{ ripple(b,ev); onClick(); };\n  return b;\n}\n\nfunction buildPanel(){\n  const cat=CATS.find(c=>c.id===activeCat);\n  $('#panelName').textContent=cat.name;\n  $('#panelHint').textContent=cat.hint;\n  const p=$('#panel');\n  p.innerHTML='';\n  p.classList.remove('panel'); void p.offsetWidth; p.classList.add('panel');\n\n  if(activeCat==='shape'){\n    const g=document.createElement('div'); g.className='grid';\n    Object.keys(SHAPES).forEach(id=>{\n      g.appendChild(optCard(state.selectedShape===id, SHAPES[id].name,\n        shapeMiniSVG(id,'#CE9560','#A97449'),\n        ()=>{ state.selectedShape=id; playSound('pop'); renderCookie(); buildPanel(); }));\n    });\n    p.appendChild(g);\n  }\n  else if(activeCat==='icing'){\n    const w=document.createElement('div'); w.className='swatches';\n    Object.keys(ICINGS).forEach(id=>{\n      const wrap=document.createElement('div'); wrap.className='swrap';\n      const b=document.createElement('button');\n      b.className='swatch'+(state.selectedIcing===id?' sel':'');\n      b.style.background=ICINGS[id].c;\n      b.innerHTML=`<span class=\"lbl\">${ICINGS[id].name}</span>`;\n      b.onclick=()=>{ state.selectedIcing=id; playSound('pop'); renderCookie(); buildPanel(); };\n      wrap.appendChild(b); w.appendChild(wrap);\n    });\n    p.appendChild(w);\n  }\n  else if(activeCat==='chocolate'){\n    const g=document.createElement('div'); g.className='grid wide';\n    Object.keys(CHOCS).forEach(id=>{\n      const c=CHOCS[id];\n      const thumb = c.c\n        ? miniSVG(`<circle r=\"8.4\" fill=\"#FBE9C6\"/><path d=\"M-7-3q3-3 6 0t6 0M-7 2q3-3 6 0t6 0M-6 6.4q3-3 6 0t5 0\" fill=\"none\" stroke=\"${c.c}\" stroke-width=\"1.9\" stroke-linecap=\"round\"/>`)\n        : noneMini();\n      g.appendChild(optCard(state.selectedChocolate===id, c.name, thumb,\n        ()=>{ setChocolate(id); playSound('pop'); renderCookie({drizzle:true}); buildPanel(); }));\n    });\n    p.appendChild(g);\n  }\n  else if(activeCat==='sprinkles'){\n    const g=document.createElement('div'); g.className='grid';\n    Object.keys(SPR).forEach(id=>{\n      g.appendChild(optCard(state.selectedSprinkles===id, SPR[id].name, sprMini(id),\n        ()=>{ setSprinkles(id); playSound('sprinkle'); renderCookie(); buildPanel(); }));\n    });\n    p.appendChild(g);\n  }\n  else if(activeCat==='candy' || activeCat==='fruit'){\n    const dict = activeCat==='candy'?CANDIES:FRUITS;\n    const key = activeCat==='candy'?'selectedCandy':'selectedFruit';\n    const g=document.createElement('div'); g.className='grid';\n    Object.keys(dict).forEach(id=>{\n      const on=state[key].includes(id);\n      g.appendChild(optCard(on, dict[id].name, miniSVG(`<g>${dict[id].draw()}</g>`),\n        ()=>{ toggleTopping(activeCat,id); playSound('pop'); renderCookie(); buildPanel(); }));\n    });\n    p.appendChild(g);\n  }\n  else if(activeCat==='extras'){\n    const g=document.createElement('div'); g.className='grid';\n    Object.keys(EXTRAS).forEach(id=>{\n      const ex=EXTRAS[id];\n      g.appendChild(optCard(state.selectedExtras===id, ex.name,\n        ex.draw?miniSVG(`<g transform=\"scale(.62)\">${ex.draw()}</g>`):noneMini(),\n        ()=>{ setExtra(id); playSound('pop'); renderCookie(); buildPanel(); }));\n    });\n    p.appendChild(g);\n  }\n  else if(activeCat==='packaging'){\n    const thumbs={\n      none:noneMini(),\n      box:miniSVG(`<rect x=\"-8\" y=\"-4\" width=\"16\" height=\"11\" rx=\"2.5\" fill=\"#F3D9AE\"/><rect x=\"-8\" y=\"-4\" width=\"16\" height=\"3\" fill=\"#EFCF9C\"/><path d=\"M-4-4 0-8.5 4-4\" fill=\"none\" stroke=\"#E5BF85\" stroke-width=\"1.6\" stroke-linecap=\"round\"/>`),\n      gift:miniSVG(`<rect x=\"-8\" y=\"-4\" width=\"16\" height=\"11\" rx=\"2.5\" fill=\"#FBD9DF\"/><rect x=\"-1.5\" y=\"-4\" width=\"3\" height=\"11\" fill=\"#F58BAD\"/><circle cx=\"0\" cy=\"-5.4\" r=\"2\" fill=\"#F58BAD\"/>`),\n      bag:miniSVG(`<path d=\"M-7-6H7L5.6 7Q5.4 8.5 4 8.5H-4Q-5.4 8.5-5.6 7Z\" fill=\"#E0BC85\"/><path d=\"M-7-6H7L6.7-3H-6.7Z\" fill=\"#CDA671\"/>`),\n      ribbonwrap:miniSVG(`<circle r=\"7.4\" fill=\"#CE9560\"/><rect x=\"-10\" y=\"-1.8\" width=\"20\" height=\"3.6\" rx=\"1.8\" fill=\"#F9A8C0\"/><circle cx=\"0\" cy=\"-3.4\" r=\"1.6\" fill=\"#F58BAD\"/>`),\n      clear:miniSVG(`<rect x=\"-6\" y=\"-7\" width=\"12\" height=\"15\" rx=\"3\" fill=\"rgba(190,215,240,.45)\" stroke=\"#D6E4F2\" stroke-width=\"1.2\"/><rect x=\"-2.6\" y=\"-8.4\" width=\"5.2\" height=\"2\" rx=\"1\" fill=\"#F58BAD\"/>`),\n      tray:miniSVG(`<ellipse cx=\"0\" cy=\"2\" rx=\"9\" ry=\"4.6\" fill=\"#A97B4C\"/><ellipse cx=\"0\" cy=\"1\" rx=\"7\" ry=\"3.2\" fill=\"#C89A6A\"/>`)\n    };\n    const g=document.createElement('div'); g.className='grid wide';\n    Object.keys(PACKS).forEach(id=>{\n      g.appendChild(optCard(state.selectedPackaging===id, PACKS[id].name, thumbs[id],\n        ()=>{ state.selectedPackaging=id; playSound('pop'); renderCookie(); buildPanel(); }));\n    });\n    p.appendChild(g);\n  }\n}\n\n/* =====================================================\n   ACTIONS\n   ===================================================== */\nfunction ripple(el,ev){\n  const r=el.getBoundingClientRect();\n  const s=document.createElement('span');\n  s.className='rip';\n  const d=Math.max(r.width,r.height);\n  s.style.width=s.style.height=d+'px';\n  const x=(ev&&ev.clientX?ev.clientX-r.left:r.width/2)-d/2;\n  const y=(ev&&ev.clientY?ev.clientY-r.top:r.height/2)-d/2;\n  s.style.left=x+'px'; s.style.top=y+'px';\n  el.appendChild(s);\n  setTimeout(()=>s.remove(),520);\n}\ndocument.querySelectorAll('.icon-btn,.act').forEach(b=>{\n  b.addEventListener('pointerdown',ev=>ripple(b,ev));\n});\n\n$('#btnReset').onclick=()=>{\n  playSound('click');\n  state=JSON.parse(JSON.stringify(DEFAULTS));\n  zTop=0; oid=0;\n  renderCookie({drizzle:true});\n  buildPanel();\n};\n\nfunction pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }\n$('#btnRandom').onclick=()=>{\n  playSound('sprinkle');\n  state=JSON.parse(JSON.stringify(DEFAULTS));\n  zTop=0;\n  state.selectedShape=pick(Object.keys(SHAPES));\n  state.selectedIcing=pick(Object.keys(ICINGS));\n  setChocolate(pick(Object.keys(CHOCS)));\n  setSprinkles(pick(Object.keys(SPR)));\n  [...Object.keys(FRUITS)].sort(()=>Math.random()-.5).slice(0,Math.floor(Math.random()*3))\n    .forEach(id=>toggleTopping('fruit',id));\n  [...Object.keys(CANDIES)].sort(()=>Math.random()-.5).slice(0,Math.floor(Math.random()*3))\n    .forEach(id=>toggleTopping('candy',id));\n  setExtra(pick(Object.keys(EXTRAS)));\n  state.selectedPackaging=Math.random()<.5?'none':pick(Object.keys(PACKS));\n  renderCookie({drizzle:true});\n  buildPanel();\n};\n\n/* =====================================================\n   SAVE / RESTORE \u2014 full snapshot incl. every object's\n   x, y, rotation, scale and layer order (z)\n   ===================================================== */\nfunction serialize(){\n  return JSON.stringify({v:2, savedAt:Date.now(), state});\n}\nfunction persist(){\n  try{ localStorage.setItem(SAVE_KEY, serialize()); }catch(e){}\n  try{ window.Telegram?.WebApp?.CloudStorage?.setItem?.(SAVE_KEY, serialize(), ()=>{}); }catch(e){}\n}\nfunction restore(){\n  let raw=null;\n  try{ raw=localStorage.getItem(SAVE_KEY); }catch(e){}\n  if(!raw) return false;\n  try{\n    const data=JSON.parse(raw);\n    if(!data || !data.state) return false;\n    state=Object.assign(JSON.parse(JSON.stringify(DEFAULTS)), data.state);\n    if(!Array.isArray(state.objects)) state.objects=[];\n    state.objects.forEach(o=>{\n      o.fresh=false;\n      zTop=Math.max(zTop, o.z||0);\n      const n=parseInt(String(o.id).slice(1),10);\n      if(!isNaN(n)) oid=Math.max(oid,n);\n    });\n    return true;\n  }catch(e){ return false; }\n}\n\nlet saving=false;\n$('#btnSave').onclick=()=>{\n  if(saving) return;\n  saving=true;\n  playSound('save');\n  const sceneEl=$('#scene');\n  sceneEl.classList.add('saving');\n  burstConfetti();\n  // Jika berjalan di dalam host Carpets, minta host tampilkan popup (Simpan/Kirim/Batal).\n  var embedded=false;\n  try{ embedded = window.parent && window.parent!==window; }catch(e){ embedded=false; }\n  if(embedded){\n    try{ window.parent.postMessage({type:'ccSaveClicked'},'*'); }catch(e){}\n    setTimeout(()=>{ sceneEl.classList.remove('saving'); saving=false; },700);\n    return;\n  }\n  // Mode standalone: simpan lokal seperti semula.\n  persist();\n  setTimeout(()=>{\n    $('#toast').classList.add('show');\n    setTimeout(()=>{ $('#toast').classList.remove('show'); sceneEl.classList.remove('saving'); saving=false; },1400);\n  },260);\n};\n\nfunction burstConfetti(){\n  const stage=$('#stage');\n  const r=stage.getBoundingClientRect();\n  const cols=['#FF9E7D','#FFD066','#9FD98F','#8FC7F2','#F6A6E0','#F58BAD'];\n  for(let i=0;i<26;i++){\n    const c=document.createElement('span');\n    c.className='confetti'+(Math.random()<.4?' dot':'');\n    c.style.background=cols[i%cols.length];\n    c.style.left=r.width/2+'px';\n    c.style.top=r.height*0.42+'px';\n    const ang=Math.random()*Math.PI*2, dist=60+Math.random()*110;\n    c.style.setProperty('--dx',Math.cos(ang)*dist+'px');\n    c.style.setProperty('--dy',(Math.sin(ang)*dist-40)+'px');\n    c.style.setProperty('--rot',(Math.random()*540-270)+'deg');\n    stage.appendChild(c);\n    setTimeout(()=>c.remove(),1000);\n  }\n}\n\n$('#btnBack').onclick=()=>{ playSound('click');\n  if(window.Telegram?.WebApp?.close) window.Telegram.WebApp.close(); };\n$('#btnSettings').onclick=()=>playSound('click');\n\n/* =====================================================\n   AMBIENT: flour + sparkles\n   ===================================================== */\n(function ambient(){\n  const box=$('#ambient');\n  for(let i=0;i<12;i++){\n    const f=document.createElement('span');\n    f.className='flour';\n    const s=3+Math.random()*5;\n    f.style.width=f.style.height=s+'px';\n    f.style.left=(4+Math.random()*92)+'%';\n    f.style.animationDuration=(9+Math.random()*9)+'s';\n    f.style.animationDelay=(-Math.random()*14)+'s';\n    box.appendChild(f);\n  }\n  for(let i=0;i<7;i++){\n    const s=document.createElement('span');\n    s.className='spark';\n    s.style.left=(6+Math.random()*88)+'%';\n    s.style.top=(6+Math.random()*52)+'%';\n    s.style.transform=`scale(${.5+Math.random()*.7})`;\n    s.style.animationDuration=(2.4+Math.random()*2.6)+'s';\n    s.style.animationDelay=(-Math.random()*4)+'s';\n    box.appendChild(s);\n  }\n})();\n\n/* =====================================================\n   BOOT \u2014 restore last saved cookie exactly\n   ===================================================== */\ntry{ window.Telegram?.WebApp?.expand?.(); window.Telegram?.WebApp?.ready?.(); }catch(e){}\nrestore();\nbuildChips();\nbuildPanel();\nrenderCookie({drizzle:true});\n\n/* ==== Carpets bridge: ekspor cookie ke host (tanpa mengubah editor) ==== */\nfunction ccBuildSceneSVG(){\n  // bungkus isi #scene dalam <svg> standalone dgn viewBox sama\n  var sc = $('#scene');\n  var inner = sc.innerHTML;\n  return '<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 260 310\">' + inner + '</svg>';\n}\nfunction ccCountItems(){\n  var n = state.objects ? state.objects.length : 0;\n  if(state.selectedChocolate && state.selectedChocolate!=='none') n++;\n  if(state.selectedSprinkles && state.selectedSprinkles!=='none') n++;\n  if(state.selectedExtras && state.selectedExtras!=='none') n++;\n  return n;\n}\nwindow.addEventListener('message', function(e){\n  var d = e.data || {};\n  if(d.type !== 'ccExport') return;\n  try{\n    // SVG lengkap (dgn packaging apa adanya)\n    var svgFull = ccBuildSceneSVG();\n    // SVG cookie-only: sembunyikan packaging sementara, render ulang, ambil, lalu pulihkan\n    var prevPack = state.selectedPackaging;\n    state.selectedPackaging = 'none';\n    renderCookie();\n    var svgCookie = ccBuildSceneSVG();\n    state.selectedPackaging = prevPack;\n    renderCookie();\n    var count = ccCountItems();\n    parent.postMessage({\n      type:'ccExportResult',\n      svgFull: svgFull,\n      svgCookie: svgCookie,\n      state: JSON.parse(JSON.stringify(state)),\n      count: count\n    }, '*');\n  }catch(err){\n    parent.postMessage({ type:'ccExportResult', error:String(err) }, '*');\n  }\n});\n<\/script>\n</body>\n</html>\n";
+window.CCOOKIE=(function(){
+const PRICE=200;
+const IC={
+ back:'<svg viewBox="0 0 24 24"><path d="M14.5 5.5L8 12l6.5 6.5" fill="none" stroke="#6b4423" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+ coin:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4" fill="#ffd75e" stroke="#c8901f" stroke-width="1.9"/><circle cx="12" cy="12" r="5.4" fill="none" stroke="#e8b23a" stroke-width="1.5"/></svg>',
+ cookie:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6" fill="#d9a05b" stroke="#a86e35" stroke-width="1.7"/><circle cx="9" cy="9.5" r="1.4" fill="#6b4423"/><circle cx="14.5" cy="8.8" r="1.2" fill="#6b4423"/><circle cx="15.2" cy="14" r="1.5" fill="#6b4423"/><circle cx="9.4" cy="14.6" r="1.2" fill="#6b4423"/><circle cx="12" cy="12" r="1.1" fill="#6b4423"/></svg>',
+ send:'<svg viewBox="0 0 24 24"><path d="M4.4 11.2L19 4.6c1-.45 2 .55 1.55 1.55L14 20.6c-.5 1.1-2.1 1-2.45-.15L10 14.6l-5.85-1c-1.15-.2-1.3-1.85.25-2.4z" fill="#a8d0e8" stroke="#3f7ea3" stroke-width="1.5" stroke-linejoin="round"/><path d="M10 14.6l9.4-8.8" stroke="#3f7ea3" stroke-width="1.4" stroke-linecap="round"/></svg>',
+ box:'<svg viewBox="0 0 24 24"><path d="M4 8.5L12 4l8 4.5v7L12 20l-8-4.5z" fill="#e0aa60" stroke="#8b5e34" stroke-width="1.8" stroke-linejoin="round"/><path d="M4 8.5l8 4.5 8-4.5M12 13v7" fill="none" stroke="#8b5e34" stroke-width="1.7"/><path d="M8 6.3l8 4.5" fill="none" stroke="#a8764a" stroke-width="1.5"/></svg>',
+ gift:'<svg viewBox="0 0 24 24"><rect x="4" y="9.4" width="16" height="10.6" rx="2.4" fill="#f2a4b8" stroke="#c05a72" stroke-width="1.7"/><path d="M4 9.4h16v3.4H4z" fill="#f7c0cf" stroke="#c05a72" stroke-width="1.4"/><path d="M12 9.4V20" stroke="#c05a72" stroke-width="1.8"/><path d="M12 9C10.6 5.8 6.8 6.2 6.8 8.4c0 1 .8 1.6 2 1.6H12zm0 0c1.4-3.2 5.2-2.8 5.2-.6 0 1-.8 1.6-2 1.6H12z" fill="#ffd875" stroke="#c8901f" stroke-width="1.4"/></svg>',
+ x:'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="#8b5e34" stroke-width="2.6" stroke-linecap="round"/></svg>',
+ user:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8.6" r="4" fill="#f2c9a0" stroke="#8a5a34" stroke-width="1.8"/><path d="M4.8 20c1-4 4-5.6 7.2-5.6s6.2 1.6 7.2 5.6" fill="#a8d68c" stroke="#4e8438" stroke-width="1.8" stroke-linecap="round"/></svg>',
+ check:'<svg viewBox="0 0 24 24"><path d="M4.5 12.5l5 5L19.5 7" fill="none" stroke="#fffdf4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+};
+let S={open:false, pending:null, unread:[]};
+function snd(k){ try{ if(window.CSnd){ if(k==='pop')window.CSnd.pop(); else window.CSnd.click(); } }catch(e){} }
+function sparkleSnd(){
+  try{ const c=window.CSnd&&window.CSnd.ctx; if(!c) return;
+    [1568,1976,2349].forEach((f,i)=>{ const t=c.currentTime+i*.06;
+      const o=c.createOscillator(),g=c.createGain();
+      o.frequency.value=f; g.gain.setValueAtTime(0,t);
+      g.gain.linearRampToValueAtTime(.12,t+.01); g.gain.exponentialRampToValueAtTime(.0001,t+.4);
+      o.connect(g); g.connect(window.CSnd.sfxG); o.start(t); o.stop(t+.45); });
+  }catch(e){}
+}
+const uName=()=> (window.Telegram?.WebApp?.initDataUnsafe?.user?.username)
+  || (window.userData?.username) || '';
+const dName=()=> ((window.userData?.nickname||window.userData?.nama))
+  || (window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name) || 'Seseorang';
+const thumb=svg=>'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+const fmtDate=d=>new Date(d).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+function petalsHtml(n){ let h='';
+  for(let i=0;i<n;i++) h+=`<i class="cf-petal" style="left:${5+Math.random()*90}%;animation-delay:${(Math.random()*3).toFixed(2)}s;animation-duration:${(3+Math.random()*2.4).toFixed(2)}s;background:${['#e0aa60','#ffd9a8','#f4b183'][i%3]}"></i>`;
+  return `<div class="cf-petals">${h}</div>`; }
+
+/* ---------- CREATOR ---------- */
+function open(){
+  if(S.open) return; S.open=true; snd();
+  let el=document.getElementById('cc-creator');
+  if(!el){
+    el=document.createElement('div'); el.id='cc-creator'; el.className='cf-creator-shell';
+    el.innerHTML=`
+      <div class="cf-head">
+        <button class="cf-hbtn" id="cc-back">${IC.back}</button>
+        <div class="cf-htitle"><span class="cf-hflower">${IC.cookie}</span><b>Custom Cookie</b></div>
+        <div class="cf-hkoin">${IC.coin}<span id="cc-koin">0</span></div>
+      </div>
+      <iframe id="cc-frame"></iframe>`;
+    document.body.appendChild(el);
+    document.getElementById('cc-frame').srcdoc=COOKIE_SRC;
+    document.getElementById('cc-back').onclick=()=>{snd();close();};
+    window.addEventListener('message',onMsg);
+  }
+  document.getElementById('cc-koin').textContent=(window.userData?.koin||0).toLocaleString();
+  el.classList.remove('cf-hide'); requestAnimationFrame(()=>el.classList.add('cf-on'));
+}
+function close(){
+  const el=document.getElementById('cc-creator'); if(!el) return;
+  el.classList.remove('cf-on');
+  setTimeout(()=>{el.classList.add('cf-hide');},380);
+  S.open=false;
+}
+function requestExport(){
+  const fr=document.getElementById('cc-frame');
+  try{ fr.contentWindow.postMessage({type:'ccExport'},'*'); }catch(e){}
+}
+function onMsg(e){
+  const d=e.data||{};
+  if(d.type==='ccSaveClicked'){ requestExport(); return; }
+  if(d.type!=='ccExportResult') return;
+  if(d.error||!d.count){ toastX(d.error?'Gagal membaca cookie':'Hias dulu cookie-nya ya 🍪'); return; }
+  S.pending={svgFull:d.svgFull, svgCookie:d.svgCookie, state:d.state, count:d.count};
+  openActionSheet();
+}
+function toastX(m){
+  try{ if(typeof window.showToast==='function'){ window.showToast(m); return; } }catch(e){}
+  try{
+    let t=document.getElementById('cc-toast');
+    if(!t){ t=document.createElement('div'); t.id='cc-toast'; t.className='cf-toast'; document.body.appendChild(t); }
+    t.textContent=m;
+    t.className='cf-toast cf-toast-show';
+    clearTimeout(window.__ccToastT);
+    window.__ccToastT=setTimeout(()=>{ t.className='cf-toast'; },2400);
+  }catch(e){ try{console.log(m);}catch(_){} }
+}
+
+/* ---------- ACTION SHEET ---------- */
+function sheet(id,inner){
+  let ov=document.getElementById(id);
+  if(ov) ov.remove();
+  ov=document.createElement('div'); ov.id=id; ov.className='cf-ov';
+  ov.innerHTML=`<div class="cf-sheet">${inner}</div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener('click',e=>{ if(e.target===ov){snd();ov.remove();} });
+  requestAnimationFrame(()=>ov.classList.add('on'));
+  return ov;
+}
+function openActionSheet(){
+  const p=S.pending; snd('pop');
+  const ov=sheet('cc-act',`
+    <div class="cf-grab"></div>
+    <div class="cf-prev"><img src="${thumb(p.svgFull)}" alt=""></div>
+    <div class="cf-ptitle">Custom Cookie · ${p.count} topping</div>
+    <div class="cf-price">${IC.coin} Biaya membuat: <b>${PRICE} koin</b></div>
+    <button class="cf-big cf-green" id="cc-actSave">${IC.box}<span><b>🍪 Simpan ke Inventory</b><small>masuk ke koleksi Custom Cookies kamu</small></span></button>
+    <button class="cf-big cf-blue" id="cc-actSend">${IC.send}<span><b>🎁 Kirim ke Player</b><small>hadiahkan cookie ke teman</small></span></button>
+    <button class="cf-btn ghost" id="cc-actCancel" style="width:100%;margin-top:4px">Batal</button>`);
+  ov.querySelector('#cc-actSave').onclick=async()=>{snd();await doSave(ov);};
+  ov.querySelector('#cc-actSend').onclick=()=>{snd();ov.remove();openSendDialog();};
+  ov.querySelector('#cc-actCancel').onclick=()=>{snd();ov.remove();};
+}
+async function charge(){
+  const koin=(window.userData?.koin)||0;
+  if(koin<PRICE){ toastX(`Koin tidak cukup — butuh ${PRICE} 🪙`); return false; }
+  try{ await window.saveUser({koin: koin-PRICE}, 'custom_cookie');
+       try{window.updateKoinBadge(window.userData.koin);}catch(e){}
+       const k=document.getElementById('cc-koin'); if(k)k.textContent=(window.userData.koin||0).toLocaleString();
+       return true;
+  }catch(e){ toastX('Gagal memproses koin, coba lagi ya'); return false; }
+}
+async function doSave(ov){
+  const p=S.pending; if(!p) return;
+  const btn=ov.querySelector('#cc-actSave'); btn.disabled=true;
+  if(!await charge()){ btn.disabled=false; return; }
+  try{
+    const {error} = await window.db.from('custom_cookies').insert({
+      creator_id: window.USER_ID, creator_name: dName(), creator_username: uName()||null,
+      owner_id: window.USER_ID,
+      sender_id: null, receiver_id: null,
+      recipient_id: null, recipient_name: null,
+      item_count: p.count,
+      design_json: p.state, svg: p.svgCookie, thumbnail: p.svgFull,
+      note: null, seen: true,
+    });
+    if(error) throw error;
+    ov.remove(); sparkleSnd();
+    toastX('🍪 Tersimpan di Custom Cookies!');
+    close();
+  }catch(e){
+    console.error('CCOOKIE doSave insert error:', e);
+    toastX('Gagal menyimpan: ' + (e?.message || e?.code || 'error tidak dikenal') + ' — koin dikembalikan');
+    try{ await window.saveUser({koin:(window.userData.koin||0)+PRICE},'custom_cookie_refund'); }catch(_){}
+    btn.disabled=false;
+  }
+}
+
+/* ---------- SEND DIALOG ---------- */
+function openSendDialog(){
+  const p=S.pending;
+  const ov=sheet('cc-send',`
+    <div class="cf-grab"></div>
+    <div class="cf-stitle">${IC.send} Kirim Cookie</div>
+    <div class="cf-prev sm"><img src="${thumb(p.svgFull)}" alt=""></div>
+    <label class="cf-lbl">Username Penerima</label>
+    <input class="cf-in" id="cc-touser" placeholder="@carter" autocomplete="off">
+    <label class="cf-lbl">atau User ID</label>
+    <input class="cf-in" id="cc-toid" inputmode="numeric" placeholder="512345678" autocomplete="off">
+    <label class="cf-lbl">Pesan (opsional)</label>
+    <input class="cf-in" id="cc-msg" maxlength="150" placeholder="Hope you like this cookie ❤️">
+    <div class="cf-price">${IC.coin} Biaya: <b>${PRICE} koin</b></div>
+    <div class="cf-row">
+      <button class="cf-btn ghost" id="cc-cancel">Batal</button>
+      <button class="cf-btn solid" id="cc-go">${IC.send.replace(/#a8d0e8|#3f7ea3/g,'#fffdf4')} Send Cookie</button>
+    </div>
+    <div class="cf-err" id="cc-err"></div>`);
+  ov.querySelector('#cc-cancel').onclick=()=>{snd();ov.remove();openActionSheet();};
+  ov.querySelector('#cc-go').onclick=()=>doSend(ov);
+}
+async function resolveUser(q){
+  q=(q||'').trim().replace(/^@/,'');
+  if(!q) return null;
+  let r;
+  if(/^\d{5,}$/.test(q))
+    r=await window.db.from('users').select('user_id,nama,nickname,username').eq('user_id',Number(q)).maybeSingle();
+  else
+    r=await window.db.from('users').select('user_id,nama,nickname,username').ilike('username',q).maybeSingle();
+  return r&&r.data?r.data:null;
+}
+async function doSend(ov){
+  const p=S.pending;
+  const err=ov.querySelector('#cc-err'); err.textContent='';
+  const go=ov.querySelector('#cc-go'); go.disabled=true;
+  const uVal=(ov.querySelector('#cc-touser').value||'').trim();
+  const idVal=(ov.querySelector('#cc-toid').value||'').trim();
+  const q = idVal || uVal;
+  if(!q){ err.textContent='Isi username atau User ID penerima'; go.disabled=false; return; }
+  const target=await resolveUser(q);
+  if(!target){ err.textContent='User tidak ditemukan — cek @username / ID-nya'; go.disabled=false; return; }
+  if(String(target.user_id)===String(window.USER_ID)){ err.textContent='Itu kamu sendiri lho 😅'; go.disabled=false; return; }
+  const msg=(ov.querySelector('#cc-msg').value||'').trim().slice(0,150)||null;
+  if(!await charge()){ go.disabled=false; return; }
+  try{
+    const {error} = await window.db.from('custom_cookies').insert({
+      creator_id: window.USER_ID, creator_name: dName(), creator_username: uName()||null,
+      owner_id: target.user_id,
+      sender_id: window.USER_ID, receiver_id: target.user_id,
+      recipient_id: target.user_id,
+      recipient_name: target.nickname||target.nama||('@'+(target.username||target.user_id)),
+      item_count: p.count,
+      design_json: p.state, svg: p.svgCookie, thumbnail: p.svgFull,
+      note: msg, seen: false, received_at: new Date().toISOString(),
+    });
+    if(error) throw error;
+    try{ window.sendTgNotif(target.user_id, `🍪 Ada yang kirim cookie nih buat kamu, dari ${dName()}${uName()?' (@'+uName()+')':''}!\nBuka Mini App yuk buat lihat 🍪`); }catch(e){}
+    ov.remove(); sparkleSnd();
+    toastX(`🍪 Cookie terkirim ke ${target.nickname||target.nama||'@'+target.username}!`);
+    close();
+  }catch(e){
+    console.error('CCOOKIE doSend insert error:', e);
+    toastX('Gagal mengirim: ' + (e?.message || e?.code || 'error tidak dikenal') + ' — koin dikembalikan');
+    try{ await window.saveUser({koin:(window.userData.koin||0)+PRICE},'custom_cookie_refund'); }catch(_){}
+    go.disabled=false;
+  }
+}
+
+/* ---------- UNREAD POPUP ---------- */
+async function checkUnread(){
+  try{
+    const {data,error}=await window.db.from('custom_cookies')
+      .select('id,creator_name,creator_username,svg,thumbnail,note,created_at,recipient_name')
+      .eq('receiver_id',window.USER_ID).eq('seen',false)
+      .order('created_at',{ascending:false});
+    if(error){ console.error('CCOOKIE checkUnread error:', error.message || error.code || error); return; }
+    if(!data||!data.length) return;
+    S.unread=data;
+    showPopup(data);
+  }catch(e){
+    console.error('CCOOKIE checkUnread exception:', e?.message || e);
+  }
+}
+function showPopup(list){
+  const f=list[0];
+  const from=f.creator_username?('@'+f.creator_username):f.creator_name;
+  let ov=document.createElement('div'); ov.className='cf-pop-ov'; ov.id='cc-pop';
+  ov.innerHTML=`${petalsHtml(10)}
+    <div class="cf-pop">
+      <div class="cf-pop-ic">${IC.cookie}</div>
+      <b>You received a Custom Cookie!</b>
+      <p>Dari: <b>${from}</b>${list.length>1?`<br><small>dan ${list.length-1} cookie lainnya</small>`:''}</p>
+      <button class="cf-btn solid" id="cc-popSee">View</button>
+      <button class="cf-btn ghost" id="cc-popX">Close</button>
+    </div>`;
+  document.body.appendChild(ov);
+  requestAnimationFrame(()=>ov.classList.add('on'));
+  sparkleSnd();
+  ov.querySelector('#cc-popX').onclick=async()=>{snd();ov.remove();await markSeen(list.map(x=>x.id));};
+  ov.querySelector('#cc-popSee').onclick=async()=>{
+    snd('pop'); ov.remove(); await markSeen(list.map(x=>x.id));
+    if(list.length===1) openCard(list[0],'received'); else openGift('received');
+  };
+}
+async function markSeen(ids){
+  try{ await window.db.from('custom_cookies').update({seen:true}).in('id',ids); }catch(e){}
+}
+
+/* ---------- COOKIE VIEWER ---------- */
+function openCard(f,kind){
+  snd('pop');
+  const from=f.creator_username?('@'+f.creator_username):(f.creator_name||'—');
+  const img=f.svg||f.thumbnail;
+  let ov=document.createElement('div'); ov.className='cf-card-ov';
+  ov.innerHTML=`${petalsHtml(12)}
+    <div class="cf-card">
+      <button class="cf-cx">${IC.x}</button>
+      <div class="cf-cimg"><img src="${thumb(img)}" alt=""></div>
+      <div class="cf-cname">Custom Cookie</div>
+      <div class="cf-cmeta">
+        <span>${IC.user} Dari <b>${from}</b></span>
+        <span>🗓 ${fmtDate(f.received_at||f.created_at)}</span>
+      </div>
+      ${f.note?`<div class="cf-cmsg">"${f.note}"</div>`:''}
+    </div>`;
+  document.body.appendChild(ov);
+  requestAnimationFrame(()=>ov.classList.add('on'));
+  const kill=()=>{snd();ov.classList.remove('on');setTimeout(()=>ov.remove(),320);};
+  ov.querySelector('.cf-cx').onclick=kill;
+  ov.addEventListener('click',e=>{ if(e.target===ov)kill(); });
+}
+
+/* ---------- COOKIE GIFT PAGE ---------- */
+async function openGift(tab){
+  snd();
+  let ov=document.getElementById('cc-gift');
+  if(ov) ov.remove();
+  ov=document.createElement('div'); ov.id='cc-gift'; ov.className='cf-gift-shell';
+  ov.innerHTML=`
+    <div class="cf-head">
+      <button class="cf-hbtn" id="cc-gback">${IC.back}</button>
+      <div class="cf-htitle"><span class="cf-hflower">${IC.cookie}</span><b>Custom Cookies</b></div>
+      <div style="width:42px"></div>
+    </div>
+    <div class="cf-tabs">
+      <button class="cf-tab" data-t="received">Received</button>
+      <button class="cf-tab" data-t="created">Created</button>
+    </div>
+    <div class="cf-list" id="cc-glist"><div class="cf-loading">Memuat...</div></div>`;
+  document.body.appendChild(ov);
+  requestAnimationFrame(()=>ov.classList.add('cf-on'));
+  ov.querySelector('#cc-gback').onclick=()=>{snd();ov.classList.remove('cf-on');setTimeout(()=>ov.remove(),350);};
+  const tabs=[...ov.querySelectorAll('.cf-tab')];
+  async function load(t){
+    tabs.forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+    const list=ov.querySelector('#cc-glist');
+    list.innerHTML='<div class="cf-loading">Memuat...</div>';
+    let q;
+    if(t==='received')
+      q=window.db.from('custom_cookies').select('*').eq('receiver_id',window.USER_ID).order('created_at',{ascending:false});
+    else
+      q=window.db.from('custom_cookies').select('*').eq('creator_id',window.USER_ID).order('created_at',{ascending:false});
+    const {data}=await q;
+    if(!data||!data.length){
+      list.innerHTML=`<div class="cf-empty">
+        <div class="cf-pop-ic">${IC.cookie}</div>
+        <b>${t==='received'?'Belum ada cookie masuk':'Belum ada karya'}</b>
+        <p>${t==='received'?'Cookie dari temanmu akan muncul di sini 🍪':'Buat cookie pertamamu di Special Store!'}</p>
+      </div>`;
+      return;
+    }
+    list.innerHTML=data.map((f,i)=>`
+      <button class="cf-gcard" data-i="${i}" style="animation-delay:${i*0.05}s">
+        <div class="cf-gthumb"><img loading="lazy" src="${thumb(f.thumbnail||f.svg)}" alt=""></div>
+        <b>Cookie</b>
+        <small>${t==='received'
+          ? 'dari '+(f.creator_username?'@'+f.creator_username:f.creator_name||'—')
+          : (f.receiver_id?'→ '+(f.recipient_name||'terkirim'):'tersimpan')}</small>
+        <em>${fmtDate(f.received_at||f.created_at)}</em>
+      </button>`).join('');
+    list.querySelectorAll('.cf-gcard').forEach(b=>{
+      b.onclick=()=>openCard(data[Number(b.dataset.i)],t);
+    });
+  }
+  tabs.forEach(b=>b.onclick=()=>{snd();load(b.dataset.t);});
+  load(tab||'received');
+}
+
+/* init: cek cookie belum dibaca setelah app siap — tunggu popup CFLOW (kalau ada) ketutup dulu biar ga numpuk */
+(function wait(n){
+  if(window.db&&window.USER_ID){
+    setTimeout(function waitFlowerPopup(){
+      if(document.getElementById('cf-pop')){ setTimeout(waitFlowerPopup,400); return; }
+      checkUnread();
+    },2000);
+    return;
+  }
+  if(n<60) setTimeout(()=>wait(n+1),500);
+})(0);
+
+async function renderInvSection(el){
+  if(!el) el=document.getElementById('inv-content');
+  if(!el||!window.db||!window.USER_ID) return;
+  let host=el.querySelector('#cc-inv-sec');
+  if(host) host.remove();
+  host=document.createElement('div'); host.id='cc-inv-sec';
+  host.innerHTML='<div class="section-label">🍪 Custom Cookies</div><div class="inv-grid" id="cc-inv-grid"><div class="cf-loading">Memuat cookie...</div></div>';
+  el.appendChild(host);
+  let data=[];
+  try{
+    const r=await window.db.from('custom_cookies').select('*')
+      .or(`creator_id.eq.${window.USER_ID},receiver_id.eq.${window.USER_ID}`)
+      .order('created_at',{ascending:false});
+    if(r.error) throw r.error;
+    data=r.data||[];
+  }catch(e){
+    console.error('CCOOKIE renderInvSection .or() query failed, trying fallback:', e);
+    try{
+      const a=await window.db.from('custom_cookies').select('*').eq('creator_id',window.USER_ID).order('created_at',{ascending:false});
+      if(a.error) throw a.error;
+      const b=await window.db.from('custom_cookies').select('*').eq('receiver_id',window.USER_ID).order('created_at',{ascending:false});
+      if(b.error) throw b.error;
+      const seen={}; data=[...(a.data||[]),...(b.data||[])].filter(x=>!seen[x.id]&&(seen[x.id]=1));
+      data.sort((x,y)=>new Date(y.created_at)-new Date(x.created_at));
+    }catch(e2){
+      console.error('CCOOKIE renderInvSection fallback query ALSO failed:', e2);
+      data=[];
+      host.querySelector('#cc-inv-grid').outerHTML =
+        `<div class="cf-inv-empty" id="cc-inv-grid" style="border-color:#e0908a;background:linear-gradient(170deg,#fff0ee,#fde0dc)">
+          <span class="cf-inv-emptyic">${IC.cookie}</span>
+          <p style="color:#a94438">Gagal memuat Custom Cookies: ${(e2?.message||e2?.code||'error tidak dikenal')}</p>
+        </div>`;
+      return;
+    }
+  }
+  const grid=host.querySelector('#cc-inv-grid');
+  if(!data.length){
+    grid.outerHTML=`<div class="cf-inv-empty" id="cc-inv-grid">
+      <span class="cf-inv-emptyic">${IC.cookie}</span>
+      <p>Belum ada cookie. Buat di Special Store atau tunggu kiriman teman 🍪</p>
+    </div>`;
+    return;
+  }
+  grid.className='inv-grid';
+  grid.innerHTML=data.map((f,i)=>{
+    const mine=String(f.creator_id)===String(window.USER_ID);
+    const sub = f.receiver_id && mine ? '→ '+(f.recipient_name||'terkirim')
+              : (!mine ? 'dari '+(f.creator_username?'@'+f.creator_username:f.creator_name||'—') : 'tersimpan');
+    return `<div class="inv-item cf-invcard" style="animation-delay:${i*0.04}s">
+      <div class="cf-invthumb"><img loading="lazy" src="${thumb(f.thumbnail||f.svg)}" alt=""></div>
+      <div class="inv-item-name">Cookie</div>
+      <div class="inv-item-count">${sub}</div>
+      <div style="display:flex;gap:4px;margin-top:4px">
+        <button class="btn btn-peach cc-viewbtn" data-i="${i}" style="flex:1;padding:4px 6px;font-size:0.68rem">🍪 View</button>
+        <button class="btn btn-soft cc-delbtn" data-i="${i}" style="flex:0 0 auto;padding:4px 8px;font-size:0.68rem">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+  grid.querySelectorAll('.cc-viewbtn').forEach(b=>{
+    b.onclick=()=>openCard(data[Number(b.dataset.i)], String(data[Number(b.dataset.i)].creator_id)===String(window.USER_ID)?'created':'received');
+  });
+  grid.querySelectorAll('.cc-delbtn').forEach(b=>{
+    b.onclick=async()=>{
+      const f=data[Number(b.dataset.i)];
+      if(!confirm('Hapus cookie ini dari inventory?')) return;
+      try{
+        await window.db.from('custom_cookies').delete().eq('id',f.id);
+        snd(); toastX('🍪 Cookie dihapus');
+        renderInvSection(el);
+      }catch(e){ toastX('Gagal menghapus cookie'); }
+    };
   });
 }
 
