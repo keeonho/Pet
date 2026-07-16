@@ -3032,6 +3032,13 @@ body:has(.screen.active .room-fullscreen.inside-home) .header{display:none!impor
   transition:opacity .3s, transform .3s;max-width:86%;text-align:center}
 #bb-toast.cf-toast-show{opacity:1;transform:translateX(-50%) translateY(0)}
 
+/* ---------- Custom Cookie/Bento inventory card action row ---------- */
+.cf-invcard-actrow{display:flex;align-items:stretch;gap:6px;margin-top:4px}
+.cf-invcard-actrow .cf-viewbtn-w{flex:1;min-width:0;padding:6px 4px;font-size:0.68rem}
+.cf-icon-del{flex:0 0 auto;width:38px;height:38px;padding:0!important;
+  display:flex;align-items:center;justify-content:center}
+.cf-icon-del svg{width:17px;height:17px;display:block}
+
 /* ==================== CHAT v2 ==================== */
 #chat.screen,#screen-chat{position:relative}
 #chat-content .chat-wrap{height:calc(100dvh - 118px)}
@@ -16306,9 +16313,9 @@ async function renderInvSection(el){
       <div class="cf-invthumb"><img loading="lazy" src="${thumb(f.thumbnail||f.svg)}" alt=""></div>
       <div class="inv-item-name">Cookie</div>
       <div class="inv-item-count">${sub}</div>
-      <div style="display:flex;gap:4px;margin-top:4px">
-        <button class="btn btn-peach cc-viewbtn" data-i="${i}" style="flex:1;padding:4px 6px;font-size:0.68rem">🍪 View</button>
-        <button class="btn btn-soft cc-delbtn" data-i="${i}" style="flex:0 0 auto;padding:4px 8px;font-size:0.68rem">🗑</button>
+      <div class="cf-invcard-actrow">
+        <button class="btn btn-peach cf-viewbtn-w cc-viewbtn" data-i="${i}">🍪 View</button>
+        <button class="btn btn-soft cf-icon-del cc-delbtn" data-i="${i}" aria-label="Hapus"><svg viewBox="0 0 24 24"><path d="M5.5 7h13" stroke="#c05a72" stroke-width="2" stroke-linecap="round"/><path d="M9 7V5.4A1.4 1.4 0 0 1 10.4 4h3.2A1.4 1.4 0 0 1 15 5.4V7" fill="none" stroke="#c05a72" stroke-width="1.8"/><path d="M7 7l.9 11.4A2 2 0 0 0 9.9 20.2h4.2a2 2 0 0 0 2-1.8L17 7z" fill="#fdeef2" stroke="#c05a72" stroke-width="1.8" stroke-linejoin="round"/><path d="M10.3 10.6v6M13.7 10.6v6" stroke="#c05a72" stroke-width="1.7" stroke-linecap="round"/></svg></button>
       </div>
     </div>`;
   }).join('');
@@ -16727,9 +16734,9 @@ async function renderInvSection(el){
       <div class="cf-invthumb"><img loading="lazy" src="${thumb(f.thumbnail||f.svg)}" alt=""></div>
       <div class="inv-item-name">Bento</div>
       <div class="inv-item-count">${sub}</div>
-      <div style="display:flex;gap:4px;margin-top:4px">
-        <button class="btn btn-peach bb-viewbtn" data-i="${i}" style="flex:1;padding:4px 6px;font-size:0.68rem">🍱 View</button>
-        <button class="btn btn-soft bb-delbtn" data-i="${i}" style="flex:0 0 auto;padding:4px 8px;font-size:0.68rem">🗑</button>
+      <div class="cf-invcard-actrow">
+        <button class="btn btn-peach cf-viewbtn-w bb-viewbtn" data-i="${i}">🍱 View</button>
+        <button class="btn btn-soft cf-icon-del bb-delbtn" data-i="${i}" aria-label="Hapus"><svg viewBox="0 0 24 24"><path d="M5.5 7h13" stroke="#c05a72" stroke-width="2" stroke-linecap="round"/><path d="M9 7V5.4A1.4 1.4 0 0 1 10.4 4h3.2A1.4 1.4 0 0 1 15 5.4V7" fill="none" stroke="#c05a72" stroke-width="1.8"/><path d="M7 7l.9 11.4A2 2 0 0 0 9.9 20.2h4.2a2 2 0 0 0 2-1.8L17 7z" fill="#fdeef2" stroke="#c05a72" stroke-width="1.8" stroke-linejoin="round"/><path d="M10.3 10.6v6M13.7 10.6v6" stroke="#c05a72" stroke-width="1.7" stroke-linecap="round"/></svg></button>
       </div>
     </div>`;
   }).join('');
