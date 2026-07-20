@@ -17542,7 +17542,8 @@ async function doAccept(link, row, ov){
       return;
     }
     // update baris gift asli: set kolom kepemilikan sesuai skema tabel masing-masing
-    const patch={ seen:false, received_at:new Date().toISOString() };
+    const patch={ seen:false };
+    if('received_at' in row) patch.received_at=new Date().toISOString();
     if('owner_id' in row) patch.owner_id=window.USER_ID;
     if('receiver_id' in row) patch.receiver_id=window.USER_ID;
     patch.recipient_id=window.USER_ID;
@@ -17550,7 +17551,12 @@ async function doAccept(link, row, ov){
     if('sender_id' in row && !row.sender_id) patch.sender_id=link.sender_id;
     if(link.note && 'note' in row && !row.note) patch.note=link.note;
     if('message' in row && !row.message) patch.message=link.note;
-    await window.db.from(link.gift_table).update(patch).eq('id',row.id);
+    const applyRes = await window.db.from(link.gift_table).update(patch).eq('id',row.id);
+    if(applyRes && applyRes.error){
+      console.error('CGIFTLINK doAccept: gagal update baris gift setelah klaim link:', applyRes.error);
+      toastX('Link berhasil diklaim tapi gagal menyimpan ke inventory — hubungi admin dengan link ini');
+      return;
+    }
     try{
       const emoji=GIFT_EMOJI[link.gift_type]||'🎁';
       const label=GIFT_LABELS[link.gift_type]||'gift';
